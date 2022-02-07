@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<title>Google Drive Me Crazy</title>
+  </head>
+  <body>
+  	<a id="login_link" href='/authenticate/google'>Log in</a>
+    <a id="app_link" hidden href='/app'>Go to App</a>
+    <script>
+      if (localStorage.hasOwnProperty('refresh_token'))
+      {
+        document.getElementById('login_link').hidden=true;
+        document.getElementById('app_link').hidden=false;
+      }
+    </script>
+  </body>
+</html>
