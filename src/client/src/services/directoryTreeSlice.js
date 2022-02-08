@@ -67,11 +67,12 @@ function buildDirectoryStructure(folders, files) {
   });
 
   function calculateSizeRecursively(file) {
-    if (file.mimeType === "application/vnd.google-apps.folder" && file.childrenIDs) {
+    if (file.mimeType === "application/vnd.google-apps.folder") {
       file.size = 0;
-      file.childrenIDs.forEach(id => {
-        file.size += calculateSizeRecursively(directoryTree[id]);
-      })
+      if (file.childrenIDs)
+        file.childrenIDs.forEach(id => {
+          file.size += calculateSizeRecursively(directoryTree[id]);
+        })
     }
     if (isNaN(parseInt(file.size)))
       return 0;
