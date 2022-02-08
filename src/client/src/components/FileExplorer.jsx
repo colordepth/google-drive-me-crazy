@@ -7,7 +7,8 @@ import FileElementList from './FileElementList';
 import ParentDirectoryButton from './ParentDirectoryButton';
 
 import { getFileByID, getAllFilesInFolder } from '../services/files'
-import { calculatePathFromFile, selectBreadcrumbItems } from '../services/pathSlice.js';
+import { calculatePathFromFile, calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
+import { fetchAllFolders } from '../services/directoryTreeSlice';
 
 const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension", "quotaBytesUsed", "webViewLink", "parents"];
 
@@ -32,18 +33,16 @@ const FileExplorer = () => {
 
   function refreshFileExplorer() {
     setFilesList(null);
-    getFileByID(params.fileId, ['*'])
-      .then(folder => dispatch(calculatePathFromFile(folder)))
-      .catch(error => {
-        console.error("updatePath", error.message, error.response ? error.response.data.error.message : null);
-      });
     getAllFilesInFolder(params.fileId, requestedFields)
       .then(files => setFilesList(files))
       .catch(error => {
         console.error("updateFileList", error.message, error.response ? error.response.data.error.message : null);
       });
+    try { dispatch(calculatePathFromFileID(params.fileId)); }
+    catch (error) { console.error("calculatePathFromFileID", error.message);}
   }
   useEffect(refreshFileExplorer, [params, dispatch]);
+  useEffect(() => dispatch(fetchAllFolders()), []);
 
   return (
     <>

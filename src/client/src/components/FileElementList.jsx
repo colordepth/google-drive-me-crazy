@@ -21,7 +21,7 @@ const FileElementList = ({files, setFilesList}) => {
     {
       setFilesList(null);
       dispatch(addToPath(file));
-      navigate('/app/' + file.id);
+      navigate('/' + file.id);
     }
     else
     {

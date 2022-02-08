@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { H1, InputGroup } from "@blueprintjs/core";
+import { H1, InputGroup, Button } from "@blueprintjs/core";
 
 import FileExplorer from './components/FileExplorer';
 import { setTokenRefreshTimeout } from './services/auth';
@@ -12,7 +12,12 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <H1>Google Drive Me Crazy</H1>
+        <nav>
+          <H1>Google Drive Me Crazy</H1>
+          <div style={{margin: "0 1rem"}}>
+            <Button icon="log-in" intent="primary" outlined size="large" text="Log Out" large/>
+          </div>
+        </nav>
       </header>
       <InputGroup
           leftIcon="search"

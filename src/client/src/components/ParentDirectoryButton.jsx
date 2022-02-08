@@ -12,7 +12,7 @@ const ParentDirectoryButton = () => {
   const currentFolder = path.slice(-1)[0];
 
   function switchToParentFolder() {
-    navigate(`/app/${currentFolder.parents[0]}`);
+    navigate('/' + currentFolder.parents[0]);
     dispatch(popFromPath());
   }
 
