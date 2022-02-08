@@ -10,10 +10,11 @@ const unknownEndpoint = require('./unknownendpoint');
 
 
 app.use(express.static(path.join(__dirname, "../../static")));
+app.use('/app', express.static(path.join(__dirname, "../../client-build/app")));
+app.use('/app/*', express.static(path.join(__dirname, "../../client-build/app")));
 app.use(process.env.OAUTH_REDIRECT, googleAuthRouter);
 app.use('/authenticate/google/refreshtoken', refreshTokenRouter);
 app.use('/authenticate/google/revoketoken', revokeTokenRouter);
-app.use('/app/*', (req, res) => res.sendFile(path.join(__dirname, "../../client-build/app/index.html")));
 app.use(unknownEndpoint);
 
 module.exports = app;
