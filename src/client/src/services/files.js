@@ -11,6 +11,7 @@ export function getAllFolders(requestedFields) {
   return new Promise(async (resolve, reject) => {
     const folders = await getAllFiles(requestedFields, "mimeType = 'application/vnd.google-apps.folder'");
     const rootFolder = await getFileByID('root', requestedFields);
+    rootFolder.isRoot = true;
     resolve([...folders, rootFolder]);
   });
 }
@@ -32,7 +33,7 @@ export function getFiles(requestedFields, pageToken=null, q) {
     headers: { Authorization: `Bearer ${credentials.access_token}`},
     params: {
       orderBy: "folder,name",
-      q,
+      q, // q: q ? "'drive' in spaces " + q : "'drive' in spaces",
       pageSize: 1000,
       fields: `nextPageToken, files(${requestedFields.join(',')})`,
       trashed: 'false',

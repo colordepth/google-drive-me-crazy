@@ -6,10 +6,9 @@ import { useParams } from 'react-router-dom';
 import FileElementList from './FileElementList';
 import ParentDirectoryButton from './ParentDirectoryButton';
 
-import { getFileByID, getAllFilesInFolder } from '../services/files'
-import { calculatePathFromFile, calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
-import { fetchAllFolders } from '../services/directoryTreeSlice';
-import { Tree } from '@blueprintjs/core';
+import { getAllFilesInFolder } from '../services/files'
+import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
+import { fetchDirectoryStructure } from '../services/directoryTreeSlice';
 
 const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
 "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
@@ -45,7 +44,7 @@ const FileExplorer = () => {
     catch (error) { console.error("calculatePathFromFileID", error.message);}
   }
   useEffect(refreshFileExplorer, [params, dispatch]);
-  useEffect(() => dispatch(fetchAllFolders()), []);
+  useEffect(() => dispatch(fetchDirectoryStructure()), [dispatch]);
 
   return (
     <div style={{margin: '2rem'}}>

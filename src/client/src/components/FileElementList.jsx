@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { UL, Spinner, Icon } from "@blueprintjs/core";
+import { UL, Spinner } from "@blueprintjs/core";
+import { useSelector } from 'react-redux';
 
 import FileElement from './FileElement';
 import { addToPath } from '../services/pathSlice';
+import { selectDirectoryTree } from '../services/directoryTreeSlice';
 
 const listStyle = {
   listStyle: 'none',
@@ -26,6 +28,7 @@ const elementStyle = {
 const FileElementList = ({files, setFilesList}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const directoryTree = useSelector(selectDirectoryTree);
 
   function fileClickHandler(file) {
     if (file.mimeType === "application/vnd.google-apps.folder")
@@ -52,7 +55,7 @@ const FileElementList = ({files, setFilesList}) => {
       </li>
       {files.map(file => (
         <li style={listStyle} key={file.id} onClick={() => fileClickHandler(file)}>
-          <FileElement file={file}/>
+          <FileElement file={file} directoryTree={directoryTree}/>
         </li>
       ))}
     </UL>

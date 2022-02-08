@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getAllFolders } from './files.js';
+import { getAllFolders, getAllFiles } from './files.js';
 
 /*
  * Files and folders are different for optimization's sake
@@ -12,29 +12,91 @@ export const directoryTreeSlice = createSlice({
   name: 'directoryTree',
   initialState: {
     folders: [],
-    files: []
+    files: [],
+    directoryTree: {}
   },
   reducers: {
     setFoldersTo: (state, action) => {
       state.folders = action.payload;
+    },
+    setFilesTo: (state, action) => {
+      state.files = action.payload;
+    },
+    setDirectoryTreeTo: (state, action) => {
+      console.log("directory tree set", action.payload);
+      state.directoryTree = action.payload;
     }
   }
 });
 
-export const fetchAllFolders = (requestedFields=['id', 'name', 'parents']) => dispatch  => {
-  getAllFolders(requestedFields)
+export const fetchAllFolders = (requestedFields=['id', 'name', 'parents', 'mimeType', 'size']) => dispatch  => {
+  return getAllFolders(requestedFields)
     .then(folders => {
       dispatch(setFoldersTo(folders));
+      return folders;
     })
 }
 
+export const fetchAllFiles = (requestedFields=['id', 'name', 'parents', 'mimeType', 'size']) => dispatch  => {
+  return getAllFiles(requestedFields, "mimeType != 'application/vnd.google-apps.folder'")
+    .then(files => {
+      dispatch(setFilesTo(files));
+      return files;
+    })
+}
+
+function buildDirectoryStructure(folders, files) {
+  let allFiles = [...folders, ...files];
+  let directoryTree = {};
+
+  allFiles.forEach(file => {
+    directoryTree[file.id] = {...file};
+    if (file.isRoot)
+      directoryTree['root'] = directoryTree[file.id];     // Check if modifying file.id file also modifies root file
+  });
+
+  allFiles.forEach(file => {
+    if (file.parents) {
+      const parentID = file.parents[0];
+      if (!directoryTree[parentID])
+        return console.log("Missing ID. Probably Shared Folder", parentID);
+      if (!directoryTree[parentID].childrenIDs)
+        directoryTree[parentID].childrenIDs = [];
+      directoryTree[parentID].childrenIDs.push(file.id);
+    }
+  });
+
+  function calculateSizeRecursively(file) {
+    if (file.mimeType === "application/vnd.google-apps.folder" && file.childrenIDs) {
+      file.size = 0;
+      file.childrenIDs.forEach(id => {
+        file.size += calculateSizeRecursively(directoryTree[id]);
+      })
+    }
+    if (isNaN(parseInt(file.size)))
+      return 0;
+    return parseInt(file.size);
+  }
+
+  calculateSizeRecursively(directoryTree['root']);
+
+  return directoryTree;
+}
+
+export const fetchDirectoryStructure = (requestedFields=['id', 'name', 'parents', 'mimeType', 'size']) => dispatch => {
+  Promise.all([fetchAllFolders(requestedFields)(dispatch), fetchAllFiles(requestedFields)(dispatch)])
+    .then(([folders, files]) => {
+      dispatch(setDirectoryTreeTo(buildDirectoryStructure(folders, files)));
+    });
+}
+
 // Actions
-export const { setFoldersTo } = directoryTreeSlice.actions;
+export const { setFoldersTo, setFilesTo, setDirectoryTreeTo } = directoryTreeSlice.actions;
 
 // Selectors
 export const selectFolders = state => state.directoryTree.folders;
 export const selectFiles = state => state.directoryTree.files;
-export const selectTree = state => [...state.directoryTree.folders, ...state.directoryTree.files];
+export const selectDirectoryTree = state => state.directoryTree.directoryTree;
 
 // Reducer
 export default directoryTreeSlice.reducer;
