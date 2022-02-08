@@ -22,8 +22,8 @@ const App = () => {
           rightElement={null}
       />
       <Routes>
-        <Route path="/app/:fileId" element={<FileExplorer/>}/>
-        <Route path="*" element={<Navigate to="/app/root" />} />
+        <Route path="/:fileId" element={<FileExplorer/>}/>
+        <Route path="*" element={<Navigate to="/root" />} />
       </Routes>
     </div>
   );
