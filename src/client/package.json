@@ -4,13 +4,11 @@
   "private": true,
   "dependencies": {
     "@blueprintjs/core": "^3.52.0",
-    "@blueprintjs/popover2": "^0.12.9",
     "@reduxjs/toolkit": "^1.7.2",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.25.0",
-    "gapi-client": "^0.0.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.6",
@@ -19,7 +17,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "BROWSER=none react-scripts start",
     "build": "BUILD_PATH='../../static/app' react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

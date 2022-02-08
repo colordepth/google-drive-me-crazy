@@ -11,7 +11,7 @@ let credentials = {
 }
 
 // no use of getAuthInfo for now
-function getAuthInfo() {
+export function getAuthInfo() {
   return axios
     .get('https://oauth2.googleapis.com/tokeninfo', {
       params: {
@@ -41,6 +41,8 @@ export function refreshToken() {
     });
 }
 
+// TODO: Fix issue when token expires on FileList loading.
+// In case of network error, keep refreshing token? or ask user to refresh
 export function setTokenRefreshTimeout() {
   if (refreshTimeout)
     clearTimeout(refreshTimeout);

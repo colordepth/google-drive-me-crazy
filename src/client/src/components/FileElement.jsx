@@ -1,6 +1,4 @@
-import { Icon, IconSize } from "@blueprintjs/core";
-
-// TODO: Refactor following code
+import { Icon } from "@blueprintjs/core";
 
 const style = {marginRight: '0.75rem'};
 

@@ -1,24 +1,29 @@
-import { Button } from "@blueprintjs/core";
 import { useNavigate } from 'react-router-dom';
-import { popFromPath, selectPath } from '../services/pathSlice';
-import store from '../services/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button } from "@blueprintjs/core";
 
-function switchToParentFolder(navigate) {
-  store.dispatch(popFromPath());
-  navigate(`/app/${selectPath(store.getState()).slice(-1)[0].id}`);
-}
+import { popFromPath, selectPath } from '../services/pathSlice';
+import './ParentDirectoryButton.css';
 
 const ParentDirectoryButton = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const currentFolder = selectPath(store.getState()).slice(-1)[0];
+  const path = useSelector(selectPath);
+  const currentFolder = path.slice(-1)[0];
+
+  function switchToParentFolder() {
+    navigate(`/app/${currentFolder.parents[0]}`);
+    dispatch(popFromPath());
+  }
 
   return (
     <Button
       icon='arrow-up'
       intent="primary"
       text="Parent Directory"
+      className="ParentDirectoryButton"
       disabled={!(currentFolder && currentFolder.parents)}
-      onClick={() => switchToParentFolder(navigate)}/>
+      onClick={switchToParentFolder}/>
   );
 }
 
