@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "BROWSER=none react-scripts start",
-    "build": "BUILD_PATH='../../static/app' react-scripts build",
+    "build": "BUILD_PATH='../../client-build/app' react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

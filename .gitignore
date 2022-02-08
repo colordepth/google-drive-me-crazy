@@ -7,7 +7,7 @@ node_modules
 /src/client/coverage
 
 # production
-/static/app
+/client-build
 
 # misc
 .DS_Store
