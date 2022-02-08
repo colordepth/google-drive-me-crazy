@@ -10,6 +10,7 @@ Node version 16.
 2. `npm run dev`
 
 ## Deployment instructions
-1. `npm run setup`
-2. `npm run build`
-3. `npm start`
+1. Linux: `export NODE_ENV=production`  |  Windows: `set NODE_ENV=production`
+2. `npm run setup`
+3. `npm run build`
+4. `npm start`
