@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import reportWebVitals from './reportWebVitals';
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en.json'
 
 import store from './services/store';
 import App from './App';
@@ -16,6 +18,8 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root')
 );
+
+TimeAgo.addDefaultLocale(en);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

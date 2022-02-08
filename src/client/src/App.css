@@ -3,3 +3,7 @@ nav {
   justify-content: space-between;
   align-items: center;
 }
+
+.MainContent {
+  margin: 1rem 3rem;
+}

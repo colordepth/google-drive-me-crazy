@@ -9,8 +9,11 @@ import ParentDirectoryButton from './ParentDirectoryButton';
 import { getFileByID, getAllFilesInFolder } from '../services/files'
 import { calculatePathFromFile, calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
 import { fetchAllFolders } from '../services/directoryTreeSlice';
+import { Tree } from '@blueprintjs/core';
 
-const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension", "quotaBytesUsed", "webViewLink", "parents"];
+const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
+"quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
+"contentHints(thumbnail(mimeType))", "imageMediaMetadata", "parents", "modifiedTime", "viewedByMeTime"];
 
 const PathIndicator = () => {
   const breadcrumbItems = useSelector(selectBreadcrumbItems);
@@ -45,15 +48,13 @@ const FileExplorer = () => {
   useEffect(() => dispatch(fetchAllFolders()), []);
 
   return (
-    <>
+    <div style={{margin: '2rem'}}>
       <H4 style={{margin: '1rem 0'}}>{filesList === null ? "Processing" : `Number of Files in this folder: ${filesList.length}`}</H4>
-      <Card>
         <PathIndicator/>
         <Card style={{margin: "2rem"}}>
           <FileElementList files={filesList} setFilesList={setFilesList}/>
         </Card>
-      </Card>
-    </>
+    </div>
   );
 }
 

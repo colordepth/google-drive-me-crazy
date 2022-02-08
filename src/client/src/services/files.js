@@ -31,7 +31,7 @@ export function getFiles(requestedFields, pageToken=null, q) {
   return axios.get(baseUrlDriveAPI + '/files', {
     headers: { Authorization: `Bearer ${credentials.access_token}`},
     params: {
-      orderBy: "folder,quotaBytesUsed desc",
+      orderBy: "folder,name",
       q,
       pageSize: 1000,
       fields: `nextPageToken, files(${requestedFields.join(',')})`,
