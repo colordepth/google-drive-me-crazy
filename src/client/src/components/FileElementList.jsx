@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { UL, Spinner } from "@blueprintjs/core";
+import { UL, Spinner, Icon } from "@blueprintjs/core";
 import { useSelector } from 'react-redux';
 
 import FileElement from './FileElement';
@@ -31,6 +31,7 @@ const FileElementList = ({files, setFilesList}) => {
   const directoryTree = useSelector(selectDirectoryTree);
 
   function fileClickHandler(file) {
+    console.log(file);
     if (file.mimeType === "application/vnd.google-apps.folder")
     {
       setFilesList(null);
@@ -50,7 +51,22 @@ const FileElementList = ({files, setFilesList}) => {
     <UL>
       <li style={listStyle}>
         <div style={elementStyle}>
-          <span style={{gridColumn: '1 / span 2'}}>File Name</span><span>Last Viewed</span><span>Last Modified</span><span style={{margin: 'auto'}}>Size</span>
+          <span style={{gridColumn: '1 / span 2', display: 'flex', alignItems: 'center'}}>
+            <span style={{marginRight: '4px'}}>File Name</span>
+            <Icon icon='caret-down' color='#777' size={13}/>
+          </span>
+          <span style={{display: 'flex', alignItems: 'center'}}>
+            <span style={{marginRight: '5px'}}>Last Viewed</span>
+            <Icon icon='double-caret-vertical' color='#777' size={13}/>
+          </span>
+          <span style={{display: 'flex', alignItems: 'center'}}>
+            <span style={{marginRight: '5px'}}>Last Modifed</span>
+            <Icon icon='double-caret-vertical' color='#777' size={13}/>
+          </span>
+          <span style={{display: 'flex', alignItems: 'center', margin: 'auto'}}>
+            <span style={{marginRight: '5px'}}>Size</span>
+            <Icon icon='double-caret-vertical' color='#777' size={13}/>
+          </span>
         </div>
       </li>
       {files.map(file => (

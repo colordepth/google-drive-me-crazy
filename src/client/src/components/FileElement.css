@@ -1,0 +1,13 @@
+.FileElement {
+  display: grid;
+  grid-template-columns: 30px 1fr repeat(2, 8rem) 4.7rem;
+  padding: 0.6rem;
+  cursor: pointer;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  transition: 0.1s;
+}
+
+.FileElement:hover {
+  background-color: #aaccff;
+}

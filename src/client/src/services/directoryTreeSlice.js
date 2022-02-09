@@ -23,7 +23,6 @@ export const directoryTreeSlice = createSlice({
       state.files = action.payload;
     },
     setDirectoryTreeTo: (state, action) => {
-      console.log("directory tree set", action.payload);
       state.directoryTree = action.payload;
     }
   }

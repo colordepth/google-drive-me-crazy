@@ -49,8 +49,9 @@ export const calculatePathFromFile = file => dispatch => {
       let path = [];
 
       while (currentFile.parents) {
+        const parentID = currentFile.parents[0];
         path.unshift(currentFile);
-        currentFile = selectFolders(store.getState()).find(folder => folder.id === currentFile.parents[0]);
+        currentFile = selectFolders(store.getState()).find(folder => folder.id === parentID);
       }
       path.unshift(currentFile);
       dispatch(setPathTo(path));
@@ -78,8 +79,9 @@ export const calculatePathFromFileID = fileID => dispatch => {
       let path = [];
 
       while (currentFile.parents) {
+        const parentID = currentFile.parents[0];
         path.unshift(currentFile);
-        currentFile = selectFolders(store.getState()).find(folder => folder.id === currentFile.parents[0]);
+        currentFile = selectFolders(store.getState()).find(folder => folder.id === parentID);
       }
       path.unshift(currentFile);
       dispatch(setPathTo(path));
