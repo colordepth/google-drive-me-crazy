@@ -31,7 +31,7 @@ const FileElementList = ({files, setFilesList}) => {
   const directoryTree = useSelector(selectDirectoryTree);
 
   function fileClickHandler(file) {
-    console.log(file);
+    console.log("double click", file);
     if (file.mimeType === "application/vnd.google-apps.folder")
     {
       setFilesList(null);
@@ -70,7 +70,7 @@ const FileElementList = ({files, setFilesList}) => {
         </div>
       </li>
       {files.map(file => (
-        <li style={listStyle} key={file.id} onClick={() => fileClickHandler(file)}>
+        <li style={listStyle} key={file.id} onDoubleClick={() => fileClickHandler(file)}>
           <FileElement file={file} directoryTree={directoryTree}/>
         </li>
       ))}

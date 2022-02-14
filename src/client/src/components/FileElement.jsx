@@ -29,7 +29,7 @@ const File = ({file, directoryTree}) => {
         <Icon icon={<img src={ file.iconLink } alt="icon"/>} intent='none'/>
         <div><Text ellipsize='true'>{ file.name }</Text></div>
         <LastViewedTime file={ file }/>
-        <ReactTimeAgo date={ file.modifiedTime }/>
+        <ReactTimeAgo date={ parseInt(file.modifiedTime) }/>
         <div style={{marginLeft: 'auto', marginRight: '1rem'}}>{ fileSize }</div>
       </div>
   );
