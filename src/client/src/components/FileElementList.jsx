@@ -1,18 +1,11 @@
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { UL, Spinner, Icon } from "@blueprintjs/core";
 import { useSelector } from 'react-redux';
 
 import FileElement from './FileElement';
-import { addToPath } from '../services/pathSlice';
-import { selectDirectoryTree } from '../services/directoryTreeSlice';
-import { selectFilesList, clearFilesList } from '../services/currentDirectorySlice';
+import { selectFilesList } from '../services/currentDirectorySlice';
 
 const listStyle = {
-  listStyle: 'none',
-  // border: '1px solid #cccccc',
-  // padding: '0.6rem',
-  // cursor: 'pointer'
+  listStyle: 'none'
 }
 
 
@@ -21,27 +14,12 @@ const elementStyle = {
   gridTemplateColumns: '30px 1fr repeat(2, 8rem) 4.7rem',
   padding: '0.6rem',
   cursor: 'pointer',
-  // border: '1px solid #ccc',
   fontSize: '1rem',
   borderRadius: '2px'
 };
 
 const FileElementList = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const directoryTree = useSelector(selectDirectoryTree);
   const files = useSelector(selectFilesList);
-
-  function fileClickHandler(file) {
-    console.log("double click", file);
-    if (file.mimeType === "application/vnd.google-apps.folder")
-    {
-      dispatch(clearFilesList());
-      dispatch(addToPath(file));
-      navigate('/' + file.id);
-    }
-    // Non-Folder File click is handled in FileElement.jsx
-  }
 
   if (!files)
   {
@@ -75,8 +53,8 @@ const FileElementList = () => {
         </div>
       </li>
       {files.map(file => (
-        <li style={listStyle} key={file.id} onDoubleClick={() => fileClickHandler(file)}>
-          <FileElement file={file} directoryTree={directoryTree}/>
+        <li style={listStyle} key={file.id}>
+          <FileElement file={file}/>
         </li>
       ))}
     </UL>

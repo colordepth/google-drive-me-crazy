@@ -1,5 +1,12 @@
 import { Icon, Spinner, Text } from "@blueprintjs/core";
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import ReactTimeAgo from 'react-time-ago';
+
+import store from '../services/store';
+import { addToPath } from '../services/pathSlice';
+import { selectDirectoryTree } from '../services/directoryTreeSlice';
+import { clearFilesList } from '../services/currentDirectorySlice';
 import './FileElement.css';
 
 function humanFileSize(size) {
@@ -13,7 +20,22 @@ const LastViewedTime = ({file}) => {
   return <span style={{marginLeft: '2rem'}}>-</span>
 }
 
-const File = ({file, directoryTree}) => {
+ function doubleClickHandler(file, navigate) {
+    console.log("double click", file);
+    if (file.mimeType === "application/vnd.google-apps.folder")
+    {
+      store.dispatch(clearFilesList());
+      store.dispatch(addToPath(file));
+      navigate('/' + file.id);
+    }
+    else
+      window.open(file.webViewLink);
+  }
+
+const File = ({file}) => {
+  const directoryTree = useSelector(selectDirectoryTree);
+  const navigate = useNavigate();
+
   let fileSize = '1';
 
   if (file.mimeType !== "application/vnd.google-apps.folder")
@@ -25,11 +47,11 @@ const File = ({file, directoryTree}) => {
       fileSize = <><Spinner size={20}/></>;
   }
   return (
-      <div onClick={() => file.mimeType !== "application/vnd.google-apps.folder" && window.open(file.webViewLink)} className='FileElement'>
+      <div onDoubleClick={() => doubleClickHandler(file, navigate)} className='FileElement'>
         <Icon icon={<img src={ file.iconLink } alt="icon"/>} intent='none'/>
         <div><Text ellipsize='true'>{ file.name }</Text></div>
         <LastViewedTime file={ file }/>
-        <ReactTimeAgo date={ parseInt(file.modifiedTime) }/>
+        <ReactTimeAgo date={ new Date(file.modifiedTime) }/>
         <div style={{marginLeft: 'auto', marginRight: '1rem'}}>{ fileSize }</div>
       </div>
   );
