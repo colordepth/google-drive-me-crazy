@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { H4, Card, Breadcrumbs } from "@blueprintjs/core";
 import { useParams } from 'react-router-dom';
@@ -9,6 +9,7 @@ import ParentDirectoryButton from './ParentDirectoryButton';
 import { getAllFilesInFolder } from '../services/files'
 import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
 import { fetchDirectoryStructure } from '../services/directoryTreeSlice';
+import { setFilesList, selectFilesList, clearFilesList } from '../services/currentDirectorySlice';
 
 const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
 "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
@@ -30,13 +31,13 @@ const PathIndicator = () => {
 const FileExplorer = () => {
   const params = useParams();
   const dispatch = useDispatch();
-  
-  const [filesList, setFilesList] = useState(null);
+
+  const filesList = useSelector(selectFilesList);
 
   function refreshFileExplorer() {
-    setFilesList(null);
+    dispatch(clearFilesList());
     getAllFilesInFolder(params.fileId, requestedFields)
-      .then(files => setFilesList(files))
+      .then(files => dispatch(setFilesList(files)))
       .catch(error => {
         console.error("updateFileList", error.message, error.response ? error.response.data.error.message : null);
       });
@@ -48,10 +49,10 @@ const FileExplorer = () => {
 
   return (
     <div style={{margin: '2rem'}}>
-      <H4 style={{margin: '1rem 0'}}>{filesList === null ? "Processing" : `Number of Files in this folder: ${filesList.length}`}</H4>
+      <H4 style={{margin: '1rem 0'}}>{!filesList ? "Processing" : `Number of Files in this folder: ${filesList.length}`}</H4>
         <PathIndicator/>
         <Card style={{margin: "2rem"}}>
-          <FileElementList files={filesList} setFilesList={setFilesList}/>
+          <FileElementList/>
         </Card>
     </div>
   );

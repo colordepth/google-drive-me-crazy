@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import FileElement from './FileElement';
 import { addToPath } from '../services/pathSlice';
 import { selectDirectoryTree } from '../services/directoryTreeSlice';
+import { selectFilesList, clearFilesList } from '../services/currentDirectorySlice';
 
 const listStyle = {
   listStyle: 'none',
@@ -25,24 +26,28 @@ const elementStyle = {
   borderRadius: '2px'
 };
 
-const FileElementList = ({files, setFilesList}) => {
+const FileElementList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const directoryTree = useSelector(selectDirectoryTree);
+  const files = useSelector(selectFilesList);
 
   function fileClickHandler(file) {
     console.log("double click", file);
     if (file.mimeType === "application/vnd.google-apps.folder")
     {
-      setFilesList(null);
+      dispatch(clearFilesList());
       dispatch(addToPath(file));
       navigate('/' + file.id);
     }
     // Non-Folder File click is handled in FileElement.jsx
   }
 
-  if (files===null)
+  if (!files)
+  {
+    console.log('files', files);
     return (<><Spinner/></>);
+  }
 
   if (files.length === 0)
     return (<>No files to show</>);
