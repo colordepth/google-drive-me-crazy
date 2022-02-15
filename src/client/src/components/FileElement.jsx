@@ -6,7 +6,7 @@ import ReactTimeAgo from 'react-time-ago';
 import store from '../services/store';
 import { addToPath } from '../services/pathSlice';
 import { selectDirectoryTree } from '../services/directoryTreeSlice';
-import { clearFilesList } from '../services/currentDirectorySlice';
+import { clearFilesList, switchSelection, selectSelectedFilesID } from '../services/currentDirectorySlice';
 import './FileElement.css';
 
 function humanFileSize(size) {
@@ -19,21 +19,27 @@ const LastViewedTime = ({file}) => {
     return <span><ReactTimeAgo date={ new Date(file.viewedByMeTime)}/></span>
   return <span style={{marginLeft: '2rem'}}>-</span>
 }
+ 
+function singleClickHandler(file) {
+  console.log("single click", file);
+  store.dispatch(switchSelection(file.id));
+}
 
- function doubleClickHandler(file, navigate) {
-    console.log("double click", file);
-    if (file.mimeType === "application/vnd.google-apps.folder")
-    {
-      store.dispatch(clearFilesList());
-      store.dispatch(addToPath(file));
-      navigate('/' + file.id);
-    }
-    else
-      window.open(file.webViewLink);
+function doubleClickHandler(file, navigate) {
+  console.log("double click", file);
+  if (file.mimeType === "application/vnd.google-apps.folder")
+  {
+    store.dispatch(clearFilesList());
+    store.dispatch(addToPath(file));
+    navigate('/' + file.id);
   }
+  else
+    window.open(file.webViewLink);
+}
 
 const File = ({file}) => {
   const directoryTree = useSelector(selectDirectoryTree);
+  const selectedFilesID = useSelector(selectSelectedFilesID);
   const navigate = useNavigate();
 
   let fileSize = '1';
@@ -47,7 +53,11 @@ const File = ({file}) => {
       fileSize = <><Spinner size={20}/></>;
   }
   return (
-      <div onDoubleClick={() => doubleClickHandler(file, navigate)} className='FileElement'>
+      <div
+        onClick={() => singleClickHandler(file)}
+        onDoubleClick={() => doubleClickHandler(file, navigate)}
+        className={selectedFilesID.find(id => id === file.id) ? 'FileElement Selected' : 'FileElement'}
+      >
         <Icon icon={<img src={ file.iconLink } alt="icon"/>} intent='none'/>
         <div><Text ellipsize='true'>{ file.name }</Text></div>
         <LastViewedTime file={ file }/>
@@ -59,8 +69,8 @@ const File = ({file}) => {
 
 // {<Icon icon='folder-close' intent='primary' style={iconStyle}/>}
 
-const FileElement = ({file, directoryTree}) => {
-  return <><File file={file} directoryTree={directoryTree}/></>;
+const FileElement = ({file}) => {
+  return <><File file={file}/></>;
 }
 
 export default FileElement;

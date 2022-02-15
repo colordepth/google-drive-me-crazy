@@ -12,20 +12,28 @@ export const currentDirectorySlice = createSlice({
     },
     addToSelection: (state, action) => {
       const fileID = action.payload;
-      state.selectedFiles.push(fileID);
+      state.selectedFilesID.add(fileID);
     },
     removeFromSelection: (state, action) => {
-      const fileID = action.payload;
-      state.selectedFiles = state.selectedFiles.filter(file => file.id !== fileID);
+      const targetFileID = action.payload;
+      state.selectedFilesID = state.selectedFilesID.filter(id => id !== targetFileID);
+    },
+    switchSelection: (state, action) => {
+      const  targetFileID = action.payload;
+      if (state.selectedFilesID.find(id => id === targetFileID)) 
+        state.selectedFilesID = state.selectedFilesID.filter(id => id !== targetFileID);
+      else
+        state.selectedFilesID.push(action.payload);
     },
     clearFilesList: (state) => {
       state.filesList = null;
+      state.selectedFilesID.length = 0;
     }
   }
 });
 
-export const { setFilesList, addToSelection, removeFromSelection, clearFilesList } = currentDirectorySlice.actions;
+export const { setFilesList, addToSelection, removeFromSelection, switchSelection, clearFilesList } = currentDirectorySlice.actions;
 export const selectFilesList = (state) => state.currentDirectory.filesList;
-export const selectedFilesID = (state) => state.currentDirectory.selectedFilesID;
+export const selectSelectedFilesID = (state) => state.currentDirectory.selectedFilesID;
 
 export default currentDirectorySlice.reducer;

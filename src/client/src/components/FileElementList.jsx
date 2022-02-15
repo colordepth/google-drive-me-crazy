@@ -8,8 +8,7 @@ const listStyle = {
   listStyle: 'none'
 }
 
-
-const elementStyle = {
+const headerRowStyle = {
   display: 'grid',
   gridTemplateColumns: '30px 1fr repeat(2, 8rem) 4.7rem',
   padding: '0.6rem',
@@ -22,10 +21,7 @@ const FileElementList = () => {
   const files = useSelector(selectFilesList);
 
   if (!files)
-  {
-    console.log('files', files);
     return (<><Spinner/></>);
-  }
 
   if (files.length === 0)
     return (<>No files to show</>);
@@ -33,7 +29,7 @@ const FileElementList = () => {
   return (
     <UL>
       <li style={listStyle}>
-        <div style={elementStyle}>
+        <div style={headerRowStyle}>
           <span style={{gridColumn: '1 / span 2', display: 'flex', alignItems: 'center'}}>
             <span style={{marginRight: '4px'}}>File Name</span>
             <Icon icon='caret-down' color='#777' size={13}/>

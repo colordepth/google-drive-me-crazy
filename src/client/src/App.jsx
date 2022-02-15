@@ -4,10 +4,12 @@ import { H1, InputGroup, Button, Card } from "@blueprintjs/core";
 
 import FileExplorer from './components/FileExplorer';
 import { setTokenRefreshTimeout } from './services/auth';
+import { getAbout } from './services/userInfo';
 import './App.css';
 
 const App = () => {
   useEffect(setTokenRefreshTimeout, []);
+  useEffect(() => getAbout(['*']).then((data) => console.log(data)), []);
 
   return (
     <div className="App">
@@ -28,7 +30,17 @@ const App = () => {
             rightElement={null}
         />
         <div style={{display: 'grid', gridTemplateColumns: '15rem 1fr'}}>
-          <Card style={{marginTop: '2rem', height: '30rem'}}>Test</Card>
+          <Card style={{marginTop: '2rem', height: '30rem'}}>
+            <ul style={{listStyle: 'none'}}>
+              <li>Priority</li>
+              <li>MyDrive</li>
+              <li>Shared with me</li>
+              <li>Recent</li>
+              <li>Starred</li>
+              <li>Trashed</li>
+              <li>Storage</li>
+            </ul>
+          </Card>
           <div>
             <Routes>
               <Route path="/:fileId" element={<FileExplorer/>}/>

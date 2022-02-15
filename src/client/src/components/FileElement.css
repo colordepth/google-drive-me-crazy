@@ -9,5 +9,13 @@
 }
 
 .FileElement:hover {
+  background-color:  #aaccff77;
+}
+
+.Selected {
   background-color: #aaccff;
+}
+
+.Selected:hover {
+  background-color:  #aaccffdd;
 }
