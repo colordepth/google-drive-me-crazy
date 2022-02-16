@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from "@blueprintjs/core";
 
 import { popFromPath, selectPath } from '../services/pathSlice';
-import './ParentDirectoryButton.css';
 
 const ParentDirectoryButton = () => {
   const dispatch = useDispatch();
@@ -19,8 +18,8 @@ const ParentDirectoryButton = () => {
   return (
     <Button
       icon='arrow-up'
-      intent="primary"
-      text="Parent Directory"
+      minimal
+      small
       className="ParentDirectoryButton"
       disabled={!(currentFolder && currentFolder.parents)}
       onClick={switchToParentFolder}/>

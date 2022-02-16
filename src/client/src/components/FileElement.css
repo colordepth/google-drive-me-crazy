@@ -1,11 +1,23 @@
-.FileElement {
+.FileElement, .FileElementHeader {
   display: grid;
-  grid-template-columns: 30px 1fr repeat(2, 8rem) 4.7rem;
+  grid-template-columns: 30px 1fr repeat(2, 8rem) 4.7rem 4rem;
   padding: 0.6rem;
   cursor: pointer;
-  border: 1px solid #cccccc;
+}
+
+.FileElement {
+  /*border: 1px solid #cccccc;*/
   border-radius: 6px;
   transition: 0.1s;
+  color: #777;
+  margin-top: 3px;
+}
+
+.FileElementHeader {
+  padding-top: 1rem;
+  border-radius: 2px;
+  /*border: 1px solid #ddd;*/
+  color: #777;
 }
 
 .FileElement:hover {

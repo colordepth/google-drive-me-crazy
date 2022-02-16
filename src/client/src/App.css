@@ -2,8 +2,90 @@ nav {
   display:  flex;
   justify-content: space-between;
   align-items: center;
+  padding:  1rem;
+  background-color: #ccc;
 }
 
 .MainContent {
-  margin: 1rem 3rem;
+  /* SideBar + FileExplorer */
+  display: grid;
+  grid-template-columns: 17.5rem 1fr;
+}
+
+.SideBar {
+  height: 100%;
+}
+
+.StatusBar {
+  display:  flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 1.2rem 0.4rem 0.8rem;
+  font-weight: 400;
+  font-size: 0.75rem;
+  background-image: linear-gradient(to bottom, #eaebec, #dfdfdf);
+}
+
+.FileExplorer {
+  /* Tabs + Navigation Bar + FileList + StatusBar */
+  display:  flex;
+  flex-direction: column;
+  min-height:  100vh;
+  height:  100vh;
+}
+
+.NavigationBar {
+  display: grid;
+  background-color: #f8f6fb;
+  grid-template-columns: repeat(3, 24px) 3fr 1fr;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  gap: 0.5rem;
+}
+
+.Path {
+  background-color: #f7f7fb;
+}
+
+.ToolBar {
+  background-color: #fbfbfd;
+  display: flex;
+  gap:  1rem;
+  padding:  0.6rem 1.2rem;
+  border: #eee solid 1px;
+}
+
+.FileElementList {
+  overflow-y: scroll;
+  background-color: #fbfbfd;
+  flex-grow: 1;
+  padding: 0 2rem 0 2rem;
+  margin:  0;
+}
+
+.AddressBar {
+  background-color: #fff;
+  padding:  5px;
+}
+
+.TopBar {
+  display: flex;
+  padding-top: 10px;
+  /*background-color: #eeeaf7;*/
+}
+
+.Tab {
+  display:  flex;
+  background-color: #f8f6fb;
+  justify-content: space-between;
+  padding:  5px 10px;
+  border-radius: 2px 4px 0 0;
+  margin-right: 2px;
+  min-width: 8rem;
+}
+
+.centre-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

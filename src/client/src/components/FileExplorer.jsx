@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { H4, Card, Breadcrumbs } from "@blueprintjs/core";
+import { H5, Card, Breadcrumbs, Button, InputGroup, Icon } from "@blueprintjs/core";
 import { useParams } from 'react-router-dom';
 
 import FileElementList from './FileElementList';
@@ -9,21 +9,76 @@ import ParentDirectoryButton from './ParentDirectoryButton';
 import { getAllFilesInFolder } from '../services/files'
 import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
 import { fetchDirectoryStructure } from '../services/directoryTreeSlice';
-import { setFilesList, selectFilesList, clearFilesList } from '../services/currentDirectorySlice';
+import { setFilesList, selectFilesList, clearFilesList, selectSelectedFilesID } from '../services/currentDirectorySlice';
 
 const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
 "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
 "contentHints(thumbnail(mimeType))", "imageMediaMetadata", "parents", "modifiedTime", "viewedByMeTime"];
 
-const PathIndicator = () => {
+const BackButton = () => {
+  return (
+    <Button
+      icon='arrow-left'
+      minimal
+      small/>
+  );
+}
+
+const ForwardButton = () => {
+  return (
+    <Button
+      icon='arrow-right'
+      minimal
+      small
+      disabled/>
+  );
+}
+
+const NavigationBar = () => {
   const breadcrumbItems = useSelector(selectBreadcrumbItems);
 
   return (
-    <div className="PathIndicator" style={{display: 'flex', margin: "1rem 0"}}>
+    <div className="NavigationBar">
+      <BackButton/>
+      <ForwardButton/>
       <ParentDirectoryButton />
-      <div>
-        <Breadcrumbs items={breadcrumbItems}/>
-      </div>
+      <Breadcrumbs className="AddressBar" items={breadcrumbItems} fill/>
+      <InputGroup
+        leftIcon="search"
+        onChange={() => {}}
+        placeholder="Search..."
+        rightElement={null}
+        fill
+      />
+    </div>
+  );
+}
+const ToolBar = () => {
+  const selectedFilesID = useSelector(selectSelectedFilesID);
+
+  if (selectedFilesID && !selectedFilesID.length)
+    return (
+      <div className="ToolBar">
+        <Button small minimal icon='add' rightIcon="chevron-down" text="New" />
+    </div>
+    );
+  return (
+    <div className="ToolBar">
+      <Button small minimal icon='cut' text="Cut" />
+      <Button small minimal icon='duplicate' text="Copy" />
+      <Button small minimal disabled icon='clipboard' text="Paste" />
+      <Button small minimal intent='danger' icon='trash' text="Move To Trash" />
+    </div>
+    );
+}
+
+const TopBar = () => {
+  return (
+    <div className="TopBar">
+      <span className="Tab">
+        Home <Icon icon='cross'/>
+      </span>
+      <Button minimal style={{marginLeft: "2px", alignSelf: "center"}}><Icon icon='plus' color="#777"/></Button>
     </div>
   );
 }
@@ -48,12 +103,16 @@ const FileExplorer = () => {
   useEffect(() => dispatch(fetchDirectoryStructure()), [dispatch]);
 
   return (
-    <div style={{margin: '2rem'}}>
-      <H4 style={{margin: '1rem 0'}}>{!filesList ? "Processing" : `Number of Files in this folder: ${filesList.length}`}</H4>
-        <PathIndicator/>
-        <Card style={{margin: "2rem"}}>
-          <FileElementList/>
-        </Card>
+    <div className="FileExplorer">
+      <TopBar/>
+      <NavigationBar/>
+      <ToolBar/>
+      <FileElementList/>
+      <div className="StatusBar">
+        <span>Wallpapers</span>
+        <span>Selected x items</span>
+        <span style={{marginRight: '2rem'}}>{!filesList ? "" : `${filesList.length} items`}</span>
+      </div>
     </div>
   );
 }

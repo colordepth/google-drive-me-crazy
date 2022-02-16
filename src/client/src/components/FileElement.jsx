@@ -59,7 +59,7 @@ const File = ({file}) => {
         className={selectedFilesID.find(id => id === file.id) ? 'FileElement Selected' : 'FileElement'}
       >
         <Icon icon={<img src={ file.iconLink } alt="icon"/>} intent='none'/>
-        <div><Text ellipsize='true'>{ file.name }</Text></div>
+        <div><Text ellipsize='true' style={{color: "black"}}>{ file.name }</Text></div>
         <LastViewedTime file={ file }/>
         <ReactTimeAgo date={ new Date(file.modifiedTime) }/>
         <div style={{marginLeft: 'auto', marginRight: '1rem'}}>{ fileSize }</div>

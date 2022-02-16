@@ -48,15 +48,15 @@ export function setTokenRefreshTimeout() {
     clearTimeout(refreshTimeout);
 
   refreshTimeout = setTimeout(() => {
-      refreshToken()
-        .then(setTokenRefreshTimeout)
-        .catch(error => {
-          console.error(JSON.stringify(error));
-          console.error(error.toJSON());
-    })
-      },
-      (credentials.expiry_date - new Date()) - 10000     // 10 seconds before token expiry date
-    );
+    refreshToken()
+      .then(setTokenRefreshTimeout)
+      .catch(error => {
+        console.error(JSON.stringify(error));
+        console.error(error.toJSON());
+      })
+    },
+    (credentials.expiry_date - new Date()) - 10000     // 10 seconds before token expiry date
+  );
 }
 
 export default credentials;
