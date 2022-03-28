@@ -1,11 +1,3 @@
-nav {
-  display:  flex;
-  justify-content: space-between;
-  align-items: center;
-  padding:  1rem;
-  background-color: #ccc;
-}
-
 .MainContent {
   /* SideBar + FileExplorer */
   display: grid;
@@ -13,7 +5,12 @@ nav {
 }
 
 .SideBar {
+  padding-top: 2rem;
+  padding-left: 2.5rem;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
 }
 
 .StatusBar {
@@ -30,7 +27,6 @@ nav {
   /* Tabs + Navigation Bar + FileList + StatusBar */
   display:  flex;
   flex-direction: column;
-  min-height:  100vh;
   height:  100vh;
 }
 
@@ -50,7 +46,7 @@ nav {
 .ToolBar {
   background-color: #fbfbfd;
   display: flex;
-  gap:  1rem;
+  gap:  0.7rem;
   padding:  0.6rem 1.2rem;
   border: #eee solid 1px;
 }
@@ -71,13 +67,14 @@ nav {
 .TopBar {
   display: flex;
   padding-top: 10px;
-  /*background-color: #eeeaf7;*/
+  background-color: #eeeaf7;
 }
 
 .Tab {
   display:  flex;
   background-color: #f8f6fb;
   justify-content: space-between;
+  align-items: center;
   padding:  5px 10px;
   border-radius: 2px 4px 0 0;
   margin-right: 2px;
@@ -88,4 +85,44 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.SidebarBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+}
+
+.HomeHeader {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  padding-left: 0.5rem;
+  font-size: 15px;
+  font-weight: 600;
+  color:  #444;
+  background-color: #f8feff;
+  max-width: 13rem;
+  border-radius: 0.4rem;
+  border-top-left-radius: 0.2rem;
+  border-bottom-left-radius: 0.2rem;
+}
+
+.SidebarHeader {
+  display: flex;
+  align-items: center;
+  padding: 0.3rem;
+  font-size: 15px;
+  font-weight: 600;
+  color:  #444;
+}
+
+.SidebarElement {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem;
+  padding-left: 0.6rem;
+  font-size: 15px;
+  font-weight: 400;
+  color: #808188;
 }

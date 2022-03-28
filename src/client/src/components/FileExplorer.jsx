@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { H5, Card, Breadcrumbs, Button, InputGroup, Icon } from "@blueprintjs/core";
+import { H5, Card, Breadcrumbs, Button, InputGroup, Icon, ButtonGroup } from "@blueprintjs/core";
 import { useParams } from 'react-router-dom';
 
 import FileElementList from './FileElementList';
@@ -64,10 +64,13 @@ const ToolBar = () => {
     );
   return (
     <div className="ToolBar">
-      <Button small minimal icon='cut' text="Cut" />
-      <Button small minimal icon='duplicate' text="Copy" />
-      <Button small minimal disabled icon='clipboard' text="Paste" />
-      <Button small minimal intent='danger' icon='trash' text="Move To Trash" />
+      <ButtonGroup>
+        <Button small minimal icon='cut' text="Cut" />
+        <Button small minimal icon='duplicate' text="Copy" />
+        <Button small minimal disabled icon='clipboard' text="Paste" />
+      </ButtonGroup>
+      <Button small minimal icon='edit' text="Rename" />
+      <Button small minimal intent='danger' icon='trash' text="Trash" />
     </div>
     );
 }
@@ -76,9 +79,9 @@ const TopBar = () => {
   return (
     <div className="TopBar">
       <span className="Tab">
-        Home <Icon icon='cross'/>
+        <span>College</span><Icon icon='cross' size={13} style={{color: '#777'}}/>
       </span>
-      <Button minimal style={{marginLeft: "2px", alignSelf: "center"}}><Icon icon='plus' color="#777"/></Button>
+      <Button minimal style={{marginLeft: "2px", alignSelf: "center", borderRadius: '50%'}}><Icon icon='plus' color="#777"/></Button>
     </div>
   );
 }
@@ -88,6 +91,7 @@ const FileExplorer = () => {
   const dispatch = useDispatch();
 
   const filesList = useSelector(selectFilesList);
+  const selectedFiles = useSelector(selectSelectedFilesID);
 
   function refreshFileExplorer() {
     dispatch(clearFilesList());
@@ -109,8 +113,10 @@ const FileExplorer = () => {
       <ToolBar/>
       <FileElementList/>
       <div className="StatusBar">
-        <span>Wallpapers</span>
-        <span>Selected x items</span>
+        <span>{selectedFiles && selectedFiles.length ?
+          "Selected "+selectedFiles.length+" items"
+          : ""}
+        </span>
         <span style={{marginRight: '2rem'}}>{!filesList ? "" : `${filesList.length} items`}</span>
       </div>
     </div>

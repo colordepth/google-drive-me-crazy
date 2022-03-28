@@ -13,4 +13,5 @@ body {
   /*background-color: #eeeaf7;*/ /* this is for top bar */
   background: linear-gradient(to right, #eaeaf6,  #eeeaf7);
   font-size:  13px;
+  font-weight: 400;
 }

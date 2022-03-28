@@ -13,7 +13,11 @@ const oAuth2Client = new google.auth.OAuth2(
 
 const googleLoginUrl = oAuth2Client.generateAuthUrl({
   access_type: 'offline',
-  scope: SCOPES
+  scope: SCOPES,
+  prompt: 'consent'
+  // A refresh token is returned only when prompt is set to consent.
+  // otherwise it takes the default user from browser
+  // (or something similar. skips login screen if permission granted in past)
 });
 
 googleAuthRouter.get('/', (req, res) => {
