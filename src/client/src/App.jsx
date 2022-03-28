@@ -1,27 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Button, Icon } from "@blueprintjs/core";
 
 import FileExplorer from './components/FileExplorer';
 import Sidebar from './components/Sidebar';
+import Dashboard from './components/Dashboard';
+import StorageAnalyzer from './components/StorageAnalyzer';
 import credentials, { refreshToken, setTokenRefreshTimeout } from './services/auth';
 import { getAbout } from './services/userInfo';
 import './App.css';
-
-const Dashboard = () => {
-  return (
-    <div>
-      ok
-    </div>
-  );
-}
-
-const StorageAnalyzer = () => {
-  return (
-    <div>
-      ok
-    </div>
-  );
-}
 
 const UserManager = ({ children }) => {
   const [about, setAbout] = useState(null);
@@ -60,13 +47,29 @@ const UserManager = ({ children }) => {
   );
 }
 
+const TabsBar = () => {
+  return (
+    <div className="TabsBar">
+      <span className="Tab">
+        <span>College</span><Icon icon='cross' size={13} style={{color: '#777'}}/>
+      </span>
+      <Button minimal style={{marginLeft: "2px", alignSelf: "center", borderRadius: '50%'}}><Icon icon='plus' color="#777"/></Button>
+    </div>
+  );
+}
+
 const App = () => {
   return (
     <div className="App">
       <UserManager>
         <div className="MainContent">
           <Sidebar/>
-          <div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh'
+          }}>
+            <TabsBar/>
             <Routes>
               <Route path="/dashboard" element={<Dashboard/>}/>
               <Route path="/storage-analyzer" element={<StorageAnalyzer/>}/>

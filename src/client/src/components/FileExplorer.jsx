@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Breadcrumbs, Button, InputGroup, Icon, ButtonGroup } from "@blueprintjs/core";
+import { Breadcrumbs, Button, InputGroup, ButtonGroup } from "@blueprintjs/core";
 import { useParams } from 'react-router-dom';
 
 import FileElementList from './FileElementList';
@@ -77,17 +77,6 @@ const ToolBar = () => {
     );
 }
 
-const TabsBar = () => {
-  return (
-    <div className="TabsBar">
-      <span className="Tab">
-        <span>College</span><Icon icon='cross' size={13} style={{color: '#777'}}/>
-      </span>
-      <Button minimal style={{marginLeft: "2px", alignSelf: "center", borderRadius: '50%'}}><Icon icon='plus' color="#777"/></Button>
-    </div>
-  );
-}
-
 const FileExplorer = () => {
   const params = useParams();
   const dispatch = useDispatch();
@@ -110,7 +99,6 @@ const FileExplorer = () => {
 
   return (
     <div className="FileExplorer">
-      <TabsBar/>
       <NavigationBar/>
       <ToolBar/>
       <FileElementList/>

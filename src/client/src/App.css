@@ -27,7 +27,8 @@
   /* Tabs + Navigation Bar + FileList + StatusBar */
   display:  flex;
   flex-direction: column;
-  height:  100vh;
+  flex-grow: 1;
+  overflow-y: hidden;
 }
 
 .NavigationBar {
@@ -56,7 +57,7 @@
   background-color: #fbfbfd;
   flex-grow: 1;
   padding: 0 2rem 0 2rem;
-  margin:  0;
+  margin: 0;
 }
 
 .AddressBar {
@@ -125,4 +126,10 @@
   font-size: 15px;
   font-weight: 400;
   color: #808188;
+}
+
+.StorageAnalyzer {
+  background-color: #f8f6fb;
+  flex-grow: 1;
+  overflow-y: hidden;
 }
