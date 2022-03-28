@@ -31,7 +31,7 @@ export function refreshToken() {
       }
     })
     .then(res => res.data)
-    .then(data => {
+    .then(async data => {
       credentials = data;
 
         // Store in browser

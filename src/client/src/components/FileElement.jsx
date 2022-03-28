@@ -20,9 +20,11 @@ const LastViewedTime = ({file}) => {
   return <span style={{marginLeft: '2rem'}}>-</span>
 }
  
-function singleClickHandler(file) {
+function singleClickHandler(event, file) {
   console.log("single click", file);
-  store.dispatch(switchSelection(file.id));
+  if (event.ctrlKey) {
+    store.dispatch(switchSelection(file.id));
+  }
 }
 
 function doubleClickHandler(file, navigate) {
@@ -54,7 +56,7 @@ const File = ({file}) => {
   }
   return (
       <div
-        onClick={() => singleClickHandler(file)}
+        onClick={(event) => singleClickHandler(event, file)}
         onDoubleClick={() => doubleClickHandler(file, navigate)}
         className={selectedFilesID.find(id => id === file.id) ? 'FileElement Selected' : 'FileElement'}
       >

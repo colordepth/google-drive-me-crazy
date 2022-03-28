@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { H5, Card, Breadcrumbs, Button, InputGroup, Icon, ButtonGroup } from "@blueprintjs/core";
+import { Breadcrumbs, Button, InputGroup, Icon, ButtonGroup } from "@blueprintjs/core";
 import { useParams } from 'react-router-dom';
 
 import FileElementList from './FileElementList';
@@ -13,7 +13,9 @@ import { setFilesList, selectFilesList, clearFilesList, selectSelectedFilesID } 
 
 const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
 "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
-"contentHints(thumbnail(mimeType))", "imageMediaMetadata", "parents", "modifiedTime", "viewedByMeTime"];
+"contentHints", "imageMediaMetadata", "parents", "modifiedTime", "viewedByMeTime"];
+
+// contentHints(thumbnail(mimeType))
 
 const BackButton = () => {
   return (
@@ -75,9 +77,9 @@ const ToolBar = () => {
     );
 }
 
-const TopBar = () => {
+const TabsBar = () => {
   return (
-    <div className="TopBar">
+    <div className="TabsBar">
       <span className="Tab">
         <span>College</span><Icon icon='cross' size={13} style={{color: '#777'}}/>
       </span>
@@ -108,7 +110,7 @@ const FileExplorer = () => {
 
   return (
     <div className="FileExplorer">
-      <TopBar/>
+      <TabsBar/>
       <NavigationBar/>
       <ToolBar/>
       <FileElementList/>
