@@ -1,0 +1,18 @@
+.FileTypeChart {
+  width: 50%;
+  min-height: 300px;
+  border: 2px solid #dcd5e7;
+  border-radius: 10px;
+  padding: 1rem 1rem;
+  margin: 10px;
+}
+
+.StorageAnalyzer {
+  background-color: #f8f6fb;
+  flex-grow: 1;
+  overflow-y: hidden;
+  padding: 1rem;
+  
+  display: flex;
+  justify-content: space-around;
+}

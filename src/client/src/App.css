@@ -127,9 +127,3 @@
   font-weight: 400;
   color: #808188;
 }
-
-.StorageAnalyzer {
-  background-color: #f8f6fb;
-  flex-grow: 1;
-  overflow-y: hidden;
-}

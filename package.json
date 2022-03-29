@@ -20,6 +20,8 @@
   "dependencies": {
     "axios": "^0.25.0",
     "dotenv": "^15.0.0",
+    "echarts": "^5.3.1",
+    "echarts-for-react": "^3.0.2",
     "express": "^4.17.2",
     "googleapis": "^94.0.0"
   }
