@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 
 import FileElementList from './FileElementList';
 import ParentDirectoryButton from './ParentDirectoryButton';
+import StatusBar from './StatusBar';
 
 import { getAllFilesInFolder } from '../services/files'
 import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
@@ -105,13 +106,7 @@ const FileExplorer = () => {
       <NavigationBar/>
       <ToolBar/>
       <FileElementList files={filesList}/>
-      <div className="StatusBar">
-        <span>{selectedFiles && selectedFiles.length ?
-          "Selected "+selectedFiles.length+" items"
-          : ""}
-        </span>
-        <span style={{marginRight: '2rem'}}>{!filesList ? "" : `${filesList.length} items`}</span>
-      </div>
+      <StatusBar noOfFiles={filesList && filesList.length} noOfSelectedFiles={selectedFiles && selectedFiles.length}/>
     </div>
   );
 }

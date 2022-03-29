@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import FileElementList from './FileElementList';
+import StatusBar from './StatusBar';
 import './StorageAnalyzer.css';
 
 import { selectFiles, fetchDirectoryStructure } from '../services/directoryTreeSlice';
@@ -128,6 +129,7 @@ const StorageAnalyzer = () => {
         <DonutChart data={data} dataPoint='count' title='Number of files'/>
       </div>
       <FileElementList files={files} foldersFirst={false} sortBy='quotaBytesUsed'/>
+      <StatusBar noOfFiles={files && files.length}/>
     </div>
   );  
 }
