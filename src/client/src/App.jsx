@@ -7,20 +7,32 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import StorageAnalyzer from './components/StorageAnalyzer';
 import credentials, { refreshToken, setTokenRefreshTimeout } from './services/auth';
-import { getAbout } from './services/userInfo';
+import { getAbout, getQuotaDetails } from './services/userInfo';
 import './App.css';
 
 const UserManager = ({ children }) => {
-  const [about, setAbout] = useState(null);
+  const [about, setAbout] = useState({});
 
   useEffect(setTokenRefreshTimeout, []);
-  useEffect(() => getAbout(['*']).then((data) => {console.log(data); setAbout(data)}), []);
+
+  useEffect(() => {
+    let fetchedAbout = {};
+
+    getAbout(['user'])
+      .then((userInfo) => {fetchedAbout = {...fetchedAbout, ...userInfo}; setAbout(fetchedAbout)});
+    
+    getQuotaDetails()
+      .then((quota) => {fetchedAbout = {...fetchedAbout, quota}; setAbout(fetchedAbout)});
+  
+  }, []);
 
   // if refresh token missing
   if (!credentials.refresh_token) {
     window.location.replace('/');
     return <>Redirecting to login page...</>;
   }
+
+  if (about.user && about.quota) console.log(about);
 
   // if access token is expired
   if (credentials.expiry_date <= new Date()) {
@@ -36,7 +48,7 @@ const UserManager = ({ children }) => {
     <>
       <div style={{margin: "0 1rem", position: "absolute", "top": "3px", "right": "3px"}}>
         <img
-          src={about && about.user.photoLink}
+          src={about.user && about.user.photoLink}
           alt="user image"
           referrerPolicy="no-referrer"
           style={{borderRadius: '50%', width: '32px', height: '32px'}}

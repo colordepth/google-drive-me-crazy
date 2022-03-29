@@ -125,7 +125,7 @@ const StorageAnalyzer = () => {
   return (
     <div className='StorageAnalyzer'>
       <div className='StorageGraphs'>
-        <DonutChart data={data} dataPoint='quotaBytesUsed' title='File Size'/>
+        <DonutChart data={data} dataPoint='quotaBytesUsed' title='File size'/>
         <DonutChart data={data} dataPoint='count' title='Number of files'/>
       </div>
       <FileElementList files={files} foldersFirst={false} sortBy='quotaBytesUsed'/>
