@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectFiles, fetchDirectoryStructure } from '../services/directoryTreeSlice';
 
+import FileElementList from './FileElementList';
 import './StorageAnalyzer.css';
 
-// echarts.registerTheme(themeObject.name, themeObject);
+import { selectFiles, fetchDirectoryStructure } from '../services/directoryTreeSlice';
+
+const requestedFields = ["id", "name", "mimeType",
+"quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "modifiedTime", "viewedByMeTime"];
 
 function humanFileSize(size) {
   var i = !size ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
@@ -36,7 +39,7 @@ const DonutChart = ({data, dataPoint, title}) => {
                     <div style='padding: 0.32em; margin-right: 2px; border-radius: 50%; background: ${params.color}; display: inline-block;'></div>
                     ${params.name} <br/>
                     <div style='display: flex; justify-content: space-between'>
-                      <span>Size: <b>${humanFileSize(params.data.size)}</b></span>
+                      <span>Size: <b>${humanFileSize(params.data.quotaBytesUsed)}</b></span>
                       <span>Count: <b>${params.data.count} files</b></span>
                     </div>
                     <!--<b>${params.percent}%</b>-->
@@ -78,9 +81,12 @@ const StorageAnalyzer = () => {
   const dispatch = useDispatch();
   const [data, setData] = useState([]);
 
-  useEffect(() => {dispatch(fetchDirectoryStructure())}, []);
+  useEffect(() => {dispatch(fetchDirectoryStructure(requestedFields))}, []);
 
   useEffect(() => {
+
+    if (!files) return;
+
     console.log("Fetching finished");
 
     let filesData = {};
@@ -92,13 +98,13 @@ const StorageAnalyzer = () => {
       if (!filesData[key]) {
         filesData[key] = {
           name: key.charAt(0).toUpperCase() + key.substring(1),
-          size: 0,
+          quotaBytesUsed: 0,
           count: 0
         };
       }
 
-      if (file.size)
-        filesData[key].size += parseInt(file.size);
+      if (file.quotaBytesUsed)
+        filesData[key].quotaBytesUsed += parseInt(file.quotaBytesUsed);
         filesData[key].count += 1;
     })
 
@@ -109,20 +115,21 @@ const StorageAnalyzer = () => {
     setData(Object.keys(filesData).map(key => {
       return {
         name: filesData[key].name,
-        size: filesData[key].size,
+        quotaBytesUsed: filesData[key].quotaBytesUsed,
         count: filesData[key].count
       }
     }));
   }, [files]);
 
-  
   return (
     <div className='StorageAnalyzer'>
-      <DonutChart data={data} dataPoint='size' title='File Size'/>
-      <DonutChart data={data} dataPoint='count' title='Number of files'/>
+      <div className='StorageGraphs'>
+        <DonutChart data={data} dataPoint='quotaBytesUsed' title='File Size'/>
+        <DonutChart data={data} dataPoint='count' title='Number of files'/>
+      </div>
+      <FileElementList files={files} foldersFirst={false} sortBy='quotaBytesUsed'/>
     </div>
-  );
-  
+  );  
 }
 
 export default StorageAnalyzer;

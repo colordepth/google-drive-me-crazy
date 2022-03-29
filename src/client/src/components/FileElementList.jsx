@@ -1,8 +1,6 @@
-import { UL, Spinner, Icon, Button } from "@blueprintjs/core";
-import { useSelector } from 'react-redux';
+import { Spinner, Icon, Button } from "@blueprintjs/core";
 
 import FileElement from './FileElement';
-import { selectFilesList } from '../services/currentDirectorySlice';
 
 const listStyle = {
   listStyle: 'none'
@@ -44,8 +42,7 @@ const FileElementHeader = () => {
   );
 }
 
-const FileElementList = () => {
-  const files = useSelector(selectFilesList);
+const FileElementList = ({files, sortBy}) => {
 
   if (!files)
     return (<div className="FileElementList centre-content"><Spinner/></div>);
@@ -53,16 +50,20 @@ const FileElementList = () => {
   if (files.length === 0)
     return (<div className="FileElementList centre-content"><EmptyFolder/></div>);
 
+
   return (
     <ul className="FileElementList">
       <li style={listStyle}>
         <FileElementHeader/>
       </li>
-      {files.map(file => (
-        <li style={listStyle} key={file.id}>
-          <FileElement file={file}/>
-        </li>
-      ))}
+      {
+      (sortBy === 'quotaBytesUsed' ? files.slice().sort((a, b) => b.quotaBytesUsed - a.quotaBytesUsed).slice(0, 100) : files)
+        .map(file => (
+          <li style={listStyle} key={file.id}>
+            <FileElement file={file}/>
+          </li>
+        ))
+      }
     </ul>
     );
 }

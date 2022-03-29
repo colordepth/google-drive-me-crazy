@@ -11,8 +11,13 @@
   background-color: #f8f6fb;
   flex-grow: 1;
   overflow-y: hidden;
-  padding: 1rem;
   
   display: flex;
+  flex-direction: column;
+}
+
+.StorageGraphs {
+  display: flex;
   justify-content: space-around;
+  padding: 1rem;
 }

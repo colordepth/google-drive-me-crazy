@@ -11,9 +11,12 @@ import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/path
 import { fetchDirectoryStructure } from '../services/directoryTreeSlice';
 import { setFilesList, selectFilesList, clearFilesList, selectSelectedFilesID } from '../services/currentDirectorySlice';
 
-const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
-"quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
-"contentHints", "imageMediaMetadata", "parents", "modifiedTime", "viewedByMeTime"];
+// const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
+// "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
+// "contentHints", "imageMediaMetadata", "parents", "modifiedTime", "viewedByMeTime"];
+
+const requestedFields = ["id", "name", "mimeType",
+"quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "modifiedTime", "viewedByMeTime"];
 
 // contentHints(thumbnail(mimeType))
 
@@ -101,7 +104,7 @@ const FileExplorer = () => {
     <div className="FileExplorer">
       <NavigationBar/>
       <ToolBar/>
-      <FileElementList/>
+      <FileElementList files={filesList}/>
       <div className="StatusBar">
         <span>{selectedFiles && selectedFiles.length ?
           "Selected "+selectedFiles.length+" items"

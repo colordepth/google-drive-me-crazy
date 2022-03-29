@@ -50,7 +50,7 @@ const File = ({file}) => {
     fileSize = humanFileSize(parseInt(file.quotaBytesUsed));
   else if (directoryTree) {
     if (directoryTree[file.id])
-      fileSize = humanFileSize(parseInt(directoryTree[file.id].size));
+      fileSize = humanFileSize(parseInt(directoryTree[file.id].quotaBytesUsed));
     else
       fileSize = <><Spinner size={20}/></>;
   }

@@ -11,8 +11,8 @@ import { getAllFolders, getAllFiles } from './files.js';
 export const directoryTreeSlice = createSlice({
   name: 'directoryTree',
   initialState: {
-    folders: [],
-    files: [],
+    folders: null,
+    files: null,
     directoryTree: {}
   },
   reducers: {
@@ -28,7 +28,7 @@ export const directoryTreeSlice = createSlice({
   }
 });
 
-export const fetchAllFolders = (requestedFields=['id', 'name', 'parents', 'mimeType', 'size']) => dispatch  => {
+export const fetchAllFolders = (requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed']) => dispatch  => {
   return getAllFolders(requestedFields)
     .then(folders => {
       dispatch(setFoldersTo(folders));
@@ -36,7 +36,7 @@ export const fetchAllFolders = (requestedFields=['id', 'name', 'parents', 'mimeT
     })
 }
 
-export const fetchAllFiles = (requestedFields=['id', 'name', 'parents', 'mimeType', 'size']) => dispatch  => {
+export const fetchAllFiles = (requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed']) => dispatch  => {
   return getAllFiles(requestedFields, "mimeType != 'application/vnd.google-apps.folder'")
     .then(files => {
       dispatch(setFilesTo(files));
@@ -67,15 +67,15 @@ function buildDirectoryStructure(folders, files) {
 
   function calculateSizeRecursively(file) {
     if (file.mimeType === "application/vnd.google-apps.folder") {
-      file.size = 0;
+      file.quotaBytesUsed = 0;
       if (file.childrenIDs)
         file.childrenIDs.forEach(id => {
-          file.size += calculateSizeRecursively(directoryTree[id]);
+          file.quotaBytesUsed += calculateSizeRecursively(directoryTree[id]);
         })
     }
-    if (isNaN(parseInt(file.size)))
+    if (isNaN(parseInt(file.quotaBytesUsed)))
       return 0;
-    return parseInt(file.size);
+    return parseInt(file.quotaBytesUsed);
   }
 
   calculateSizeRecursively(directoryTree['root']);
@@ -83,7 +83,7 @@ function buildDirectoryStructure(folders, files) {
   return directoryTree;
 }
 
-export const fetchDirectoryStructure = (requestedFields=['id', 'name', 'parents', 'mimeType', 'size']) => dispatch => {
+export const fetchDirectoryStructure = (requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed']) => dispatch => {
   Promise.all([fetchAllFolders(requestedFields)(dispatch), fetchAllFiles(requestedFields)(dispatch)])
     .then(([folders, files]) => {
       dispatch(setDirectoryTreeTo(buildDirectoryStructure(folders, files)));
