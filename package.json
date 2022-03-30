@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "axios": "^0.25.0",
+    "buffer": "^6.0.3",
     "dotenv": "^15.0.0",
     "echarts": "^5.3.1",
     "echarts-for-react": "^3.0.2",

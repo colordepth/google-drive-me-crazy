@@ -90,12 +90,12 @@ const FileExplorer = () => {
 
   function refreshFileExplorer() {
     dispatch(clearFilesList());
-    getAllFilesInFolder(params.fileId, requestedFields)
+    getAllFilesInFolder(params.fileID, requestedFields)
       .then(files => dispatch(setFilesList(files)))
       .catch(error => {
         console.error("updateFileList", error.message, error.response ? error.response.data.error.message : null);
       });
-    try { dispatch(calculatePathFromFileID(params.fileId)); }
+    try { dispatch(calculatePathFromFileID(params.fileID)); }
     catch (error) { console.error("calculatePathFromFileID", error.message);}
   }
   useEffect(refreshFileExplorer, [params, dispatch]);

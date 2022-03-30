@@ -64,7 +64,7 @@ const TabsBar = ({ activeTab, tabInfoList, createTabHandler, closeTabHandler, ta
   return (
     <div className="TabsBar">
       { 
-        tabInfoList.map(tabInfo => 
+        tabInfoList && tabInfoList.map(tabInfo => 
           <span className="Tab" key={tabInfo.id.concat('tab')} onClick={() => tabClickHandler(tabInfo.id)}>
             <span>{ tabInfo.path }</span>
             <Icon
@@ -78,9 +78,10 @@ const TabsBar = ({ activeTab, tabInfoList, createTabHandler, closeTabHandler, ta
       }
       <Button
         minimal
-        style={{marginLeft: "2px", alignSelf: "center", borderRadius: '50%'}}><Icon icon='plus' color="#777"
+        style={{marginLeft: "2px", alignSelf: "center", borderRadius: '50%'}}
         onClick={createTabHandler}
-      />
+      >
+        <Icon icon='plus' color="#777"/>
       </Button>
     </div>
   );
@@ -90,13 +91,22 @@ const TabManager = (props) => {
   const navigate = useNavigate();
 
   const [activeTabID, setActiveTabID] = useState('default');
-  const [tabInfoList, setTabInfoList] = useState([{
-    id: 'default',
-    path: 'root'
-  }, {
-    id: 'second-tab',
-    path: 'storage-analyzer'
-  }]);
+  const [tabInfoList, setTabInfoList] = useState([
+    {
+      id: 'default',
+      path: 'qvuQXkR7SAA=/root'
+    },
+    {
+      id: 'second-tab',
+      path: 'qvuQXkR7SAA=/storage-analyzer'
+    }
+  ]);
+
+  if (!tabInfoList) return <></>;
+
+  // if (tabInfoList.length === 0) {
+  //   setTabInfoList([{ id: 'default', path: 'root' }]);
+  // }
 
   function createTabHandler(tabID) {
     const newTab = {
@@ -118,8 +128,14 @@ const TabManager = (props) => {
     navigate('/' + newActiveTab.path);
   }
 
+  console.log(46, tabInfoList);
   const tabs = tabInfoList.map(tabInfo => <Tab key={tabInfo.id} path={tabInfo.path}/>);
-  const activeTab = tabs.filter(tab => tab.key === activeTabID);
+  const activeTab = tabs.find(tab => tab.key === activeTabID);
+
+  if (tabInfoList.length && !activeTab) {
+    setActiveTabID(tabInfoList[0].id);
+    navigate('/' + tabInfoList[0].path);
+  }
 
   console.log(14, tabInfoList);
   console.log(15, tabs);
@@ -153,9 +169,9 @@ const Tab = (props) => {
       <SidebarPortal/>
       <Routes>
         <Route path="/dashboard" element={<Dashboard/>}/>
-        <Route path="/storage-analyzer" element={<StorageAnalyzer/>}/>
-        <Route path="/:fileId" element={<FileExplorer/>}/>
-        <Route path="*" element={<Navigate to="/root" />} />
+        <Route path="/:userID/storage-analyzer" element={<StorageAnalyzer/>}/>
+        <Route path="/:userID/:fileID" element={<FileExplorer/>}/>
+        <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </UserManager>
   );

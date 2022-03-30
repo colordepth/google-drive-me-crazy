@@ -33,7 +33,7 @@ function doubleClickHandler(file, navigate) {
   {
     store.dispatch(clearFilesList());
     store.dispatch(addToPath(file));
-    navigate('/' + file.id);
+    navigate('./../' + file.id);
   }
   else
     window.open(file.webViewLink);

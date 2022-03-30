@@ -1,5 +1,6 @@
 import axios from 'axios';
 import credentials from './auth';
+var Buffer = require('buffer').Buffer;
 
 const baseUrlDriveAPIv2 = 'https://www.googleapis.com/drive/v2';
 const baseUrlDriveAPIv3 = 'https://www.googleapis.com/drive/v3';
@@ -12,7 +13,15 @@ export function getAbout(requestedFields) {
       fields: requestedFields.join(' '),
     }
   })
-  .then(res => res.data);
+  .then(res => res.data)
+  .then(data => {
+    return {
+      user: {
+        ...data.user,
+        minifiedID: Buffer.from((parseInt(data.user.permissionId)).toString(16), 'hex').toString('base64'),
+      }
+    }
+  });
 }
 
 export function getQuotaDetails() {
