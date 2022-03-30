@@ -31,7 +31,7 @@ const FileElementHeader = () => {
         <Icon icon='double-caret-vertical' color='#777' size={13}/>
       </span>
       <span style={{display: 'flex', alignItems: 'center'}}>
-        <span style={{marginRight: '5px'}}>Last Modifed</span>
+        <span style={{marginRight: '5px'}}>Last Modified</span>
         <Icon icon='double-caret-vertical' color='#777' size={13}/>
       </span>
       <span style={{display: 'flex', alignItems: 'center', margin: 'auto'}}>
@@ -43,6 +43,8 @@ const FileElementHeader = () => {
 }
 
 const FileElementList = ({files, sortBy}) => {
+
+  console.log(files);
 
   if (!files)
     return (<div className="FileElementList centre-content"><Spinner/></div>);

@@ -1,4 +1,5 @@
 import { Icon } from "@blueprintjs/core";
+import ReactDOM from 'react-dom';
 
 const SidebarElement = ({ icon, text, size })  => {
   return (
@@ -6,6 +7,13 @@ const SidebarElement = ({ icon, text, size })  => {
       <Icon icon={ icon } size={size} style={{paddingRight: '0.6rem'}}/>
       { text }
     </div>
+  );
+}
+
+export const SidebarPortal = () => {
+  return ReactDOM.createPortal(
+    <Sidebar/>,
+    document.getElementById('sidebar')
   );
 }
 

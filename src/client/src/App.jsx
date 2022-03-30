@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Button, Icon } from "@blueprintjs/core";
 
 import FileExplorer from './components/FileExplorer';
-import Sidebar from './components/Sidebar';
+import { SidebarPortal } from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import StorageAnalyzer from './components/StorageAnalyzer';
 import credentials, { refreshToken, setTokenRefreshTimeout } from './services/auth';
@@ -59,38 +59,112 @@ const UserManager = ({ children }) => {
   );
 }
 
-const TabsBar = () => {
+const TabsBar = ({ activeTab, tabInfoList, createTabHandler, closeTabHandler, tabClickHandler }) => {
+
   return (
     <div className="TabsBar">
-      <span className="Tab">
-        <span>College</span><Icon icon='cross' size={13} style={{color: '#777'}}/>
-      </span>
-      <Button minimal style={{marginLeft: "2px", alignSelf: "center", borderRadius: '50%'}}><Icon icon='plus' color="#777"/></Button>
+      { 
+        tabInfoList.map(tabInfo => 
+          <span className="Tab" key={tabInfo.id.concat('tab')} onClick={() => tabClickHandler(tabInfo.id)}>
+            <span>{ tabInfo.path }</span>
+            <Icon
+              icon='cross'
+              size={13}
+              style={{color: '#777'}}
+              onClick={() => closeTabHandler(tabInfo.id)}
+            />
+          </span>
+        )
+      }
+      <Button
+        minimal
+        style={{marginLeft: "2px", alignSelf: "center", borderRadius: '50%'}}><Icon icon='plus' color="#777"
+        onClick={createTabHandler}
+      />
+      </Button>
     </div>
+  );
+}
+
+const TabManager = (props) => {
+  const navigate = useNavigate();
+
+  const [activeTabID, setActiveTabID] = useState('default');
+  const [tabInfoList, setTabInfoList] = useState([{
+    id: 'default',
+    path: 'root'
+  }, {
+    id: 'second-tab',
+    path: 'storage-analyzer'
+  }]);
+
+  function createTabHandler(tabID) {
+    const newTab = {
+      id: 'new-tab' + new Date(),
+      path: 'dashboard'
+    };
+    setTabInfoList([...tabInfoList, newTab]);
+    navigate('/' + newTab.path);
+  }
+
+  function closeTabHandler(tabID) {
+    setTabInfoList(tabInfoList.filter(tabInfo => tabInfo.id !== tabID));
+  }
+
+  function tabClickHandler(tabID) {
+    const newActiveTab = tabInfoList.find(tabInfo => tabInfo.id === tabID);
+    console.log('tab clicked', newActiveTab);
+    setActiveTabID(newActiveTab.id);
+    navigate('/' + newActiveTab.path);
+  }
+
+  const tabs = tabInfoList.map(tabInfo => <Tab key={tabInfo.id} path={tabInfo.path}/>);
+  const activeTab = tabs.filter(tab => tab.key === activeTabID);
+
+  console.log(14, tabInfoList);
+  console.log(15, tabs);
+  console.log(16, activeTabID);
+  console.log(17, activeTab);
+
+  return (
+    <>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh'
+      }}>
+        <TabsBar
+          activeTabID={activeTabID}
+          tabInfoList={tabInfoList}
+          tabClickHandler={tabClickHandler}
+          createTabHandler={createTabHandler}
+          closeTabHandler={closeTabHandler}
+        />
+        { activeTab }
+      </div>
+    </>
+  );
+}
+
+const Tab = (props) => {
+
+  return (
+    <UserManager>
+      <SidebarPortal/>
+      <Routes>
+        <Route path="/dashboard" element={<Dashboard/>}/>
+        <Route path="/storage-analyzer" element={<StorageAnalyzer/>}/>
+        <Route path="/:fileId" element={<FileExplorer/>}/>
+        <Route path="*" element={<Navigate to="/root" />} />
+      </Routes>
+    </UserManager>
   );
 }
 
 const App = () => {
   return (
     <div className="App">
-      <UserManager>
-        <div className="MainContent">
-          <Sidebar/>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100vh'
-          }}>
-            <TabsBar/>
-            <Routes>
-              <Route path="/dashboard" element={<Dashboard/>}/>
-              <Route path="/storage-analyzer" element={<StorageAnalyzer/>}/>
-              <Route path="/:fileId" element={<FileExplorer/>}/>
-              <Route path="*" element={<Navigate to="/root" />} />
-            </Routes>
-          </div>
-        </div>
-      </UserManager>
+      <TabManager />
     </div>
   );
 }

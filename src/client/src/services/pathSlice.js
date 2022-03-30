@@ -78,7 +78,7 @@ export const calculatePathFromFileID = fileID => dispatch => {
       let currentFile = cachedFolders.find(file => file.id === fileID);
       let path = [];
 
-      while (currentFile.parents) {
+      while (currentFile && currentFile.parents) {
         const parentID = currentFile.parents[0];
         path.unshift(currentFile);
         currentFile = selectFolders(store.getState()).find(folder => folder.id === parentID);
