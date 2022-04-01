@@ -26,7 +26,7 @@ const UserManager = () => {
   const users = useSelector(selectUsers);
   const dispatch = useDispatch();
 
-  const setTokenRefreshTimeout = user => {
+  const setTokenRefreshTimeout = (user, expiryDate) => {
     clearTimeout(user.refreshTimeout);
 
     return setTimeout(() => {
@@ -37,14 +37,15 @@ const UserManager = () => {
             refreshToken: user.refreshToken,
             accessToken: data.access_token,
             expiryDate: data.expiry_date,
-            scope: data.scope
+            scope: data.scope,
+            refreshTimeout: setTokenRefreshTimeout(user, data.expiry_date)
           }))
         })
         // .then(() => window.location.reload(false))
         .catch((error) => {
           alert(JSON.stringify(error));
         });
-    }, (user.expiryDate - new Date()) - 10000);
+    }, (expiryDate - new Date()) - 10000);
   };
 
   useEffect(() => {
@@ -54,7 +55,7 @@ const UserManager = () => {
       dispatch(fetchAndAddUser({
         refreshToken: user.refreshToken,
         accessToken: user.accessToken,
-        refreshTimeout: setTokenRefreshTimeout(user)
+        refreshTimeout: setTokenRefreshTimeout(user, user.expiryDate)
       }));
       dispatch(fetchDirectoryStructure(user.minifiedID));   // Remove this once directory is persisted.
     });
@@ -93,6 +94,7 @@ const TabsBar = () => {
               size={13}
               style={{
                 color: tabs.length === 1 ? '#ddd' : '#777',
+                // cursor: tabs.length === 1 ? 'not-allowed' : 'inherit',
                 // visibility: tabs.length === 1 ? 'hidden' : 'inherit'
               }}
               onClick={() => dispatch(deleteTab(tabInfo.id))}
