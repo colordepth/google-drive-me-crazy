@@ -5,7 +5,7 @@ import ReactTimeAgo from 'react-time-ago';
 
 import store from '../services/store';
 import { addToPath } from '../services/pathSlice';
-import { selectDirectoryTree } from '../services/directoryTreeSlice';
+import { selectDirectoryTreeForUser } from '../services/directoryTreeSlice';
 import { clearFilesList, switchSelection, selectSelectedFilesID } from '../services/currentDirectorySlice';
 import './FileElement.css';
 
@@ -14,9 +14,9 @@ function humanFileSize(size) {
   return ( size / Math.pow(1024, i) ).toFixed(1) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
 };
 
-const LastViewedTime = ({file}) => {
-  if (file.viewedByMeTime)
-    return <span><ReactTimeAgo date={ new Date(file.viewedByMeTime)}/></span>
+const HumanReadableTime = ({epoch}) => {
+  if (epoch)
+    return <span><ReactTimeAgo date={ new Date(epoch)}/></span>
   return <span style={{marginLeft: '2rem'}}>-</span>
 }
  
@@ -40,11 +40,11 @@ function doubleClickHandler(file, navigate) {
 }
 
 const File = ({file}) => {
-  const directoryTree = useSelector(selectDirectoryTree);
+  const directoryTree = useSelector(selectDirectoryTreeForUser('qvuQXkR7SAA='));
   const selectedFilesID = useSelector(selectSelectedFilesID);
   const navigate = useNavigate();
 
-  let fileSize = '1';
+  let fileSize = <><Spinner size={20}/></>;
 
   if (file.mimeType !== "application/vnd.google-apps.folder")
     fileSize = humanFileSize(parseInt(file.quotaBytesUsed));
@@ -52,7 +52,7 @@ const File = ({file}) => {
     if (directoryTree[file.id])
       fileSize = humanFileSize(parseInt(directoryTree[file.id].quotaBytesUsed));
     else
-      fileSize = <><Spinner size={20}/></>;
+      fileSize = 'undefined';
   }
   return (
       <div
@@ -61,9 +61,9 @@ const File = ({file}) => {
         className={selectedFilesID.find(id => id === file.id) ? 'FileElement Selected' : 'FileElement'}
       >
         <Icon icon={<img src={ file.iconLink } alt="icon"/>} intent='none'/>
-        <div><Text ellipsize='true' style={{color: "black"}}>{ file.name }</Text></div>
-        <LastViewedTime file={ file }/>
-        <ReactTimeAgo date={ new Date(file.modifiedTime) }/>
+        <div style={{maxWidth: '25rem'}}><Text ellipsize='true' style={{color: "black"}}>{ file.name }</Text></div>
+        <HumanReadableTime epoch={ file.viewedByMeTime }/>
+        <HumanReadableTime epoch={ file.modifiedTime }/>
         <div style={{marginLeft: 'auto', marginRight: '1rem'}}>{ fileSize }</div>
       </div>
   );

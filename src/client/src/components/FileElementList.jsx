@@ -3,7 +3,8 @@ import { Spinner, Icon, Button } from "@blueprintjs/core";
 import FileElement from './FileElement';
 
 const listStyle = {
-  listStyle: 'none'
+  listStyle: 'none',
+  width: '100%'
 }
 
 function EmptyFolder() {
@@ -21,7 +22,7 @@ function EmptyFolder() {
 
 const FileElementHeader = () => {
   return (
-    <div className="FileElementHeader">
+    <>
       <span style={{gridColumn: '1 / span 2', display: 'flex', alignItems: 'center'}}>
         <span style={{marginRight: '4px'}}>File Name</span>
         <Icon icon='caret-down' color='#777' size={13}/>
@@ -38,13 +39,11 @@ const FileElementHeader = () => {
         <span style={{marginRight: '5px'}}>Size</span>
         <Icon icon='double-caret-vertical' color='#777' size={13}/>
       </span>
-    </div>
+    </>
   );
 }
 
 const FileElementList = ({files, sortBy}) => {
-
-  console.log(files);
 
   if (!files)
     return (<div className="FileElementList centre-content"><Spinner/></div>);
@@ -52,10 +51,9 @@ const FileElementList = ({files, sortBy}) => {
   if (files.length === 0)
     return (<div className="FileElementList centre-content"><EmptyFolder/></div>);
 
-
   return (
     <ul className="FileElementList">
-      <li style={listStyle}>
+      <li className="FileElementHeader" style={listStyle}>
         <FileElementHeader/>
       </li>
       {

@@ -3,6 +3,7 @@
   grid-template-columns: 30px 1fr repeat(2, 8rem) 4.7rem 4rem;
   padding: 0.6rem;
   cursor: pointer;
+  width: 100%;
 }
 
 .FileElement {
@@ -15,9 +16,14 @@
 
 .FileElementHeader {
   padding-top: 1rem;
+  padding-bottom: 0.75rem;
   border-radius: 2px;
-  /*border: 1px solid #ddd;*/
+  /* border-bottom: 1px solid #eee; */
+  box-shadow: 0px 1px #eee;
   color: #777;
+  position: sticky;
+  top: 0px;
+  background: #fbfbfd;
 }
 
 .FileElement:hover {

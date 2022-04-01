@@ -14,10 +14,12 @@
   
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .StorageGraphs {
   display: flex;
   justify-content: space-around;
   padding: 1rem;
+  max-width: 100%;
 }

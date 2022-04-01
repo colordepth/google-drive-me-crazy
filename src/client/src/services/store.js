@@ -1,14 +1,54 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import localStorage from 'redux-persist/lib/storage';
+import sessionStorage from 'redux-persist/lib/storage/session';
+import {
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+
+import directoryTreeReducer from './directoryTreeSlice';
+import currentDirectoryReducer from './currentDirectorySlice';
+import userReducer from './userSlice';
 import pathReducer from './pathSlice';
-import directoryTreeSlice from './directoryTreeSlice';
-import currentDirectorySlice from './currentDirectorySlice';
-// import tabReducer from './tabSlice';
+import tabReducer from './tabSlice';
+
+const userPersistConfig = {
+  key: 'user',
+  storage: localStorage
+}
+
+const tabPersistConfig = {
+  key: 'tab',
+  storage: sessionStorage
+}
+
+const directoryPersistConfig = {
+  key: 'directory',
+  storage: 'indexeddbssssssss'
+}
+
+const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
+
+const reducers = combineReducers({
+  path: pathReducer,
+  directoryTree: directoryTreeReducer,
+  currentDirectory: currentDirectoryReducer,
+  tabs: tabReducer,
+  users: persistedUserReducer
+});
 
 export default configureStore({
-	reducer: {
-    path: pathReducer,
-    directoryTree: directoryTreeSlice,
-    currentDirectory: currentDirectorySlice,
-    // tabs: tabReducer
-  }
+	reducer: reducers,
+  devTools: process.env.NODE_ENV !== 'production',
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });

@@ -1,12 +1,17 @@
+.App {
+  width: 100%;
+}
+
 .MainContent {
   /* SideBar + FileExplorer */
   display: grid;
   grid-template-columns: 17.5rem 1fr;
+  width: 100%;
 }
 
 .SideBar {
   padding-top: 2rem;
-  padding-left: 2.5rem;
+  padding-left: 2.2rem;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -58,6 +63,7 @@
   flex-grow: 1;
   padding: 0 2rem 0 2rem;
   margin: 0;
+  max-width: 100%;
 }
 
 .AddressBar {
@@ -73,13 +79,26 @@
 
 .Tab {
   display:  flex;
-  background-color: #f8f6fb;
+  background-color: #ddd7e7;
   justify-content: space-between;
   align-items: center;
   padding:  5px 10px;
   border-radius: 2px 4px 0 0;
   margin-right: 2px;
   min-width: 8rem;
+  cursor: pointer;
+}
+
+.Tab:hover {
+  background-color: #e4ddee;
+}
+
+.ActiveTab {
+  background-color: #f8f6fb;
+}
+
+.ActiveTab:hover {
+  background-color: #f8f6fb;
 }
 
 .centre-content {
@@ -113,17 +132,29 @@
   display: flex;
   align-items: center;
   padding: 0.3rem;
+  padding-left: 0.6rem;
   font-size: 15px;
   font-weight: 600;
   color:  #444;
+  cursor: pointer;
+  border-radius: 10px;
+  margin-right: 2.5rem;
 }
 
 .SidebarElement {
   display: flex;
   align-items: center;
   padding: 0.4rem;
-  padding-left: 0.6rem;
+  padding-left: 0.9rem;
   font-size: 15px;
   font-weight: 400;
   color: #808188;
+  cursor: pointer;
+  border-radius: 15px;
+  margin-right: 2.5rem;
+  margin-left: 0.3rem;
+}
+
+.SidebarElement:hover, .SidebarHeader:hover {
+  background: #e4e2fb;
 }

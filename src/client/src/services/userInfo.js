@@ -1,14 +1,13 @@
 import axios from 'axios';
-import credentials from './auth';
 var Buffer = require('buffer').Buffer;
 
 const baseUrlDriveAPIv2 = 'https://www.googleapis.com/drive/v2';
 const baseUrlDriveAPIv3 = 'https://www.googleapis.com/drive/v3';
 
-export function getAbout(requestedFields) {
+export function getAbout(credentials, requestedFields) {
 
   return axios.get(baseUrlDriveAPIv3 + '/about', {
-    headers: { Authorization: `Bearer ${credentials.access_token}`},
+    headers: { Authorization: `Bearer ${credentials.accessToken}`},
     params: {
       fields: requestedFields.join(' '),
     }
@@ -16,18 +15,16 @@ export function getAbout(requestedFields) {
   .then(res => res.data)
   .then(data => {
     return {
-      user: {
-        ...data.user,
-        minifiedID: Buffer.from((parseInt(data.user.permissionId)).toString(16), 'hex').toString('base64'),
-      }
+      ...data.user,
+      minifiedID: Buffer.from((parseInt(data.user.permissionId)).toString(16), 'hex').toString('base64'),
     }
   });
 }
 
-export function getQuotaDetails() {
+export function getQuotaDetails(credentials) {
 
   return axios.get(baseUrlDriveAPIv2 + '/about', {
-    headers: { Authorization: `Bearer ${credentials.access_token}`},
+    headers: { Authorization: `Bearer ${credentials.accessToken}`},
     params: {
       fields: 'quotaBytesUsed,quotaBytesUsed,quotaBytesUsedAggregate,quotaBytesUsedInTrash,quotaType,quotaBytesByService'
     }

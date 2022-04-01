@@ -1,25 +1,11 @@
 import axios from 'axios';
-import credentials from './auth';
 
 const baseUrlDriveAPI = 'https://www.googleapis.com/drive/v3';
 
-export function getAllFilesInFolder (folderID, requestedFields) {
-  return getAllFiles(requestedFields, `'${folderID}' in parents`)
-}
+export function getFileByID(credentials, fileID, requestedFields) {
 
-export function getAllFolders(requestedFields) {
-  return new Promise(async (resolve, reject) => {
-    const folders = await getAllFiles(requestedFields, "mimeType = 'application/vnd.google-apps.folder'");
-    const rootFolder = await getFileByID('root', requestedFields);
-    rootFolder.isRoot = true;
-    resolve([...folders, rootFolder]);
-  });
-}
-
-export function getFileByID(ID, requestedFields) {
-
-  return axios.get(baseUrlDriveAPI + '/files/' + ID, {
-    headers: { Authorization: `Bearer ${credentials.access_token}`},
+  return axios.get(baseUrlDriveAPI + '/files/' + fileID, {
+    headers: { Authorization: `Bearer ${credentials.accessToken}`},
     params: {
       fields: `${requestedFields.join(',')}`,
     }
@@ -27,10 +13,10 @@ export function getFileByID(ID, requestedFields) {
   .then(res => res.data);
 }
 
-export function getFiles(requestedFields, pageToken=null, q) {
+export function getFiles(credentials, requestedFields, pageToken=null, q) {
 
   return axios.get(baseUrlDriveAPI + '/files', {
-    headers: { Authorization: `Bearer ${credentials.access_token}`},
+    headers: { Authorization: `Bearer ${credentials.accessToken}`},
     params: {
       orderBy: "folder,name",
       q, // q: q ? "'drive' in spaces " + q : "'drive' in spaces",
@@ -43,13 +29,13 @@ export function getFiles(requestedFields, pageToken=null, q) {
   .then(res => res.data);
 }
 
-export function getAllFiles(requestedFields, query) {
+export function getAllFiles(credentials, requestedFields, query) {
   return new Promise(async (resolve, reject) => {
     let result = [];
     let pageToken = null;
     try {
       do {
-        let data = await getFiles(requestedFields, pageToken, query);
+        let data = await getFiles(credentials, requestedFields, pageToken, query);
         pageToken = data.nextPageToken;
         result.push(...data.files); 
       }
@@ -60,4 +46,20 @@ export function getAllFiles(requestedFields, query) {
     }
     resolve(result);
   });
+}
+
+export function getAllFolders(credentials, requestedFields) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const folders = await getAllFiles(credentials, requestedFields, "mimeType = 'application/vnd.google-apps.folder'");
+      const rootFolder = await getFileByID(credentials, 'root', requestedFields);
+      rootFolder.isRoot = true;
+      resolve([...folders, rootFolder]);
+    }
+    catch (error) { reject(error); }
+  });
+}
+
+export function getAllFilesInFolder (credentials, folderID, requestedFields) {
+  return getAllFiles(credentials, requestedFields, `'${folderID}' in parents`)
 }

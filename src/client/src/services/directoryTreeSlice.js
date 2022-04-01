@@ -1,69 +1,260 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getAllFolders, getAllFiles } from './files.js';
+import { getAllFolders, getFiles } from './files.js';
+import { selectUsers } from './userSlice.js';
+import store from './store';
 
 /*
  * Files and folders are different for optimization's sake
- * Folders' list will be separately fetched, and its' tree data structure built.
+ * Folders list will be separately fetched, and its' tree data structure built.
  * This will generate a directory tree quicker and will allow for faster navigation 
  * and generating file paths instead of recursively calling Google for parent folder information
 */
 
 export const directoryTreeSlice = createSlice({
   name: 'directoryTree',
-  initialState: {
-    folders: null,
-    files: null,
-    directoryTree: {}
-  },
+  initialState: {},
   reducers: {
+    setStatus: (state, action) => {
+      const userID = action.payload.userID;
+      const status = action.payload.status;
+
+      if (!state[userID]) {
+        state[userID] = {status: {}, folders: null, files: null, directoryTree: null, userID};
+      }
+
+      state[userID].status = {...state[userID].status, ...status};
+    },
     setFoldersTo: (state, action) => {
-      state.folders = action.payload;
+      // sets and removes folders. if folder already exists, append the attributes.
+      const userID = action.payload.userID;
+
+      if (!state[userID]) {
+        state[userID] = {status: {}, folders: null, files: null, directoryTree: null, userID};
+      }
+
+      if (!state[userID].folders) {
+        state[userID].folders = action.payload.folders;
+        return;
+      }
+
+      // For folders that are both in payload and existing state,
+      // update the values and add new keys in the state
+      // For folders that are in existing state but not in the payload,
+      // remove them from the state
+      // Also dont copy 'quotaBytesUsed' for folders
+      // O(N) average
+      
+      let newFolders = action.payload.folders;
+
+      let originalStateFolderMap = {};
+      state[userID].folders.forEach(folder => originalStateFolderMap[folder.id] = folder);
+
+      newFolders
+        .map(folder => {
+          const quotaBytesUsed = originalStateFolderMap[folder.id].quotaBytesUsed;
+
+          return {...originalStateFolderMap[folder.id], ...folder, };
+        });
+      
+      state[userID].folders = newFolders;
     },
     setFilesTo: (state, action) => {
-      state.files = action.payload;
+      // sets and removes files. if file already exists, append the attributes.
+
+      const userID = action.payload.userID;
+
+      if (!state[userID]) {
+        state[userID] = { status: {}, folders: null, files: null, directoryTree: null, userID };
+      }
+
+      if (!state[userID].files) {
+        state[userID].files = action.payload.files;
+        return;
+      }
+
+      let newFiles = action.payload.files;
+      let originalStateFileMap = {};
+
+      state[userID].files.forEach(file => originalStateFileMap[file.id] = file);
+
+      newFiles
+        .map(file => {
+          return {...originalStateFileMap[file.id], ...file};
+        });
+      
+      state[userID].files = newFiles;
+    },
+    updateFiles: (state, action) => {
+      // Add files and update files provided. Does not remove files.
+
+      const userID = action.payload.userID;
+      const newFiles = action.payload.files;
+
+      if (!state[userID]) {
+        state[userID] = { status: {}, folders: null, files: null, directoryTree: null, userID };
+      }
+
+      if (!state[userID].files) {
+        state[userID].files = action.payload.files;
+        return;
+      }
+
+      let originalStateFileMap = {};
+      state[userID].files.forEach(file => originalStateFileMap[file.id] = file);
+
+      newFiles
+        .forEach(file => {
+          if (!originalStateFileMap[file.id]) {
+            originalStateFileMap[file.id] = file;
+            state[userID].files.push(file);
+          }
+          Object.keys(file).forEach(key => {
+            originalStateFileMap[file.id][key] = file[key];
+          })
+        });
+
+    },
+    updateFolders: (state, action) => {
+      // Add folders and update folders provided. Does not remove folders.
+
+      const userID = action.payload.userID;
+
+      if (!state[userID]) {
+        state[userID] = { status: {}, folders: null, files: null, directoryTree: null, userID };
+      }
+
+      if (!state[userID].folders) {
+        state[userID].folders = action.payload.folders;
+        return;
+      }
+      
+      let newFolders = action.payload.folders;
+
+      let originalStateFolderMap = {};
+      state[userID].folders.forEach(folder => originalStateFolderMap[folder.id] = folder);
+
+      newFolders
+      .forEach(folder => {
+        if (!originalStateFolderMap[folder.id]) {
+          originalStateFolderMap[folder.id] = folder;
+          state[userID].folders.push(folder);
+        }
+        Object.keys(folder).forEach(key => {
+          originalStateFolderMap[folder.id][key] = folder[key];
+        })
+      });
     },
     setDirectoryTreeTo: (state, action) => {
-      state.directoryTree = action.payload;
+      // Absolute setter
+
+      const userID = action.payload.userID;
+
+      if (!state[userID]) {
+        state[userID] = { status: {}, folders: null, files: null, directoryTree: null, userID };
+      }
+
+      if (!state[userID].directoryTree) {
+        state[userID].directoryTree = action.payload.directoryTree;
+      }
+      else {
+        let newTree = action.payload.directoryTree;
+
+        Object.keys(newTree).forEach(key => {
+          newTree[key] = {...state[userID].directoryTree[key], ...newTree[key]};
+        });
+
+        state[userID].directoryTree = newTree;
+      }
+    },
+    recalculateDirectoryTree: (state, action) => {
+      // uses state[id].folders and state[id].files to rebuild a fresh directory tree.
+      // also calculates folder size.
+
+      const userID = action.payload;
+
+      if (!state[userID]) return;
+
+      const files = state[userID].files;
+      const folders = state[userID].folders;
+      const directoryTree = buildDirectoryStructure(folders, files);
+
+      if (directoryTree) state[userID].directoryTree = directoryTree;
     }
   }
 });
 
-export const fetchAllFolders = (requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed']) => dispatch  => {
-  return getAllFolders(requestedFields)
+export const fetchAllFolders = (userID, requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed']) => dispatch  => {
+  const allUsers = selectUsers(store.getState());
+  const user = allUsers.find(user => user.minifiedID === userID);
+
+  if (!user) return;
+
+  // dispatch(setStatus({userID: user.minifiedID, status: {folders: 'FETCHING'}}));
+
+  return getAllFolders(user, requestedFields)
     .then(folders => {
-      dispatch(setFoldersTo(folders));
+      dispatch(setFoldersTo({userID: user.minifiedID, folders}));
+      // dispatch(setStatus({userID: user.minifiedID, status: {folders: 'FETCHED'}}));
       return folders;
-    })
+    });
 }
 
-export const fetchAllFiles = (requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed']) => dispatch  => {
-  return getAllFiles(requestedFields, "mimeType != 'application/vnd.google-apps.folder'")
-    .then(files => {
-      dispatch(setFilesTo(files));
-      return files;
-    })
+export const fetchAllFiles = (userID, requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed']) => dispatch  => {
+  const allUsers = selectUsers(store.getState());
+  const user = allUsers.find(user => user.minifiedID === userID);
+
+  if (!user) return;
+
+  return new Promise(async (resolve, reject) => {
+    let pageToken = null;
+
+    try {
+      do {
+        let data = await getFiles(user, requestedFields, pageToken, "mimeType != 'application/vnd.google-apps.folder'");
+        dispatch(updateFiles({userID: user.minifiedID, files: data.files}));
+        pageToken = data.nextPageToken;
+      }
+      while (!!pageToken);
+    }
+    catch (error) {
+      reject(error);
+    }
+
+    resolve();
+  });
 }
 
 function buildDirectoryStructure(folders, files) {
+  if (!folders) {
+    return;
+  }
+
   let allFiles = [...folders, ...files];
   let directoryTree = {};
 
   allFiles.forEach(file => {
-    directoryTree[file.id] = {...file};
+    directoryTree[file.id] = file;
     if (file.isRoot)
-      directoryTree['root'] = directoryTree[file.id];     // Check if modifying file.id file also modifies root file
+      directoryTree['root'] = directoryTree[file.id];
   });
+
+  var noParent = 0;
 
   allFiles.forEach(file => {
     if (file.parents) {
       const parentID = file.parents[0];
       if (!directoryTree[parentID])
-        return console.log("Missing ID. Probably Shared Folder", parentID);
+        return console.log("Missing parent object. What's this?", parentID);
       if (!directoryTree[parentID].childrenIDs)
         directoryTree[parentID].childrenIDs = [];
       directoryTree[parentID].childrenIDs.push(file.id);
     }
+    else {
+      noParent += 1;
+    }
   });
+
+  console.log("noparent", noParent);
 
   function calculateSizeRecursively(file) {
     if (file.mimeType === "application/vnd.google-apps.folder") {
@@ -83,20 +274,46 @@ function buildDirectoryStructure(folders, files) {
   return directoryTree;
 }
 
-export const fetchDirectoryStructure = (requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed']) => dispatch => {
-  Promise.all([fetchAllFolders(requestedFields)(dispatch), fetchAllFiles(requestedFields)(dispatch)])
-    .then(([folders, files]) => {
-      dispatch(setDirectoryTreeTo(buildDirectoryStructure(folders, files)));
-    });
+export const fetchDirectoryStructure = (userID, requestedFields) => dispatch => {
+  // Fetches all files and folders.
+  // Builds tree, calculates foldersize and sets directoryTree to it.
+
+  const fieldsForDirectoryTree = ['id', 'parents', 'mimeType', 'quotaBytesUsed'];
+  const fieldsForStorageAnalyzer = ['id', 'mimeType', 'quotaBytesUsed'];
+  const remainingFieldsForFileList = ['id', 'name', 'webViewLink', 'iconLink', 'modifiedTime', 'viewedByMeTime'];
+
+  Promise.all([
+      fetchAllFiles(userID, fieldsForStorageAnalyzer)(dispatch),
+      fetchAllFiles(userID, remainingFieldsForFileList)(dispatch),
+      fetchAllFolders(userID, fieldsForDirectoryTree)(dispatch),
+      fetchAllFiles(userID, fieldsForDirectoryTree)(dispatch)
+    ])
+    .then(() => {
+      dispatch(recalculateDirectoryTree(userID));
+    })
+
+  // if (requestedFields) {
+  //   Promise.all([fetchAllFolders(userID, requestedFields)(dispatch), fetchAllFiles(userID, requestedFields)(dispatch)]);
+  // }
 }
 
 // Actions
-export const { setFoldersTo, setFilesTo, setDirectoryTreeTo } = directoryTreeSlice.actions;
+export const { setFoldersTo, setFilesTo, setStatus, setDirectoryTreeTo, updateFiles, updateFolders, recalculateDirectoryTree } = directoryTreeSlice.actions;
 
 // Selectors
-export const selectFolders = state => state.directoryTree.folders;
-export const selectFiles = state => state.directoryTree.files;
-export const selectDirectoryTree = state => state.directoryTree.directoryTree;
+// usage: const folders = useSelector(selectFoldersForUserID(user_id));
+
+export const selectFoldersForUser = userID =>
+  state => state.directoryTree[userID] && state.directoryTree[userID].folders;
+
+export const selectFilesForUser = userID =>
+  state => state.directoryTree[userID] && state.directoryTree[userID].files;
+
+export const selectDirectoryTreeForUser = userID =>
+  state => state.directoryTree[userID] && state.directoryTree[userID].directoryTree;
+
+export const selectStoreStatusForUser = userID =>
+  state => state.directoryTree[userID] && state.directoryTree[userID].status;
 
 // Reducer
 export default directoryTreeSlice.reducer;

@@ -9,17 +9,11 @@ import StatusBar from './StatusBar';
 
 import { getAllFilesInFolder } from '../services/files'
 import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
-import { fetchDirectoryStructure } from '../services/directoryTreeSlice';
 import { setFilesList, selectFilesList, clearFilesList, selectSelectedFilesID } from '../services/currentDirectorySlice';
-
-// const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
-// "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
-// "contentHints", "imageMediaMetadata", "parents", "modifiedTime", "viewedByMeTime"];
+import { selectUsers } from '../services/userSlice';
 
 const requestedFields = ["id", "name", "mimeType",
-"quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "modifiedTime", "viewedByMeTime"];
-
-// contentHints(thumbnail(mimeType))
+"quotaBytesUsed", "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime"];
 
 const BackButton = () => {
   return (
@@ -88,9 +82,14 @@ const FileExplorer = () => {
   const filesList = useSelector(selectFilesList);
   const selectedFiles = useSelector(selectSelectedFilesID);
 
+  const user = useSelector(selectUsers).find(user => user.minifiedID === 'qvuQXkR7SAA=');
+
   function refreshFileExplorer() {
+    if (!user) return;
+
     dispatch(clearFilesList());
-    getAllFilesInFolder(params.fileID, requestedFields)
+
+    getAllFilesInFolder(user, params.fileID, requestedFields)
       .then(files => dispatch(setFilesList(files)))
       .catch(error => {
         console.error("updateFileList", error.message, error.response ? error.response.data.error.message : null);
@@ -98,8 +97,7 @@ const FileExplorer = () => {
     try { dispatch(calculatePathFromFileID(params.fileID)); }
     catch (error) { console.error("calculatePathFromFileID", error.message);}
   }
-  useEffect(refreshFileExplorer, [params, dispatch]);
-  useEffect(() => dispatch(fetchDirectoryStructure()), [dispatch]);
+  useEffect(refreshFileExplorer, [params, dispatch, user]);
 
   return (
     <div className="FileExplorer">
