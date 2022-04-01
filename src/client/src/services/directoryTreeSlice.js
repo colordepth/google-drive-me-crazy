@@ -14,22 +14,39 @@ export const directoryTreeSlice = createSlice({
   name: 'directoryTree',
   initialState: {},
   reducers: {
-    setStatus: (state, action) => {
+    clearFetchStatus: (state, action) => {
       const userID = action.payload.userID;
-      const status = action.payload.status;
 
       if (!state[userID]) {
-        state[userID] = {status: {}, folders: null, files: null, directoryTree: null, userID};
+        state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
       }
 
-      state[userID].status = {...state[userID].status, ...status};
+      state[userID].status.activeMajorFetches = 0;
+    },
+    incrementMajorActiveFetch: (state, action) => {
+      const userID = action.payload.userID;
+      
+      if (!state[userID]) {
+        state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
+      }
+
+      state[userID].status.activeMajorFetches += 1;
+    },
+    decrementMajorActiveFetch: (state, action) => {
+      const userID = action.payload.userID;
+      
+      if (!state[userID]) {
+        state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
+      }
+
+      state[userID].status.activeMajorFetches -= 1;
     },
     setFoldersTo: (state, action) => {
       // sets and removes folders. if folder already exists, append the attributes.
       const userID = action.payload.userID;
 
       if (!state[userID]) {
-        state[userID] = {status: {}, folders: null, files: null, directoryTree: null, userID};
+        state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
       }
 
       if (!state[userID].folders) {
@@ -51,8 +68,6 @@ export const directoryTreeSlice = createSlice({
 
       newFolders
         .map(folder => {
-          const quotaBytesUsed = originalStateFolderMap[folder.id].quotaBytesUsed;
-
           return {...originalStateFolderMap[folder.id], ...folder, };
         });
       
@@ -64,7 +79,7 @@ export const directoryTreeSlice = createSlice({
       const userID = action.payload.userID;
 
       if (!state[userID]) {
-        state[userID] = { status: {}, folders: null, files: null, directoryTree: null, userID };
+        state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
       }
 
       if (!state[userID].files) {
@@ -91,7 +106,7 @@ export const directoryTreeSlice = createSlice({
       const newFiles = action.payload.files;
 
       if (!state[userID]) {
-        state[userID] = { status: {}, folders: null, files: null, directoryTree: null, userID };
+        state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
       }
 
       if (!state[userID].files) {
@@ -120,7 +135,7 @@ export const directoryTreeSlice = createSlice({
       const userID = action.payload.userID;
 
       if (!state[userID]) {
-        state[userID] = { status: {}, folders: null, files: null, directoryTree: null, userID };
+        state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
       }
 
       if (!state[userID].folders) {
@@ -150,7 +165,7 @@ export const directoryTreeSlice = createSlice({
       const userID = action.payload.userID;
 
       if (!state[userID]) {
-        state[userID] = { status: {}, folders: null, files: null, directoryTree: null, userID };
+        state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
       }
 
       if (!state[userID].directoryTree) {
@@ -189,12 +204,12 @@ export const fetchAllFolders = (userID, requestedFields=['id', 'name', 'parents'
 
   if (!user) return;
 
-  // dispatch(setStatus({userID: user.minifiedID, status: {folders: 'FETCHING'}}));
+  dispatch(incrementMajorActiveFetch({userID: user.minifiedID}));
 
   return getAllFolders(user, requestedFields)
     .then(folders => {
       dispatch(setFoldersTo({userID: user.minifiedID, folders}));
-      // dispatch(setStatus({userID: user.minifiedID, status: {folders: 'FETCHED'}}));
+      dispatch(decrementMajorActiveFetch({userID: user.minifiedID}));
       return folders;
     });
 }
@@ -204,6 +219,8 @@ export const fetchAllFiles = (userID, requestedFields=['id', 'name', 'parents', 
   const user = allUsers.find(user => user.minifiedID === userID);
 
   if (!user) return;
+
+  dispatch(incrementMajorActiveFetch({userID: user.minifiedID}));
 
   return new Promise(async (resolve, reject) => {
     let pageToken = null;
@@ -220,6 +237,7 @@ export const fetchAllFiles = (userID, requestedFields=['id', 'name', 'parents', 
       reject(error);
     }
 
+    dispatch(decrementMajorActiveFetch({userID: user.minifiedID}));
     resolve();
   });
 }
@@ -291,14 +309,21 @@ export const fetchDirectoryStructure = (userID, requestedFields) => dispatch => 
     .then(() => {
       dispatch(recalculateDirectoryTree(userID));
     })
-
-  // if (requestedFields) {
-  //   Promise.all([fetchAllFolders(userID, requestedFields)(dispatch), fetchAllFiles(userID, requestedFields)(dispatch)]);
-  // }
 }
 
 // Actions
-export const { setFoldersTo, setFilesTo, setStatus, setDirectoryTreeTo, updateFiles, updateFolders, recalculateDirectoryTree } = directoryTreeSlice.actions;
+export const {
+  clearFetchStatus,
+  incrementMajorActiveFetch,
+  decrementMajorActiveFetch,
+  setFoldersTo,
+  setFilesTo,
+  setStatus,
+  setDirectoryTreeTo,
+  updateFiles,
+  updateFolders,
+  recalculateDirectoryTree
+} = directoryTreeSlice.actions;
 
 // Selectors
 // usage: const folders = useSelector(selectFoldersForUserID(user_id));
@@ -314,6 +339,9 @@ export const selectDirectoryTreeForUser = userID =>
 
 export const selectStoreStatusForUser = userID =>
   state => state.directoryTree[userID] && state.directoryTree[userID].status;
+
+export const selectActiveMajorFetchCount = userID =>
+  state => state.directoryTree[userID] && state.directoryTree[userID].status.activeMajorFetches;
 
 // Reducer
 export default directoryTreeSlice.reducer;

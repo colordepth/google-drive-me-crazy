@@ -167,8 +167,8 @@ const Tab = ({tabID}) => {
         <>
           <SidebarPortal element={ <UserSidebar userID={self.userID}/> } />
           <Routes>
-            <Route path="storage-analyzer" element={<StorageAnalyzer/>}/>
-            <Route path=":fileID" element={<FileExplorer/>}/>
+            <Route path="storage-analyzer" element={<StorageAnalyzer userID={self.userID}/>}/>
+            <Route path=":fileID" element={<FileExplorer userID={self.userID}/>}/>
             <Route path="*" element={<Navigate to="./../root" />}/>
           </Routes>
         </>

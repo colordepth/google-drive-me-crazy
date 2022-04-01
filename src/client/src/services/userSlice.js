@@ -61,6 +61,7 @@ export const userSlice = createSlice({
 
 export const { addUser, removeUserByID, updateUser } = userSlice.actions;
 export const selectUsers = state => state.users.users;
+export const selectUserByID = userID => state => selectUsers(state).find(user => user.minifiedID === userID);
 
 export const fetchAndAddUser = credentials => dispatch => {
   dispatch(addUser(credentials));

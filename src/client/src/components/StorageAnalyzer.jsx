@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef, memo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import FileElementList from './FileElementList';
 import StatusBar from './StatusBar';
 import './StorageAnalyzer.css';
 
-import { selectFilesForUser, selectStoreStatusForUser } from '../services/directoryTreeSlice';
+import { selectFilesForUser, selectActiveMajorFetchCount } from '../services/directoryTreeSlice';
 
 function humanFileSize(size) {
   var i = !size ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
@@ -101,16 +101,10 @@ const DonutChart = memo(({name}) => {
   );
 });
 
-const StorageAnalyzer = () => {
+const StorageAnalyzer = ({ userID }) => {
 
-  const files = useSelector(selectFilesForUser('qvuQXkR7SAA='));
-  const status = useSelector(selectStoreStatusForUser('qvuQXkR7SAA='));
-
-  // const dispatch = useDispatch();
-  const [data, setData] = useState([]);
-  // const user = useSelector(selectUsers).find(user => user.minifiedID === 'qvuQXkR7SAA=');
-
-  // useEffect(() => {dispatch(fetchDirectoryStructure('qvuQXkR7SAA=', requestedFields))}, [user]);
+  const files = useSelector(selectFilesForUser(userID));
+  const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));
 
   useEffect(() => {
     if (!files) return;
@@ -159,7 +153,7 @@ const StorageAnalyzer = () => {
         <DonutChart name='fileSize'/>
         <DonutChart name='fileCount'/>
       </div>
-      <FileElementList files={files} foldersFirst={false} sortBy='quotaBytesUsed'/>
+      <FileElementList loading={activeMajorFetchCount} files={files} foldersFirst={false} sortBy='quotaBytesUsed'/>
       <StatusBar noOfFiles={files && files.length}/>
     </div>
   );  

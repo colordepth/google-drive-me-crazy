@@ -10,7 +10,7 @@ import StatusBar from './StatusBar';
 import { getAllFilesInFolder } from '../services/files'
 import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
 import { setFilesList, selectFilesList, clearFilesList, selectSelectedFilesID } from '../services/currentDirectorySlice';
-import { selectUsers } from '../services/userSlice';
+import { selectUserByID } from '../services/userSlice';
 
 const requestedFields = ["id", "name", "mimeType",
 "quotaBytesUsed", "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime"];
@@ -75,14 +75,14 @@ const ToolBar = () => {
     );
 }
 
-const FileExplorer = () => {
+const FileExplorer = ({ userID }) => {
   const params = useParams();
   const dispatch = useDispatch();
 
   const filesList = useSelector(selectFilesList);
   const selectedFiles = useSelector(selectSelectedFilesID);
 
-  const user = useSelector(selectUsers).find(user => user.minifiedID === 'qvuQXkR7SAA=');
+  const user = useSelector(selectUserByID(userID));
 
   function refreshFileExplorer() {
     if (!user) return;

@@ -43,9 +43,9 @@ const FileElementHeader = () => {
   );
 }
 
-const FileElementList = ({files, sortBy}) => {
+const FileElementList = ({files, sortBy, loading}) => {
 
-  if (!files)
+  if (!files || loading)
     return (<div className="FileElementList centre-content"><Spinner/></div>);
 
   if (files.length === 0)
