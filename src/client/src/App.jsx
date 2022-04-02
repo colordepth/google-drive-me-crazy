@@ -11,7 +11,7 @@ import { fetchAndAddUser, selectUsers } from './services/userSlice';
 import { fetchDirectoryStructure } from './services/directoryTreeSlice';
 import './App.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { createTab, selectActiveTab, selectTab, selectTabs, switchActiveTab, deleteTab } from './services/tabSlice';
+import { createTab, selectActiveTab, selectTab, selectTabs, switchActiveTab, deleteTab, selectActivePath } from './services/tabSlice';
 
 // const requestedFields = ["id", "name", "size", "mimeType", "fileExtension", "fullFileExtension",
 // "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "hasThumbnail", "thumbnailLink", "description",
@@ -88,7 +88,7 @@ const TabsBar = () => {
             className={tabInfo.id === activeTab.id ? "ActiveTab Tab" : "Tab"}
             onClick={() => dispatch(switchActiveTab(tabInfo.id))}
           >
-            <span>{ tabInfo.name }</span>
+            <span>{ tabInfo.pathHistory.at(-1).name }</span>
             <Icon
               icon='cross'
               size={13}
@@ -116,9 +116,9 @@ const TabsBar = () => {
   );
 }
 
-function getFullPathfromTab(tab) {
-  if (tab.path === 'dashboard') return `/${tab.path}`;
-  return `/${tab.userID}/${tab.path}`
+function getURLPath(pathObject) {
+  if (pathObject.path === 'dashboard') return `/${pathObject.path}`;
+  return `/${pathObject.userID}/${pathObject.path}`
 }
 
 const TabManager = (props) => {
@@ -126,15 +126,12 @@ const TabManager = (props) => {
 
   const tabs = useSelector(selectTabs);
   const activeTab = useSelector(selectActiveTab);
+  const activeTabPath = useSelector(selectActivePath(activeTab.id));
 
-  useEffect(() => navigate(getFullPathfromTab(activeTab)), [activeTab]);
-
-  // if (tabInfoList.length === 0) {
-  //   setTabInfoList([{ id: 'default', path: 'root' }]);
-  // }
+  useEffect(() => navigate(getURLPath(activeTabPath)), [activeTabPath]);
 
   const tabElements = tabs.map(tabInfo =>
-    <Tab key={tabInfo.id} tabID={tabInfo.id} path={tabInfo.path}/>
+    <Tab key={tabInfo.id} tabID={tabInfo.id}/>
   );
   const activeTabElement = tabElements.find(tab => tab.key === activeTab.id);
 
@@ -155,6 +152,9 @@ const TabManager = (props) => {
 
 const Tab = ({tabID}) => {
   const self = useSelector(selectTab(tabID));
+  const activeTabPath = useSelector(selectActivePath(tabID));
+
+  const [fileExplorerSelectedFiles, setFileExplorerSelectedFiles] = useState([]);
 
   // TODO: Move SideBarPortal to storage analyzer, file explorer and dashboard itself
   return (
@@ -167,10 +167,17 @@ const Tab = ({tabID}) => {
       }/>
       <Route path="/:userID/*" element={
         <>
-          <SidebarPortal element={ <UserSidebar userID={self.userID}/> } />
+          <SidebarPortal element={ <UserSidebar userID={activeTabPath.userID}/> } />
           <Routes>
-            <Route path="storage-analyzer" element={<StorageAnalyzer userID={self.userID}/>}/>
-            <Route path=":fileID" element={<FileExplorer userID={self.userID}/>}/>
+            <Route path="storage-analyzer" element={<StorageAnalyzer userID={activeTabPath.userID}/>}/>
+            <Route path=":fileID" element={
+              <FileExplorer
+                userID={activeTabPath.userID}
+                selectedFiles={fileExplorerSelectedFiles}
+                setSelectedFiles={setFileExplorerSelectedFiles}
+                tab={self}
+              />
+            }/>
             <Route path="*" element={<Navigate to="./../root" />}/>
           </Routes>
         </>

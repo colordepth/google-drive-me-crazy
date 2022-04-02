@@ -7,21 +7,30 @@ export const tabSlice = createSlice({
     tabHistory: ['default'],
     tabs: [{
       id: 'default',
-      name: 'College',
-      path: 'root',
-      userID: 'qvuQXkR7SAA='
+      pathHistory: [{
+        path: 'root',
+        name: 'College',
+        userID: 'qvuQXkR7SAA='
+      }],
+      activePathIndex: 0
     },
     {
       id: uuidv4(),
-      name: 'Storage Analyzer',
-      path: 'storage-analyzer',
-      userID: 'qvuQXkR7SAA='
+      pathHistory: [{
+        path: 'storage-analyzer',
+        name: 'Storage Analyzer',
+        userID: 'qvuQXkR7SAA='
+      }],
+      activePathIndex: 0
     },
     {
       id: uuidv4(),
-      name: 'Dashboard',
-      path: 'dashboard',
-      userID: null
+      pathHistory: [{
+        path: 'dashboard',
+        name: 'Dashboard',
+        userID: null
+      }],
+      activePathIndex: 0
     }]
   },
   reducers: {
@@ -46,27 +55,53 @@ export const tabSlice = createSlice({
         state.tabHistory.push(state.tabs[0].id);
       }
     },
-    updateTabInfo: (state, action) => {
+    openPath: (state, action) => {
+      const targetID = action.payload.id;
+      const targetTab = state.tabs.find(tab => tab.id === targetID);
+      const pathObject = action.payload.path;
+
+      // Clear path history after activePathIndex
+      targetTab.pathHistory = targetTab.pathHistory.slice(0, targetTab.activePathIndex+1);
+
+      targetTab.pathHistory.push({
+        path: pathObject.path,
+        name: pathObject.name,
+        userID: pathObject.userID || null
+      })
+    },
+    pathHistoryBack: (state, action) => {
       const targetID = action.payload.id;
       const targetTab = state.tabs.find(tab => tab.id === targetID);
 
-      Object.keys(action.payload).forEach(key => {
-        targetTab[key] = action.payload[key];
-      });
+      targetTab.activePathIndex -= 1;
+      if (targetTab.activePathIndex < 0) targetTab.activePathIndex = 0;
+    },
+    pathHistoryForward: (state, action) => {
+      const targetID = action.payload.id;
+      const targetTab = state.tabs.find(tab => tab.id === targetID);
+      const noOfPaths = targetTab.pathHistory.length;
+
+      targetTab.activePathIndex += 1;
+      if (targetTab.activePathIndex >= noOfPaths){
+        targetTab.activePathIndex = noOfPaths - 1;
+      }
     }
   }
 });
 
-export const { switchActiveTab, addTab, deleteTab, updateTabInfo } = tabSlice.actions;
+export const { switchActiveTab, addTab, deleteTab, openPath, pathHistoryBack, pathHistoryForward } = tabSlice.actions;
 
 export const createTab = (tabInfo={}) => dispatch => {
-  const path = tabInfo.path || 'dashboard';
+  const pathObject = tabInfo.pathObject || {
+    name: 'Dashboard',
+    path: 'dashboard',
+    userID: null
+  };
 
   const newTab = {
     id: uuidv4(),
-    name: tabInfo.name || (path === 'dashboard' ? 'Dashboard' : 'New Tab'),
-    path,
-    userID: tabInfo.userID || null
+    pathHistory: [pathObject],
+    activePathIndex: 0
   }
   dispatch(addTab(newTab));
 
@@ -78,5 +113,9 @@ export const selectActiveTabID = state => selectTabHistory(state).at(-1);
 export const selectTabHistory = state => state.tabs.tabHistory;
 export const selectTabs = state => state.tabs.tabs;
 export const selectTab = tabID => state => selectTabs(state).find(tab => tab.id === tabID);
+export const selectActivePath = tabID => state => {
+  const tab = selectTab(tabID)(state);
+  return tab.pathHistory.at(tab.activePathIndex);
+}
 
 export default tabSlice.reducer;
