@@ -15,7 +15,7 @@ export const directoryTreeSlice = createSlice({
   initialState: {},
   reducers: {
     clearFetchStatus: (state, action) => {
-      const userID = action.payload.userID;
+      const userID = action.payload;
 
       if (!state[userID]) {
         state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
@@ -24,7 +24,7 @@ export const directoryTreeSlice = createSlice({
       state[userID].status.activeMajorFetches = 0;
     },
     incrementMajorActiveFetch: (state, action) => {
-      const userID = action.payload.userID;
+      const userID = action.payload;
       
       if (!state[userID]) {
         state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
@@ -33,7 +33,7 @@ export const directoryTreeSlice = createSlice({
       state[userID].status.activeMajorFetches += 1;
     },
     decrementMajorActiveFetch: (state, action) => {
-      const userID = action.payload.userID;
+      const userID = action.payload;
       
       if (!state[userID]) {
         state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
@@ -204,12 +204,12 @@ export const fetchAllFolders = (userID, requestedFields=['id', 'name', 'parents'
 
   if (!user) return;
 
-  dispatch(incrementMajorActiveFetch({userID: user.minifiedID}));
+  dispatch(incrementMajorActiveFetch(user.minifiedID));
 
   return getAllFolders(user, requestedFields)
     .then(folders => {
-      dispatch(setFoldersTo({userID: user.minifiedID, folders}));
-      dispatch(decrementMajorActiveFetch({userID: user.minifiedID}));
+      dispatch(updateFolders({userID: user.minifiedID, folders}));
+      dispatch(decrementMajorActiveFetch(user.minifiedID));
       return folders;
     });
 }
@@ -220,7 +220,7 @@ export const fetchAllFiles = (userID, requestedFields=['id', 'name', 'parents', 
 
   if (!user) return;
 
-  dispatch(incrementMajorActiveFetch({userID: user.minifiedID}));
+  dispatch(incrementMajorActiveFetch(user.minifiedID));
 
   return new Promise(async (resolve, reject) => {
     let pageToken = null;
@@ -237,7 +237,7 @@ export const fetchAllFiles = (userID, requestedFields=['id', 'name', 'parents', 
       reject(error);
     }
 
-    dispatch(decrementMajorActiveFetch({userID: user.minifiedID}));
+    dispatch(decrementMajorActiveFetch(user.minifiedID));
     resolve();
   });
 }
@@ -299,16 +299,37 @@ export const fetchDirectoryStructure = (userID, requestedFields) => dispatch => 
   const fieldsForDirectoryTree = ['id', 'parents', 'mimeType', 'quotaBytesUsed'];
   const fieldsForStorageAnalyzer = ['id', 'mimeType', 'quotaBytesUsed'];
   const remainingFieldsForFileList = ['id', 'name', 'webViewLink', 'iconLink', 'modifiedTime', 'viewedByMeTime'];
+  const remainingFieldsForFolderList = ['id', 'name', 'iconLink', 'modifiedTime', 'viewedByMeTime'];
 
   Promise.all([
       fetchAllFiles(userID, fieldsForStorageAnalyzer)(dispatch),
+
       fetchAllFiles(userID, remainingFieldsForFileList)(dispatch),
+      fetchAllFolders(userID, remainingFieldsForFileList)(dispatch),
+
       fetchAllFolders(userID, fieldsForDirectoryTree)(dispatch),
-      fetchAllFiles(userID, fieldsForDirectoryTree)(dispatch)
+      fetchAllFiles(userID, fieldsForDirectoryTree)(dispatch),
+      // fetchAllFiles(userID, ['id', 'parents'])(dispatch),
+      // fetchAllFiles(userID, ['id', 'mimeType'])(dispatch),
+      // fetchAllFiles(userID, ['id', 'quotaBytesUsed'])(dispatch),
+      // fetchAllFiles(userID, ['id', 'name'])(dispatch),
+      // fetchAllFiles(userID, ['id', 'webViewLink'])(dispatch),
+      // fetchAllFiles(userID, ['id', 'iconLink'])(dispatch),
+      // fetchAllFiles(userID, ['id', 'modifiedTime'])(dispatch),
+      // fetchAllFiles(userID, ['id', 'viewedByMeTime'])(dispatch),
+      // fetchAllFiles(userID, ['id', 'name', 'fileExtension'])(dispatch),
     ])
     .then(() => {
       dispatch(recalculateDirectoryTree(userID));
     })
+}
+
+export const updateFilesAndFolders = (userID, filesFoldersList) => dispatch => {
+  const files = filesFoldersList.filter(file => file.mimeType !== "application/vnd.google-apps.folder");
+  const folders = filesFoldersList.filter(file => file.mimeType === "application/vnd.google-apps.folder");
+
+  dispatch(updateFiles({ userID, files }));
+  dispatch(updateFolders({ userID, folders }));
 }
 
 // Actions

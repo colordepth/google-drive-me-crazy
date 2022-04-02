@@ -1,5 +1,5 @@
 import { Spinner, Icon, Button } from "@blueprintjs/core";
-
+import { selectSelectedFilesID } from '../services/currentDirectorySlice';
 import FileElement from './FileElement';
 
 const listStyle = {
@@ -43,7 +43,9 @@ const FileElementHeader = () => {
   );
 }
 
-const FileElementList = ({files, sortBy, loading}) => {
+const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFiles, folderOpenHandler}) => {
+  let selectedState = {};
+  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
 
   if (!files || loading)
     return (<div className="FileElementList centre-content"><Spinner/></div>);
@@ -60,7 +62,11 @@ const FileElementList = ({files, sortBy, loading}) => {
       (sortBy === 'quotaBytesUsed' ? files.slice().sort((a, b) => b.quotaBytesUsed - a.quotaBytesUsed).slice(0, 100) : files)
         .map(file => (
           <li style={listStyle} key={file.id}>
-            <FileElement file={file}/>
+            <FileElement
+              file={file}
+              selected={selectedState[file.id]}
+              folderOpenHandler={folderOpenHandler}
+            />
           </li>
         ))
       }

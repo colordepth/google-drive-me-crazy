@@ -8,7 +8,7 @@ import Dashboard from './components/Dashboard';
 import StorageAnalyzer from './components/StorageAnalyzer';
 import credentials, { refreshToken } from './services/auth';
 import { fetchAndAddUser, selectUsers } from './services/userSlice';
-import { fetchDirectoryStructure } from './services/directoryTreeSlice';
+import { clearFetchStatus, fetchDirectoryStructure } from './services/directoryTreeSlice';
 import './App.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { createTab, selectActiveTab, selectTab, selectTabs, switchActiveTab, deleteTab, selectActivePath } from './services/tabSlice';
@@ -51,6 +51,7 @@ const UserManager = () => {
   useEffect(() => {
     users.forEach(user => {
       console.log(user);
+      dispatch(clearFetchStatus(user.minifiedID));
 
       dispatch(fetchAndAddUser({
         refreshToken: user.refreshToken,
@@ -87,6 +88,7 @@ const TabsBar = () => {
           <span
             className={tabInfo.id === activeTab.id ? "ActiveTab Tab" : "Tab"}
             onClick={() => dispatch(switchActiveTab(tabInfo.id))}
+            key={tabInfo.id.concat('_tab')}
           >
             <span>{ tabInfo.pathHistory.at(-1).name }</span>
             <Icon

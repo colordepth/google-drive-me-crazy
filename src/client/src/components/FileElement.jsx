@@ -1,12 +1,13 @@
 import { Icon, Spinner, Text } from "@blueprintjs/core";
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+
 import ReactTimeAgo from 'react-time-ago';
 
 import store from '../services/store';
 import { addToPath } from '../services/pathSlice';
+import { openPath } from '../services/tabSlice';
 import { selectDirectoryTreeForUser } from '../services/directoryTreeSlice';
-import { clearFilesList, switchSelection, selectSelectedFilesID } from '../services/currentDirectorySlice';
+import { clearFilesList, switchSelection } from '../services/currentDirectorySlice';
 import './FileElement.css';
 
 function humanFileSize(size) {
@@ -27,22 +28,22 @@ function singleClickHandler(event, file) {
   }
 }
 
-function doubleClickHandler(file, navigate) {
+function doubleClickHandler(file, folderOpenHandler) {
   console.log("double click", file);
   if (file.mimeType === "application/vnd.google-apps.folder")
   {
-    store.dispatch(clearFilesList());
-    store.dispatch(addToPath(file));
-    navigate('./../' + file.id);
+    // store.dispatch(clearFilesList());
+    // store.dispatch(addToPath(file));
+    // store.dispatch(openPath(file.id));
+    folderOpenHandler(file);
+    // navigate('./../' + file.id);
   }
   else
     window.open(file.webViewLink);
 }
 
-const File = ({file}) => {
+const FileElement = ({file, selected, folderOpenHandler}) => {
   const directoryTree = useSelector(selectDirectoryTreeForUser('qvuQXkR7SAA='));
-  const selectedFilesID = useSelector(selectSelectedFilesID);
-  const navigate = useNavigate();
 
   let fileSize = <><Spinner size={20}/></>;
 
@@ -57,8 +58,8 @@ const File = ({file}) => {
   return (
       <div
         onClick={(event) => singleClickHandler(event, file)}
-        onDoubleClick={() => doubleClickHandler(file, navigate)}
-        className={selectedFilesID.find(id => id === file.id) ? 'FileElement Selected' : 'FileElement'}
+        onDoubleClick={() => doubleClickHandler(file, folderOpenHandler)}
+        className={selected ? 'FileElement Selected' : 'FileElement'}
       >
         <Icon icon={<img src={ file.iconLink } alt="icon"/>} intent='none'/>
         <div style={{maxWidth: '25rem'}}><Text ellipsize='true' style={{color: "black"}}>{ file.name }</Text></div>
@@ -70,9 +71,5 @@ const File = ({file}) => {
 }
 
 // {<Icon icon='folder-close' intent='primary' style={iconStyle}/>}
-
-const FileElement = ({file}) => {
-  return <><File file={file}/></>;
-}
 
 export default FileElement;

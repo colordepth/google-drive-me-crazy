@@ -68,16 +68,18 @@ export const tabSlice = createSlice({
         name: pathObject.name,
         userID: pathObject.userID || null
       })
+
+      targetTab.activePathIndex += 1;
     },
     pathHistoryBack: (state, action) => {
-      const targetID = action.payload.id;
+      const targetID = action.payload;
       const targetTab = state.tabs.find(tab => tab.id === targetID);
 
       targetTab.activePathIndex -= 1;
       if (targetTab.activePathIndex < 0) targetTab.activePathIndex = 0;
     },
     pathHistoryForward: (state, action) => {
-      const targetID = action.payload.id;
+      const targetID = action.payload;
       const targetTab = state.tabs.find(tab => tab.id === targetID);
       const noOfPaths = targetTab.pathHistory.length;
 

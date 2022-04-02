@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Breadcrumbs, Button, InputGroup, ButtonGroup } from "@blueprintjs/core";
-import { useParams } from 'react-router-dom';
 
 import FileElementList from './FileElementList';
 import ParentDirectoryButton from './ParentDirectoryButton';
@@ -9,39 +8,49 @@ import StatusBar from './StatusBar';
 
 import { getAllFilesInFolder } from '../services/files'
 import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
-import { setFilesList, selectFilesList, clearFilesList, selectSelectedFilesID } from '../services/currentDirectorySlice';
+import { openPath, pathHistoryBack, pathHistoryForward, selectActivePath } from '../services/tabSlice';
 import { selectUserByID } from '../services/userSlice';
+import { selectDirectoryTreeForUser, selectStoreStatusForUser, updateFilesAndFolders } from '../services/directoryTreeSlice';
 
-const requestedFields = ["id", "name", "mimeType",
-"quotaBytesUsed", "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime"];
+const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed",
+  "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime"];
 
-const BackButton = () => {
+const BackButton = ({ tab }) => {
+  const dispatch = useDispatch();
+
   return (
     <Button
       icon='arrow-left'
       minimal
-      small/>
+      small
+      disabled={tab.activePathIndex === 0}
+      onClick={() => dispatch(pathHistoryBack(tab.id))}
+    />
   );
 }
 
-const ForwardButton = () => {
+const ForwardButton = ({ tab }) => {
+  const dispatch = useDispatch();
+
   return (
     <Button
       icon='arrow-right'
       minimal
       small
-      disabled/>
+      disabled={tab.activePathIndex === tab.pathHistory.length-1}
+      onClick={() => dispatch(pathHistoryForward(tab.id))}
+    />
   );
 }
 
-const NavigationBar = () => {
+const NavigationBar = ({ tab }) => {
   const breadcrumbItems = useSelector(selectBreadcrumbItems);
 
   return (
     <div className="NavigationBar">
-      <BackButton/>
-      <ForwardButton/>
-      <ParentDirectoryButton />
+      <BackButton tab={tab}/>
+      <ForwardButton tab={tab}/>
+      <ParentDirectoryButton tab={tab}/>
       <Breadcrumbs className="AddressBar" items={breadcrumbItems} fill/>
       <InputGroup
         leftIcon="search"
@@ -53,10 +62,8 @@ const NavigationBar = () => {
     </div>
   );
 }
-const ToolBar = () => {
-  const selectedFilesID = useSelector(selectSelectedFilesID);
-
-  if (selectedFilesID && !selectedFilesID.length)
+const ToolBar = ({ selectedFiles }) => {
+  if (!selectedFiles.length)
     return (
       <div className="ToolBar">
         <Button small minimal icon='add' rightIcon="chevron-down" text="New" />
@@ -75,36 +82,70 @@ const ToolBar = () => {
     );
 }
 
-const FileExplorer = ({ userID }) => {
-  const params = useParams();
+const FileExplorer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
+  const [filesList, setFilesList] = useState(null);
+  const directoryTree = useSelector(selectDirectoryTreeForUser(userID));
+  const directoryTreeStatus = useSelector(selectStoreStatusForUser(userID));
+  const activeTabPath = useSelector(selectActivePath(tab.id));
   const dispatch = useDispatch();
-
-  const filesList = useSelector(selectFilesList);
-  const selectedFiles = useSelector(selectSelectedFilesID);
 
   const user = useSelector(selectUserByID(userID));
 
-  function refreshFileExplorer() {
-    if (!user) return;
+  function refreshFileListData() {
+    
+    if (directoryTree) {
+      setFilesListFromDirectoryTree();
+      return;
+    }
+    
+    setFilesList(null);    // show loading
 
-    dispatch(clearFilesList());
-
-    getAllFilesInFolder(user, params.fileID, requestedFields)
-      .then(files => dispatch(setFilesList(files)))
+    // fetch files and also update in directoryTree
+    getAllFilesInFolder(user, activeTabPath.path, requestedFields)
+      .then(files => {
+        setFilesList(files);
+        dispatch(updateFilesAndFolders(userID, files));
+      })
       .catch(error => {
-        console.error("updateFileList", error.message, error.response ? error.response.data.error.message : null);
+        console.error("updateFileListFileExplorer",
+          error.message,
+          error.response ? error.response.data.error.message : null
+        );
       });
-    try { dispatch(calculatePathFromFileID(params.fileID)); }
-    catch (error) { console.error("calculatePathFromFileID", error.message);}
+    // try { dispatch(calculatePathFromFileID(activeTabPath.path)); }
+    // catch (error) { console.error("calculatePathFromFileID", error.message);}
   }
-  useEffect(refreshFileExplorer, [params, dispatch, user]);
+
+  function setFilesListFromDirectoryTree() {
+    if (!directoryTree) return;
+
+    const fileIDsInCurrentFolder = Object.keys(directoryTree)
+      .filter(fileID => {
+        return directoryTree[fileID].parents
+          && directoryTree[fileID].parents[0] === directoryTree[activeTabPath.path].id;
+      });
+    
+    setFilesList(fileIDsInCurrentFolder.map(id => directoryTree[id]));
+    console.log('set files from directory tree');
+  }
+
+  function folderOpenHandler(folder) {
+    dispatch(openPath({id: tab.id, path: {
+      path: folder.id,
+      name: folder.name,
+      userID
+    }}));
+  }
+
+  useEffect(refreshFileListData, [ activeTabPath ]);
+  useEffect(setFilesListFromDirectoryTree, [ directoryTree ]);
 
   return (
     <div className="FileExplorer">
-      <NavigationBar/>
-      <ToolBar/>
-      <FileElementList files={filesList}/>
-      <StatusBar noOfFiles={filesList && filesList.length} noOfSelectedFiles={selectedFiles && selectedFiles.length}/>
+      <NavigationBar tab={ tab }/>
+      <ToolBar selectedFiles={ selectedFiles }/>
+      <FileElementList files={ filesList } selectedFiles={ selectedFiles } folderOpenHandler={ folderOpenHandler }/>
+      <StatusBar noOfFiles={ filesList && filesList.length } noOfSelectedFiles={ selectedFiles.length }/>
     </div>
   );
 }
