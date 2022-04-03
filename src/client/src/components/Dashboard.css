@@ -1,0 +1,23 @@
+.DashboardElement {
+  margin-top: 1rem;
+}
+
+.UserCard {
+  display: flex;
+  border-radius: 0.6rem;
+  width: 17rem;
+  align-items: center;
+  gap: 1rem;
+  background: #E2E2F0;
+  cursor: pointer;
+  box-shadow: 0px 2x 0px 0px #DEDEDE;
+  margin: 1rem 1rem 0rem 0rem;
+  padding: 1rem;
+}
+
+.DashboardTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #444
+}
