@@ -13,7 +13,7 @@ import { selectUserByID } from '../services/userSlice';
 import { selectDirectoryTreeForUser, selectStoreStatusForUser, updateFilesAndFolders } from '../services/directoryTreeSlice';
 
 const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed",
-  "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime"];
+  "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime", "owners"];
 
 const BackButton = ({ tab }) => {
   const dispatch = useDispatch();
@@ -118,13 +118,14 @@ const FileExplorer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
 
   function setFilesListFromDirectoryTree() {
     if (!directoryTree) return;
+    if (!directoryTree[activeTabPath.path]) return;   // without this, error when switching to non fileexplorer tab.
 
     const fileIDsInCurrentFolder = Object.keys(directoryTree)
       .filter(fileID => {
         return directoryTree[fileID].parents
           && directoryTree[fileID].parents[0] === directoryTree[activeTabPath.path].id;
       });
-    
+
     setFilesList(fileIDsInCurrentFolder.map(id => directoryTree[id]));
     console.log('set files from directory tree');
   }

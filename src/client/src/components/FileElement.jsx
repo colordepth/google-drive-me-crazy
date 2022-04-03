@@ -5,7 +5,6 @@ import ReactTimeAgo from 'react-time-ago';
 
 import store from '../services/store';
 import { addToPath } from '../services/pathSlice';
-import { openPath } from '../services/tabSlice';
 import { selectDirectoryTreeForUser } from '../services/directoryTreeSlice';
 import { clearFilesList, switchSelection } from '../services/currentDirectorySlice';
 import './FileElement.css';

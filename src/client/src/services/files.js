@@ -13,13 +13,17 @@ export function getFileByID(credentials, fileID, requestedFields) {
   .then(res => res.data);
 }
 
-export function getFiles(credentials, requestedFields, pageToken=null, q) {
+export function getFiles(credentials, requestedFields, pageToken=null, q, additionalQuery) {
+
+  const query = !additionalQuery ? q : q.concat(' and ' + additionalQuery);
+  // console.log(query);
 
   return axios.get(baseUrlDriveAPI + '/files', {
     headers: { Authorization: `Bearer ${credentials.accessToken}`},
     params: {
       orderBy: "folder,name",
-      q, // q: q ? "'drive' in spaces " + q : "'drive' in spaces",
+      q: query,
+      // q: q ? "'drive' in spaces and " + q : "'drive' in spaces",
       pageSize: 1000,
       fields: `nextPageToken, files(${requestedFields.join(',')})`,
       trashed: 'false',
@@ -29,13 +33,13 @@ export function getFiles(credentials, requestedFields, pageToken=null, q) {
   .then(res => res.data);
 }
 
-export function getAllFiles(credentials, requestedFields, query) {
+export function getAllFiles(credentials, requestedFields, query, additionalQuery) {
   return new Promise(async (resolve, reject) => {
     let result = [];
     let pageToken = null;
     try {
       do {
-        let data = await getFiles(credentials, requestedFields, pageToken, query);
+        let data = await getFiles(credentials, requestedFields, pageToken, query, additionalQuery);
         pageToken = data.nextPageToken;
         result.push(...data.files); 
       }
@@ -48,7 +52,7 @@ export function getAllFiles(credentials, requestedFields, query) {
   });
 }
 
-export function getAllFolders(credentials, requestedFields) {
+export function getAllFolders(credentials, requestedFields, additionalQuery) {
   return new Promise(async (resolve, reject) => {
     try {
       const folders = await getAllFiles(credentials, requestedFields, "mimeType = 'application/vnd.google-apps.folder'");
@@ -60,6 +64,6 @@ export function getAllFolders(credentials, requestedFields) {
   });
 }
 
-export function getAllFilesInFolder (credentials, folderID, requestedFields) {
-  return getAllFiles(credentials, requestedFields, `'${folderID}' in parents`)
+export function getAllFilesInFolder (credentials, folderID, requestedFields, additionalQuery) {
+  return getAllFiles(credentials, requestedFields, `'${folderID}' in parents`, additionalQuery)
 }

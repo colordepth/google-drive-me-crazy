@@ -43,8 +43,8 @@ const FileElementHeader = () => {
   );
 }
 
-const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFiles, folderOpenHandler}) => {
-  let selectedState = {};
+const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFiles, folderOpenHandler, limit}) => {
+  const selectedState = {};
   selectedFiles.forEach(fileID => { selectedState[fileID] = true });
 
   if (!files || loading)
@@ -59,7 +59,7 @@ const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFile
         <FileElementHeader/>
       </li>
       {
-      (sortBy === 'quotaBytesUsed' ? files.slice().sort((a, b) => b.quotaBytesUsed - a.quotaBytesUsed).slice(0, 100) : files)
+      (sortBy === 'quotaBytesUsed' ? files.sort((a, b) => b.quotaBytesUsed - a.quotaBytesUsed).slice(0, limit) : files.slice(0, limit))
         .map(file => (
           <li style={listStyle} key={file.id}>
             <FileElement

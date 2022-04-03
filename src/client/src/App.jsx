@@ -7,7 +7,7 @@ import SidebarPortal, { DashboardSidebar, UserSidebar } from './components/Sideb
 import Dashboard from './components/Dashboard';
 import StorageAnalyzer from './components/StorageAnalyzer';
 import credentials, { refreshToken } from './services/auth';
-import { fetchAndAddUser, selectUsers } from './services/userSlice';
+import { clearInvalidUsers, fetchAndAddUser, selectUsers } from './services/userSlice';
 import { clearFetchStatus, fetchDirectoryStructure } from './services/directoryTreeSlice';
 import './App.css';
 import { useDispatch, useSelector } from 'react-redux';
@@ -44,11 +44,23 @@ const UserManager = () => {
         // .then(() => window.location.reload(false))
         .catch((error) => {
           alert(JSON.stringify(error));
+
+          let newRefreshToken = prompt(`Enter new refresh token for ${user.emailAddress}`);
+          
+          if (!newRefreshToken) return;
+
+          dispatch(fetchAndAddUser({
+            minifiedID: user.minifiedID,
+            refreshToken: newRefreshToken,
+            permissionId: user.permissionId,
+          }))
         });
     }, (expiryDate - new Date()) - 10000);
   };
 
   useEffect(() => {
+    dispatch(clearInvalidUsers());
+
     users.forEach(user => {
       console.log(user);
       dispatch(clearFetchStatus(user.minifiedID));
@@ -81,6 +93,8 @@ const TabsBar = () => {
   const activeTab = useSelector(selectActiveTab);
   const dispatch = useDispatch();
 
+  console.log(tabs);
+
   return (
     <div className="TabsBar">
       { 
@@ -90,7 +104,7 @@ const TabsBar = () => {
             onClick={() => dispatch(switchActiveTab(tabInfo.id))}
             key={tabInfo.id.concat('_tab')}
           >
-            <span>{ tabInfo.pathHistory.at(-1).name }</span>
+            <span>{ tabInfo.pathHistory.at(tabInfo.activePathIndex).name }</span>
             <Icon
               icon='cross'
               size={13}
@@ -164,14 +178,21 @@ const Tab = ({tabID}) => {
       <Route path="/dashboard" element={
         <>
           <SidebarPortal element={ <DashboardSidebar/> } />
-          <Dashboard/>
+          <Dashboard tab={self}/>
         </>
       }/>
       <Route path="/:userID/*" element={
         <>
           <SidebarPortal element={ <UserSidebar userID={activeTabPath.userID}/> } />
           <Routes>
-            <Route path="storage-analyzer" element={<StorageAnalyzer userID={activeTabPath.userID}/>}/>
+            <Route path="storage-analyzer" element={
+              <StorageAnalyzer
+                userID={activeTabPath.userID}
+                selectedFiles={fileExplorerSelectedFiles}
+                setSelectedFiles={setFileExplorerSelectedFiles}
+                tab={self}
+              />
+            }/>
             <Route path=":fileID" element={
               <FileExplorer
                 userID={activeTabPath.userID}

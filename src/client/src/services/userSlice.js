@@ -23,16 +23,26 @@ export const userSlice = createSlice({
   reducers: {
     addUser: (state, action) => {
       // only unique users
-
       const userInfo = action.payload;
+
+      if (!(userInfo.minifiedID || userInfo.refreshToken || userInfo.accessToken || userInfo.permissionId))
+        // If none of the unique things provided
+        return;
+
       if (state.users.find(existing =>
-          existing.refreshToken === userInfo.refreshToken ||
-          existing.accessToken === userInfo.accessToken ||
-          existing.permissionId === userInfo.permissionId
+        (existing.minifiedID && existing.minifiedID === userInfo.minifiedID) ||
+        (existing.refreshToken && existing.refreshToken === userInfo.refreshToken) ||
+        (existing.accessToken && existing.accessToken === userInfo.accessToken) ||
+        (existing.permissionId && existing.permissionId === userInfo.permissionId)
         ))
         return;
 
       state.users.push(userInfo);
+    },
+    clearInvalidUsers: (state) => {
+      state.users = state.users.filter(user => {
+        return !!user.minifiedID
+      });
     },
     removeUserByID: (state, action) => {
       const userID = action.payload;
@@ -42,14 +52,13 @@ export const userSlice = createSlice({
     updateUser: (state, action) => {
 
       const updatedData = action.payload;
-      const userID = action.payload.minifiedID;
       const user = state.users.find(user =>
-        user.minifiedID === userID ||
-        user.refreshToken === updatedData.refreshToken ||
-        user.accessToken === updatedData.accessToken ||
-        user.permissionId === updatedData.permissionId
+        (user.minifiedID && user.minifiedID === updatedData.minifiedID) ||
+        (user.refreshToken && user.refreshToken === updatedData.refreshToken) ||
+        (user.accessToken && user.accessToken === updatedData.accessToken) ||
+        (user.permissionId && user.permissionId === updatedData.permissionId)
       );
-      
+
       if (!user) return;
 
       Object.keys(updatedData).forEach(key => {
@@ -59,12 +68,13 @@ export const userSlice = createSlice({
   }
 });
 
-export const { addUser, removeUserByID, updateUser } = userSlice.actions;
+export const { addUser, removeUserByID, updateUser, clearInvalidUsers } = userSlice.actions;
 export const selectUsers = state => state.users.users;
 export const selectUserByID = userID => state => selectUsers(state).find(user => user.minifiedID === userID);
 
 export const fetchAndAddUser = credentials => dispatch => {
   dispatch(addUser(credentials));
+  dispatch(updateUser(credentials));    // Will update creds if user already existed
 
   return new Promise(async () => {
     const about = await getAbout(credentials, ['user']);

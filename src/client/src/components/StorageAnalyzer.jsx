@@ -56,8 +56,44 @@ const defaultOptions = {
         borderColor: '#f8f6fb',
         borderWidth: 0
       },
+      // labelLine: {
+      //   length: 30
+      // },
+      // label: {
+      //   formatter: '{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ',
+      //   backgroundColor: '#F6F8FC',
+      //   borderColor: '#8C8D8E',
+      //   borderWidth: 1,
+      //   borderRadius: 4,
+      //   rich: {
+      //     a: {
+      //       color: '#6E7079',
+      //       lineHeight: 22,
+      //       align: 'center'
+      //     },
+      //     hr: {
+      //       borderColor: '#8C8D8E',
+      //       width: '100%',
+      //       borderWidth: 1,
+      //       height: 0
+      //     },
+      //     b: {
+      //       color: '#4C5058',
+      //       fontSize: 14,
+      //       fontWeight: 'bold',
+      //       lineHeight: 33
+      //     },
+      //     per: {
+      //       color: '#fff',
+      //       backgroundColor: '#4C5058',
+      //       padding: [3, 4],
+      //       borderRadius: 4
+      //     }
+      //   }
+      // },
       data: [],
-      radius: ['35%', '60%'],
+      // radius: ['35%', '60%'],
+      radius: ['30%', '50%'],
       center: ['50%', '67%']
     }
   ]
@@ -73,9 +109,22 @@ function updateChart(chartName, data, dataPoint, title='') {
 
   const chartRef = chartRefs[chartName].getEchartsInstance();
 
-  const newSeries = { ...defaultOptions.series, title, data: data.map(key => {return {...key, value: key[dataPoint]}}) };
+  const label = {
+    formatter: (params) => {
+
+      let accompanyingValue = params.data[dataPoint];
+
+      if (dataPoint == 'quotaBytesUsed') {
+        accompanyingValue = humanFileSize(accompanyingValue);
+      }
+
+      return `${params.data.name} (${accompanyingValue})`
+    }
+  }
+
+  const newSeries = { ...defaultOptions.series, title, label, data: data.map(obj => {return {...obj, value: obj[dataPoint]}}) };
   const newTitle =  { ...defaultOptions.title, text: title };
-  const newLegend = { ...defaultOptions.legend, data: data.map(key => key.name) }
+  const newLegend = { ...defaultOptions.legend, data: data.map(obj => obj.name) }
   const newOption = { ...defaultOptions, title: newTitle, legend: newLegend, series: newSeries };
 
   // chartRef.resize();
@@ -101,9 +150,12 @@ const DonutChart = memo(({name}) => {
   );
 });
 
-const StorageAnalyzer = ({ userID }) => {
+const StorageAnalyzer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
 
-  const files = useSelector(selectFilesForUser(userID));
+  const allFiles = useSelector(selectFilesForUser(userID));
+  const files = allFiles && allFiles.filter(file => 
+    file.owners && file.owners.length && file.owners[0].me
+  );
   const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));
 
   useEffect(() => {
@@ -153,7 +205,14 @@ const StorageAnalyzer = ({ userID }) => {
         <DonutChart name='fileSize'/>
         <DonutChart name='fileCount'/>
       </div>
-      <FileElementList loading={activeMajorFetchCount} files={files} foldersFirst={false} sortBy='quotaBytesUsed'/>
+      <FileElementList
+        loading={!(files && files.length)}
+        files={files}
+        foldersFirst={false}
+        sortBy='quotaBytesUsed'
+        selectedFiles={ selectedFiles }
+        limit={100}
+      />
       <StatusBar noOfFiles={files && files.length}/>
     </div>
   );  
