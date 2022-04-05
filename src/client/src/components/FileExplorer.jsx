@@ -145,7 +145,13 @@ const FileExplorer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
     <div className="FileExplorer">
       <NavigationBar tab={ tab }/>
       <ToolBar selectedFiles={ selectedFiles }/>
-      <FileElementList files={ filesList } selectedFiles={ selectedFiles } folderOpenHandler={ folderOpenHandler }/>
+      <FileElementList
+        files={ filesList }
+        selectedFiles={ selectedFiles }
+        folderOpenHandler={ folderOpenHandler }
+        userID={userID}
+        view='detail-list'
+      />
       <StatusBar noOfFiles={ filesList && filesList.length } noOfSelectedFiles={ selectedFiles.length }/>
     </div>
   );

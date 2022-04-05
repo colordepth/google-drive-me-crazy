@@ -43,7 +43,7 @@ const FileElementHeader = () => {
   );
 }
 
-const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFiles, folderOpenHandler, limit}) => {
+const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFiles, folderOpenHandler, limit, userID, view}) => {
   const selectedState = {};
   selectedFiles.forEach(fileID => { selectedState[fileID] = true });
 
@@ -66,6 +66,8 @@ const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFile
               file={file}
               selected={selectedState[file.id]}
               folderOpenHandler={folderOpenHandler}
+              userID={userID}
+              view={view}
             />
           </li>
         ))

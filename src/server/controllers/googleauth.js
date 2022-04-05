@@ -14,10 +14,12 @@ const oAuth2Client = new google.auth.OAuth2(
 const googleLoginUrl = oAuth2Client.generateAuthUrl({
   access_type: 'offline',
   scope: SCOPES,
+  ux_mode: 'popup',   // Doesnt work ig. only on clientside
   prompt: 'consent'
   // A refresh token is returned only when prompt is set to consent.
   // otherwise it takes the default user from browser
   // (or something similar. skips login screen if permission granted in past)
+  // https://developers.google.com/identity/sign-in/web/reference#googleauthsigninoptions
 });
 
 googleAuthRouter.get('/', (req, res) => {

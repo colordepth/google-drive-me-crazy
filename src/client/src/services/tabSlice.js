@@ -5,26 +5,9 @@ export const tabSlice = createSlice({
   name: 'tabs',
   initialState: {
     tabHistory: ['default'],
-    tabs: [{
+    tabs: [
+    {
       id: 'default',
-      pathHistory: [{
-        path: 'root',
-        name: 'College',
-        userID: 'qvuQXkR7SAA='
-      }],
-      activePathIndex: 0
-    },
-    {
-      id: uuidv4(),
-      pathHistory: [{
-        path: 'storage-analyzer',
-        name: 'Storage Analyzer',
-        userID: 'qvuQXkR7SAA='
-      }],
-      activePathIndex: 0
-    },
-    {
-      id: uuidv4(),
       pathHistory: [{
         path: 'dashboard',
         name: 'Dashboard',

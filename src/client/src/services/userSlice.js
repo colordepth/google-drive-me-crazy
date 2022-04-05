@@ -52,6 +52,7 @@ export const userSlice = createSlice({
     updateUser: (state, action) => {
 
       const updatedData = action.payload;
+      
       const user = state.users.find(user =>
         (user.minifiedID && user.minifiedID === updatedData.minifiedID) ||
         (user.refreshToken && user.refreshToken === updatedData.refreshToken) ||

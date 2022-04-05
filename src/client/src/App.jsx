@@ -26,6 +26,21 @@ const UserManager = () => {
   const users = useSelector(selectUsers);
   const dispatch = useDispatch();
 
+  if (localStorage.getItem('refresh_token')) {
+
+    dispatch(fetchAndAddUser({
+      refreshToken: localStorage.getItem('refresh_token'),
+      accessToken: localStorage.getItem('access_token'),
+      expiryDate: localStorage.getItem('expiry_date'),
+      scope: localStorage.getItem('scope')
+    }));
+
+    ['refresh_token', 'access_token', 'expiry_date', 'scope', 'token_type']
+      .forEach(key =>
+        localStorage.removeItem(key)
+      );
+  }
+
   const setTokenRefreshTimeout = (user, expiryDate) => {
     clearTimeout(user.refreshTimeout);
 
@@ -59,7 +74,7 @@ const UserManager = () => {
   };
 
   useEffect(() => {
-    dispatch(clearInvalidUsers());
+    // dispatch(clearInvalidUsers());
 
     users.forEach(user => {
       console.log(user);
@@ -92,8 +107,6 @@ const TabsBar = () => {
   const tabs = useSelector(selectTabs);
   const activeTab = useSelector(selectActiveTab);
   const dispatch = useDispatch();
-
-  console.log(tabs);
 
   return (
     <div className="TabsBar">

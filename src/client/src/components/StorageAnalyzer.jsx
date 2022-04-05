@@ -212,6 +212,8 @@ const StorageAnalyzer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
         sortBy='quotaBytesUsed'
         selectedFiles={ selectedFiles }
         limit={100}
+        userID={userID}
+        view='detail-list'
       />
       <StatusBar noOfFiles={files && files.length}/>
     </div>

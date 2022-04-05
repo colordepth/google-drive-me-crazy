@@ -17,6 +17,8 @@ export const directoryTreeSlice = createSlice({
     clearFetchStatus: (state, action) => {
       const userID = action.payload;
 
+      if (!userID) return;
+
       if (!state[userID]) {
         state[userID] = { status: { activeMajorFetches: 0 }, folders: null, files: null, directoryTree: null, userID };
       }

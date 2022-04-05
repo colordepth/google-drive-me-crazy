@@ -41,8 +41,8 @@ function doubleClickHandler(file, folderOpenHandler) {
     window.open(file.webViewLink);
 }
 
-const FileElement = ({file, selected, folderOpenHandler}) => {
-  const directoryTree = useSelector(selectDirectoryTreeForUser('qvuQXkR7SAA='));
+const FileElement = ({file, selected, folderOpenHandler, userID}) => {
+  const directoryTree = useSelector(selectDirectoryTreeForUser(userID));
 
   let fileSize = <><Spinner size={20}/></>;
 
