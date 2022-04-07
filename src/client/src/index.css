@@ -10,9 +10,10 @@ body {
   padding:  0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #e8eaf6;
+  background-color: #e8eaf6;  /* purple */
+  background: #E7EAF7;    /* blue */
   /*background-color: #eeeaf7;*/ /* this is for top bar */
-  background: linear-gradient(to right, #eaeaf6,  #eeeaf7);
+  /* background: linear-gradient(to right, #eaeaf6,  #eeeaf7); */
   font-size:  13px;
   font-weight: 400;
 }

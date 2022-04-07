@@ -1,4 +1,4 @@
-.FileElement, .FileElementHeader {
+.DetailFileElement, .DetailFileElementHeader {
   display: grid;
   grid-template-columns: 30px 1fr repeat(2, 8rem) 4.7rem 4rem;
   padding: 0.6rem;
@@ -6,7 +6,7 @@
   width: 100%;
 }
 
-.FileElement {
+.DetailFileElement {
   /*border: 1px solid #cccccc;*/
   border-radius: 6px;
   transition: 0.1s;
@@ -14,7 +14,19 @@
   margin-top: 3px;
 }
 
-.FileElementHeader {
+.TreeFileElement {
+  display: grid;
+  grid-template-columns: 30px 1fr repeat(2, 8rem) 4.7rem 4rem;
+  padding: 0.6rem;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 6px;
+  transition: 0.1s;
+  color: #777;
+  margin-top: 3px;
+}
+
+.DetailFileElementHeader {
   padding-top: 1rem;
   padding-bottom: 0.75rem;
   border-radius: 2px;
@@ -26,14 +38,72 @@
   background: #fbfbfd;
 }
 
-.FileElement:hover {
+.DetailFileElement:hover, .IconFileElement:hover, .TreeFileElement:hover {
   background-color:  #aaccff77;
 }
 
-.Selected {
+.DetailFileElementSelected {
   background-color: #aaccff;
 }
 
-.Selected:hover {
+.DetailFileElementSelected:hover {
   background-color:  #aaccffdd;
+}
+
+.IconFileElement {
+  padding: 0.3rem;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  /* border: 1px solid #eee; */
+
+  width: 135px;
+  max-height: 180px;
+  border-radius: 10px;
+  transition: 0.1s;
+  color: #777;
+  margin: 10px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+
+.ThumbnailImageContainer {
+  max-width: 120px;
+  max-height: 100px;
+  overflow: hidden;
+  
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: center;
+}
+
+.ThumbnailImage {
+  max-width: 70px;
+  max-height: 70px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.BigIconImage {
+  max-width: 70px;
+  max-height: 70px;
+  overflow: hidden;
+}
+
+.IconViewFileName {
+  max-width: 95%;
+  word-wrap: break-word;
+  text-align: center;
+  max-height: 4rem;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

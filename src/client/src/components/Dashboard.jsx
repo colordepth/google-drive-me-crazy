@@ -60,8 +60,10 @@ const Dashboard = ({tab}) => {
           {
             users.map(user => <UserCard key={user.minifiedID} user={user} tabID={tab.id}/>)
           }
-          <div className='UserCard'>
-            Add Account
+          <div className='UserCard AddAccountCard'>
+            <div className='AddAccountBorder'>
+              Add Account
+            </div>
           </div>
         </div>
       </div>

@@ -1,10 +1,13 @@
 import { Spinner, Icon, Button } from "@blueprintjs/core";
+import { useSelector } from "react-redux";
 import { selectSelectedFilesID } from '../services/currentDirectorySlice';
+import { selectUserByID } from "../services/userSlice";
 import FileElement from './FileElement';
+import './FileElementList.css'
 
 const listStyle = {
   listStyle: 'none',
-  width: '100%'
+  // width: '100%'
 }
 
 function EmptyFolder() {
@@ -43,30 +46,24 @@ const FileElementHeader = () => {
   );
 }
 
-const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFiles, folderOpenHandler, limit, userID, view}) => {
+const ListView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
   const selectedState = {};
   selectedFiles.forEach(fileID => { selectedState[fileID] = true });
 
-  if (!files || loading)
-    return (<div className="FileElementList centre-content"><Spinner/></div>);
-
-  if (files.length === 0)
-    return (<div className="FileElementList centre-content"><EmptyFolder/></div>);
-
   return (
     <ul className="FileElementList">
-      <li className="FileElementHeader" style={listStyle}>
+      <li className="DetailFileElementHeader" style={listStyle}>
         <FileElementHeader/>
       </li>
       {
-      (sortBy === 'quotaBytesUsed' ? files.sort((a, b) => b.quotaBytesUsed - a.quotaBytesUsed).slice(0, limit) : files.slice(0, limit))
+      files
         .map(file => (
           <li style={listStyle} key={file.id}>
             <FileElement
               file={file}
               selected={selectedState[file.id]}
               folderOpenHandler={folderOpenHandler}
-              userID={userID}
+              userID={user}
               view={view}
             />
           </li>
@@ -74,6 +71,103 @@ const FileElementList = ({files, sortBy, loading, selectedFiles, setSelectedFile
       }
     </ul>
     );
+}
+
+const IconView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
+  const selectedState = {};
+  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+
+  return (
+    <ul className="FileElementList IconViewList">
+      {
+      files
+        .map(file => (
+          <li style={listStyle} key={file.id}>
+            <FileElement
+              file={file}
+              selected={selectedState[file.id]}
+              folderOpenHandler={folderOpenHandler}
+              user={user}
+              view={view}
+            />
+          </li>
+        ))
+      }
+    </ul>
+    );
+}
+
+const TreeView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
+  const selectedState = {};
+  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+
+  return (
+    <ul className="FileElementList TreeViewList">
+      <li className="DetailFileElementHeader" style={listStyle}>
+        <FileElementHeader/>
+      </li>
+      {
+      files
+        .map(file => (
+          <li style={listStyle} key={file.id}>
+            <FileElement
+              file={file}
+              selected={selectedState[file.id]}
+              folderOpenHandler={folderOpenHandler}
+              user={user}
+              view={view}
+            />
+          </li>
+        ))
+      }
+    </ul>
+    );
+}
+
+const ColumnView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
+  const selectedState = {};
+  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+
+  return (
+    <ul className="FileElementList IconViewList">
+      {
+      files
+        .map(file => (
+          <li style={listStyle} key={file.id}>
+            <FileElement
+              file={file}
+              selected={selectedState[file.id]}
+              folderOpenHandler={folderOpenHandler}
+              user={user}
+              view={view}
+            />
+          </li>
+        ))
+      }
+    </ul>
+    );
+}
+
+const FileElementList = ({files, sortBy, directoryTree, loading, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
+  const selectedState = {};
+  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+
+  if (!user) return <></>;
+
+  if (!files || loading)
+    return (<div className="FileElementList centre-content"><Spinner/></div>);
+
+  if (files.length === 0)
+    return (<div className="FileElementList centre-content"><EmptyFolder/></div>);
+
+  const sortedFiles = (sortBy ? files.sort((a, b) => b[sortBy] - a[sortBy]) : files).slice(0, limit);
+  const props = {files: sortedFiles, sortBy, loading, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view};
+
+  if (view === 'icon-view') return <IconView {...props} />
+  if (view === 'tree-view') return <TreeView {...props} />
+  if (view === 'column-view') return <ColumnView {...props} />  
+
+  return <ListView {...props} />
 }
 
 export default FileElementList;

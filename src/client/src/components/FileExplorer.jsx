@@ -13,7 +13,7 @@ import { selectUserByID } from '../services/userSlice';
 import { selectDirectoryTreeForUser, selectStoreStatusForUser, updateFilesAndFolders } from '../services/directoryTreeSlice';
 
 const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed",
-  "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime", "owners"];
+  "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime", "owners", "thumbnailLink"];
 
 const BackButton = ({ tab }) => {
   const dispatch = useDispatch();
@@ -146,11 +146,12 @@ const FileExplorer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
       <NavigationBar tab={ tab }/>
       <ToolBar selectedFiles={ selectedFiles }/>
       <FileElementList
-        files={ filesList }
+        files={ filesList }     // For icon-view and list-view
+        directoryTree= { directoryTree }  // For tree-view and list-view
         selectedFiles={ selectedFiles }
         folderOpenHandler={ folderOpenHandler }
-        userID={userID}
-        view='detail-list'
+        user={user}
+        view='tree-view'
       />
       <StatusBar noOfFiles={ filesList && filesList.length } noOfSelectedFiles={ selectedFiles.length }/>
     </div>

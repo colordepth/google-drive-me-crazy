@@ -1,4 +1,5 @@
 import axios from 'axios';
+var Buffer = require('buffer').Buffer;
 
 const baseUrlDriveAPI = 'https://www.googleapis.com/drive/v3';
 
@@ -64,6 +65,55 @@ export function getAllFolders(credentials, requestedFields, additionalQuery) {
   });
 }
 
-export function getAllFilesInFolder (credentials, folderID, requestedFields, additionalQuery) {
+export function getAllFilesInFolder(credentials, folderID, requestedFields, additionalQuery) {
   return getAllFiles(credentials, requestedFields, `'${folderID}' in parents`, additionalQuery)
+}
+
+export function getFileThumbnail(file, credentials) {
+
+  if (!file) return new Promise((res, rej) => rej('file'));
+  if (!file.thumbnailLink) new Promise((res, rej) => rej('thumbnailLink'));
+
+  // let headers = new Headers();
+
+  // headers.append('Content-Type', 'image/jpeg');
+  // headers.append('Accept', 'image/jpeg');
+  // headers.append('Authorization', `Bearer ${credentials.accessToken}`);
+  // headers.append('Origin','http://localhost:3000');
+  // headers.append('Content-Type', 'application/x-www-form-urlencoded');
+
+  return fetch(file.thumbnailLink, {
+    // mode: 'no-cors',
+    // credentials: 'include',
+    // method: 'GET',
+    // headers: headers,
+    // secure: 'false',
+    referrerPolicy: 'no-referrer'
+  })
+  .then(response => response.blob());
+
+  return axios.get(file.thumbnailLink, {
+    withCredentials: true,
+    secure: 'false',
+    headers: {
+      // Authorization: `Bearer ${credentials.accessToken}`,
+      // 'referrer-policy': 'no-referrer',
+      // 'Referrer-Policy': 'no-referrer',
+      // 'access-control-allow-origin': '*',
+      // "Access-Control-Allow-Origin": "*",
+      // 'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+    }
+  })
+  .then(res => res.data);
+}
+
+export function getGoogleFileThumbnail(file, credentials) {
+
+  if (!file) return new Promise((res, rej) => rej('file'));
+  if (!file.thumbnailLink) new Promise((res, rej) => rej('thumbnailLink'));
+
+  return fetch(file.thumbnailLink + `&access_token=${credentials.accessToken}`, {
+    referrerPolicy: 'no-referrer'
+  })
+  .then(response => response.blob());
 }

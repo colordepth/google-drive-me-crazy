@@ -1,0 +1,22 @@
+.FileElementList {
+  overflow-y: scroll;
+  background-color: #fbfbfd;
+  flex-grow: 1;
+  padding: 0 2rem 0 2rem;
+  margin: 0;
+  max-width: 100%;
+}
+
+.IconViewList {
+  /* display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; */
+  /* justify-content: space-between; */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 140px);
+  justify-content: space-between;
+}
+
+.TreeViewList {
+  
+}
