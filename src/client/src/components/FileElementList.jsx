@@ -1,7 +1,7 @@
 import { Spinner, Icon, Button } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
-import { selectSelectedFilesID } from '../services/currentDirectorySlice';
-import { selectUserByID } from "../services/userSlice";
+import { useState } from 'react';
+import { selectDirectoryTreeForUser } from '../services/directoryTreeSlice';
 import FileElement from './FileElement';
 import './FileElementList.css'
 
@@ -97,6 +97,64 @@ const IconView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHan
     );
 }
 
+const Tree = ({file, sortBy, folderOpenHandler, limit, user}) => {
+  const directoryTree = useSelector(selectDirectoryTreeForUser(user.minifiedID));
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  if (!directoryTree) return <>Loading directory tree</>;
+  if (!directoryTree[file.id]) return <></>;   // without this, error when switching to non fileexplorer tab.
+
+  const fileIDsInCurrentFolder = Object.keys(directoryTree)
+    .filter(fileID => {
+      return directoryTree[fileID].parents
+        && directoryTree[fileID].parents[0] === file.id;
+    });
+
+  console.log("how much do i render?");
+
+  const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+
+  return (
+    <>
+      <div style={{display: 'flex', marginLeft: isFolder ? '0px' : '30px', alignItems: 'center'}}>
+        {
+          isFolder
+          &&
+          <Button
+            icon={'chevron-' + (isCollapsed ? 'right' : 'down')}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            minimal
+            style={{borderRadius: '50%', width: '10px', height: '10px'}}
+          />
+        }
+        <FileElement
+          file={file}
+          user={user}
+          folderOpenHandler={folderOpenHandler}
+        />
+      </div>
+      {
+        !isCollapsed && <ul style={{paddingLeft: '0px'}}>
+        {
+          fileIDsInCurrentFolder.map(id => directoryTree[id]).map(file => 
+            <li key={file.id} style={{listStyle: 'none', marginLeft: '0.4rem'}}>
+              <Tree
+                file={file}
+                user={user}
+                folderOpenHandler={folderOpenHandler}
+                sortBy={sortBy}
+                limit={limit}
+              />
+            </li>
+          )
+        }
+        </ul>
+      }
+    </>
+  );
+  
+}
+
 const TreeView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
   const selectedState = {};
   selectedFiles.forEach(fileID => { selectedState[fileID] = true });
@@ -110,7 +168,7 @@ const TreeView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHan
       files
         .map(file => (
           <li style={listStyle} key={file.id}>
-            <FileElement
+            <Tree
               file={file}
               selected={selectedState[file.id]}
               folderOpenHandler={folderOpenHandler}
