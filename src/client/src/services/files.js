@@ -17,7 +17,6 @@ export function getFileByID(credentials, fileID, requestedFields) {
 export function getFiles(credentials, requestedFields, pageToken=null, q, additionalQuery) {
 
   const query = !additionalQuery ? q : q.concat(' and ' + additionalQuery);
-  // console.log(query);
 
   return axios.get(baseUrlDriveAPI + '/files', {
     headers: { Authorization: `Bearer ${credentials.accessToken}`},
@@ -69,11 +68,27 @@ export function getAllFilesInFolder(credentials, folderID, requestedFields, addi
   return getAllFiles(credentials, requestedFields, `'${folderID}' in parents`, additionalQuery)
 }
 
-export function getFileThumbnail(file, credentials) {
+export function fetchFileThumbnail(file, credentials) {
 
   if (!file) return new Promise((res, rej) => rej('file'));
   if (!file.thumbnailLink) new Promise((res, rej) => rej('thumbnailLink'));
 
+  return fetch(file.thumbnailLink, {
+    
+    referrerPolicy: 'no-referrer'
+  })
+  .then(response => response.blob());
+
+  
+}
+
+export function fetchGoogleFileThumbnail(file, credentials) {
+  // Require access_token appended to end of url
+
+  if (!file) return new Promise((res, rej) => rej('file'));
+  if (!file.thumbnailLink) new Promise((res, rej) => rej('thumbnailLink'));
+
+  
   // let headers = new Headers();
 
   // headers.append('Content-Type', 'image/jpeg');
@@ -82,7 +97,7 @@ export function getFileThumbnail(file, credentials) {
   // headers.append('Origin','http://localhost:3000');
   // headers.append('Content-Type', 'application/x-www-form-urlencoded');
 
-  return fetch(file.thumbnailLink, {
+  return fetch(file.thumbnailLink + `&access_token=${credentials.accessToken}`, {
     // mode: 'no-cors',
     // credentials: 'include',
     // method: 'GET',
@@ -107,13 +122,7 @@ export function getFileThumbnail(file, credentials) {
   .then(res => res.data);
 }
 
-export function getGoogleFileThumbnail(file, credentials) {
-
-  if (!file) return new Promise((res, rej) => rej('file'));
-  if (!file.thumbnailLink) new Promise((res, rej) => rej('thumbnailLink'));
-
-  return fetch(file.thumbnailLink + `&access_token=${credentials.accessToken}`, {
-    referrerPolicy: 'no-referrer'
-  })
-  .then(response => response.blob());
-}
+export function humanFileSize(size) {
+  var i = !size ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
+  return ( size / Math.pow(1024, i) ).toFixed(1) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+};

@@ -121,11 +121,15 @@ const Tree = ({file, sortBy, folderOpenHandler, limit, user}) => {
           isFolder
           &&
           <Button
-            icon={'chevron-' + (isCollapsed ? 'right' : 'down')}
             onClick={() => setIsCollapsed(!isCollapsed)}
             minimal
             style={{borderRadius: '50%', width: '10px', height: '10px'}}
-          />
+          >
+            <Icon
+              icon={'chevron-' + (isCollapsed ? 'right' : 'down')}
+              color='#677'
+            />
+          </Button>
         }
         <FileElement
           file={file}
