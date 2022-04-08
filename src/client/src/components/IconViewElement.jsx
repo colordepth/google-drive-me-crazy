@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { singleClickHandler, doubleClickHandler} from './FileElement';
 import { fetchFileThumbnail } from '../services/fileManagerService';
 
-const IconViewElement = ({file, selected, folderOpenHandler, user}) => {
+const IconViewElement = ({entity, selected, user, tabID}) => {
 
   function thumbnailSetter() {
     // Use getGoogleFileThumbnail for google docs thumbnail. also gotta add google docs to scope
 
-    file && !file.mimeType.startsWith('application/vnd.google-apps.') && file.thumbnailLink && fetchFileThumbnail(file, user)
+    entity && !entity.mimeType.startsWith('application/vnd.google-apps.') && entity.thumbnailLink && fetchFileThumbnail(entity, user)
     .then(data => {
       setThumbnailImage(URL.createObjectURL(data));
     })
@@ -17,13 +17,13 @@ const IconViewElement = ({file, selected, folderOpenHandler, user}) => {
   }
 
   const [thumbnailImage, setThumbnailImage] = useState(null);
-  const bigIconLink = file.iconLink.split('/').map((e,i) => i === 3 ? '128' : e).join('/');
-  useEffect(thumbnailSetter, [file, user]);
+  const bigIconLink = entity.iconLink.split('/').map((e,i) => i === 3 ? '128' : e).join('/');
+  useEffect(thumbnailSetter, [entity, user]);
 
   return (
     <div
-      onClick={(event) => singleClickHandler(event, file)}
-      onDoubleClick={() => doubleClickHandler(file, folderOpenHandler)}
+      onClick={(event) => singleClickHandler(event, entity, tabID)}
+      onDoubleClick={() => doubleClickHandler(entity, tabID)}
       className={selected ? 'IconFileElement IconFileElementSelected' : 'IconFileElement'}
     >
       <div>
@@ -36,7 +36,7 @@ const IconViewElement = ({file, selected, folderOpenHandler, user}) => {
           <img src={ bigIconLink } className='BigIconImage' alt='icon'/>
         }
       </div>
-      <div className='IconViewFileName'>{ file.name }</div>
+      <div className='IconViewFileName'>{ entity.name }</div>
     </div>
   );
 }

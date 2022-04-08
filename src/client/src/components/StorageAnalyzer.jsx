@@ -6,7 +6,7 @@ import FileElementList from './FileElementList';
 import StatusBar from './StatusBar';
 import './StorageAnalyzer.css';
 
-import { selectFilesForUser, selectActiveMajorFetchCount } from '../services/directoryTreeSlice';
+import { selectFilesForUser, selectActiveMajorFetchCount } from '../services/fileManagerService';
 
 import { humanFileSize } from '../services/filesMiscellaneous';
 
@@ -147,13 +147,13 @@ const DonutChart = memo(({name}) => {
   );
 });
 
-const StorageAnalyzer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
+const StorageAnalyzer = ({ userID, tab }) => {
 
   const allFiles = useSelector(selectFilesForUser(userID));
   const files = allFiles && allFiles.filter(file => 
     file.owners && file.owners.length && file.owners[0].me
   );
-  const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));
+  // const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));
 
   useEffect(() => {
     if (!files) return;
@@ -204,12 +204,12 @@ const StorageAnalyzer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
       </div>
       <FileElementList
         loading={!(files && files.length)}
-        files={files}
+        entities={files}
         foldersFirst={false}
         sortBy='quotaBytesUsed'
-        selectedFiles={ selectedFiles }
         limit={100}
         userID={userID}
+        tabID={tab.id}
         view='detail-list'
       />
       <StatusBar noOfFiles={files && files.length}/>

@@ -10,7 +10,7 @@ import FileUpload from './FileUpload';
 import { selectEntitiesInsideFolder, selectEntity, calculatePathFromEntityID } from '../services/fileManagerService';
 import { openPath, pathHistoryBack, pathHistoryForward } from '../services/tabSlice';
 import { selectUserByID } from '../services/userSlice';
-import { selectDirectoryTreeForUser } from '../services/directoryTreeSlice';
+import { clearHighlights } from '../services/tabSlice';
 
 const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed", "trashed",
   "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime", "owners", "thumbnailLink"];
@@ -121,10 +121,10 @@ const NavigationBar = ({ tab, user, folderOpenHandler }) => {
   );
 }
 
-const ToolBar = ({ selectedFiles, user, targetFolderID }) => {
+const ToolBar = ({ highlightedEntities, user, targetFolderID }) => {
   const [overlayState, setOverlayState] = useState(false);
 
-  if (!selectedFiles.length)
+  if (!highlightedEntities.length)
     return (
       <div className="ToolBar">
         <FileUpload isOpen={overlayState} onClose={() => setOverlayState(false)} user={user} targetFolderID={targetFolderID}/>
@@ -150,21 +150,19 @@ const AppToaster = Toaster.create({
 });
 
 const FileExplorer = ({ userID, tab }) => {
-  const [filesList, setFilesList] = useState(null);
+  const [entitiesList, setEntitiesList] = useState(null);
   const dispatch = useDispatch();
-  const directoryTree = useSelector(selectDirectoryTreeForUser(userID));
 
   const activePath = tab.pathHistory.at(tab.activePathIndex);
   const user = useSelector(selectUserByID(userID));
-  // const directoryTreeStatus = useSelector(selectStoreStatusForUser(userID));  
 
   function refreshFileListData() {
 
-    setFilesList(null);    // show loading
+    setEntitiesList(null);    // show loading
 
     user && selectEntitiesInsideFolder(activePath.path, user, requestedFields)
-      .then(files => {
-        setFilesList(files);
+      .then(entities => {
+        setEntitiesList(entities);
       })
       .catch(error => {
         console.error("FileExplorer refreshFileListData",
@@ -194,16 +192,14 @@ const FileExplorer = ({ userID, tab }) => {
   return (
     <div className="FileExplorer">
       <NavigationBar tab={ tab } user= { user } folderOpenHandler={ folderOpenHandler } />
-      <ToolBar selectedFiles={ tab.highlightedFiles } user={ user } targetFolderID={ activePath.path }/>
+      <ToolBar highlightedEntities={ tab.highlightedEntities } user={ user } targetFolderID={ activePath.path }/>
       <FileElementList
-        files={ filesList && filesList.filter(file => !file.trashed) }     // For icon-view and list-view
-        directoryTree= { directoryTree }  // For tree-view and list-view
-        selectedFiles={ tab.highlightedFiles }
-        folderOpenHandler={ folderOpenHandler }
+        entities={ entitiesList && entitiesList.filter(entity => !entity.trashed) }     // For icon-view and list-view
         user={user}
+        tabID={tab.id}
         view='icon-view'
       />
-      <StatusBar noOfFiles={ filesList && filesList.length } noOfSelectedFiles={ tab.highlightedFiles.length }/>
+      <StatusBar noOfFiles={ entitiesList && entitiesList.length } noOfSelectedFiles={ tab.highlightedEntities.length }/>
     </div>
   );
 }

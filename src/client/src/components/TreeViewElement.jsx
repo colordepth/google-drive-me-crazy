@@ -1,11 +1,11 @@
 import { Icon, Text } from '@blueprintjs/core';
 import { singleClickHandler, doubleClickHandler, HumanReadableTime} from './FileElement';
 
-const TreeViewElement = ({file, fileSize, selected, folderOpenHandler}) => {
+const TreeViewElement = ({file, fileSize, selected, tabID}) => {
   return (
     <div
-      onClick={(event) => singleClickHandler(event, file)}
-      onDoubleClick={() => doubleClickHandler(file, folderOpenHandler)}
+      onClick={(event) => singleClickHandler(event, file, tabID)}
+      onDoubleClick={() => doubleClickHandler(file, tabID)}
       className={selected ? 'TreeFileElement TreeFileElementSelected' : 'TreeFileElement'}
     >
       <Icon icon={<img src={ file.iconLink } alt='icon'/>} intent='none'/>

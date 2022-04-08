@@ -38,22 +38,12 @@
   background: #fbfbfd;
 }
 
-.DetailFileElement:hover, .IconFileElement:hover, .TreeFileElement:hover {
-  background-color:  #aaccff77;
-}
-
-.DetailFileElementSelected {
-  background-color: #aaccff;
-}
-
-.DetailFileElementSelected:hover {
-  background-color:  #aaccffdd;
-}
 
 .IconFileElement {
   padding: 0.3rem;
-  box-sizing: border-box;
+  /* box-sizing: border-box; */
   cursor: pointer;
+  border: 2px solid rgba(0, 0, 0, 0);
 
   /* border: 1px solid #eee; */
 
@@ -68,6 +58,28 @@
   flex-direction: column;
   align-items: center;
   gap: 0.4rem;
+}
+
+.DetailFileElement:hover, .IconFileElement:hover, .TreeFileElement:hover {
+  background-color:  #aaccff77;
+}
+
+.DetailFileElementSelected {
+  background-color: #aaccff;
+}
+
+.DetailFileElementSelected:hover {
+  background-color:  #aaccffdd;
+}
+
+.IconFileElementSelected {
+  background-color: #aaccffbb;
+  /* box-shadow: 0px 0px 2px 1px #c7d0fa; */
+  /* border: 2px solid #68B0E5; */
+}
+
+.IconFileElementSelected:hover {
+  background-color: #aaccffa0;
 }
 
 

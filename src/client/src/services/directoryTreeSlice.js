@@ -285,15 +285,17 @@ function buildDirectoryStructure(folders, files) {
 
   function calculateSizeRecursively(file) {
     if (file.mimeType === "application/vnd.google-apps.folder") {
-      file.quotaBytesUsed = 0;
-      if (file.childrenIDs)
-        file.childrenIDs.forEach(id => {
-          file.quotaBytesUsed += calculateSizeRecursively(directoryTree[id]);
-        })
+      file.quotaBytesUsed = file.childrenIDs.reduce(
+        (bytesSum, fileID) => bytesSum+calculateSizeRecursively(directoryTree[fileID]),
+        0
+      );
+      // file.childrenIDs.forEach(id => {
+      //   file.quotaBytesUsed += calculateSizeRecursively(directoryTree[id]);
+      // })
     }
-    if (isNaN(parseInt(file.quotaBytesUsed)))
-      return 0;
-    return parseInt(file.quotaBytesUsed);
+    if (isNaN(parseInt(file.quotaBytesUsed))) file.quotaBytesUsed = 0;
+    file.quotaBytesUsed = parseInt(file.quotaBytesUsed);
+    return file.quotaBytesUsed;
   }
 
   calculateSizeRecursively(directoryTree['root']);

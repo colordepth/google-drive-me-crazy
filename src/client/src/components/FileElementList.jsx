@@ -1,8 +1,11 @@
 import { Spinner, Icon, Button } from "@blueprintjs/core";
-import { useSelector } from "react-redux";
-import { useState } from 'react';
-import { selectDirectoryTreeForUser } from '../services/directoryTreeSlice';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+
+import { selectEntitiesInsideFolder } from '../services/fileManagerService';
+import { selectHighlightedFilesForTab } from "../services/tabSlice";
 import FileElement from './FileElement';
+
 import './FileElementList.css'
 
 const listStyle = {
@@ -17,7 +20,7 @@ function EmptyFolder() {
         <span className="bp3-icon bp3-icon-folder-open"></span>
       </div>
       <div style={{fontSize: "18px", fontWeight: 300}}>Empty Folder</div>
-      <div style={{fontSize: "15px", fontWeight: 300}}>Upload a new file to populate the folder.</div>
+      <div style={{fontSize: "15px", fontWeight: 300}}>Upload a new entity to populate the folder.</div>
       <Button intent="primary" icon="upload" text="Upload"/>
     </div>
   );
@@ -46,9 +49,9 @@ const FileElementHeader = () => {
   );
 }
 
-const ListView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
-  const selectedState = {};
-  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+const ListView = ({entities, user, view, tabID, highlightedEntities}) => {
+  const highlightedEntitiesMap = {};
+  highlightedEntities.forEach(entityID => {highlightedEntitiesMap[entityID] = true;});
 
   return (
     <ul className="FileElementList">
@@ -56,15 +59,15 @@ const ListView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHan
         <FileElementHeader/>
       </li>
       {
-      files
-        .map(file => (
-          <li style={listStyle} key={file.id}>
+      entities
+        .map(entity => (
+          <li style={listStyle} key={entity.id}>
             <FileElement
-              file={file}
-              selected={selectedState[file.id]}
-              folderOpenHandler={folderOpenHandler}
-              userID={user}
+              entity={entity}
+              user={user}
+              tabID={tabID}
               view={view}
+              selected={!!highlightedEntitiesMap[entity.id]}
             />
           </li>
         ))
@@ -73,22 +76,24 @@ const ListView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHan
     );
 }
 
-const IconView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
-  const selectedState = {};
-  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+const IconView = ({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
+  const highlightedEntitiesMap = {};
+  highlightedEntities.forEach(entityID => {highlightedEntitiesMap[entityID] = true;});
+
+  console.log("IconView highlighted", highlightedEntities);
 
   return (
     <ul className="FileElementList IconViewList">
       {
-      files
-        .map(file => (
-          <li style={listStyle} key={file.id}>
+      entities
+        .map(entity => (
+          <li style={listStyle} key={entity.id}>
             <FileElement
-              file={file}
-              selected={selectedState[file.id]}
-              folderOpenHandler={folderOpenHandler}
+              entity={entity}
               user={user}
+              tabID={tabID}
               view={view}
+              selected={!!highlightedEntitiesMap[entity.id]}
             />
           </li>
         ))
@@ -97,22 +102,24 @@ const IconView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHan
     );
 }
 
-const Tree = ({file, sortBy, folderOpenHandler, limit, user}) => {
-  const directoryTree = useSelector(selectDirectoryTreeForUser(user.minifiedID));
+const requestedFields = ["id", "name", "mimeType",
+"quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "modifiedTime", "viewedByMeTime"];
+
+const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [childrenEntities, setChildrenEntities] = useState(null);
 
-  if (!directoryTree) return <>Loading directory tree</>;
-  if (!directoryTree[file.id]) return <></>;   // without this, error when switching to non fileexplorer tab.
-
-  const fileIDsInCurrentFolder = Object.keys(directoryTree)
-    .filter(fileID => {
-      return directoryTree[fileID].parents
-        && directoryTree[fileID].parents[0] === file.id;
-    });
+  useEffect(() => {
+    if (entity.mimeType !== 'application/vnd.google-apps.folder')
+      setChildrenEntities([]);
+    else
+      selectEntitiesInsideFolder(entity.id, user, requestedFields)
+        .then(entities => setChildrenEntities(entities));
+  }, [entity]);
 
   console.log("how much do i render?");
 
-  const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+  const isFolder = entity.mimeType === 'application/vnd.google-apps.folder';
 
   return (
     <>
@@ -132,20 +139,21 @@ const Tree = ({file, sortBy, folderOpenHandler, limit, user}) => {
           </Button>
         }
         <FileElement
-          file={file}
+          entity={entity}
           user={user}
-          folderOpenHandler={folderOpenHandler}
+          tabID={tabID}
+          selected={selected}
         />
       </div>
       {
         !isCollapsed && <ul style={{paddingLeft: '0px'}}>
         {
-          fileIDsInCurrentFolder.map(id => directoryTree[id]).map(file => 
-            <li key={file.id} style={{listStyle: 'none', marginLeft: '0.4rem'}}>
+          !childrenEntities ? <Spinner size={20}/> :
+          childrenEntities.map(entity => 
+            <li key={entity.id} style={{listStyle: 'none', marginLeft: '0.4rem'}}>
               <Tree
-                file={file}
+                entity={entity}
                 user={user}
-                folderOpenHandler={folderOpenHandler}
                 sortBy={sortBy}
                 limit={limit}
               />
@@ -157,11 +165,15 @@ const Tree = ({file, sortBy, folderOpenHandler, limit, user}) => {
     </>
   );
   
-}
+});
 
-const TreeView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
-  const selectedState = {};
-  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+const TreeView = ({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
+  // List of trees below a Header
+
+  console.log("TreeView highlighted", highlightedEntities);
+
+  const highlightedEntitiesMap = {};
+  highlightedEntities.forEach(entityID => {highlightedEntitiesMap[entityID] = true;});
 
   return (
     <ul className="FileElementList TreeViewList">
@@ -169,15 +181,15 @@ const TreeView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHan
         <FileElementHeader/>
       </li>
       {
-      files
-        .map(file => (
-          <li style={listStyle} key={file.id}>
+      entities
+        .map(entity => (
+          <li style={listStyle} key={entity.id}>
             <Tree
-              file={file}
-              selected={selectedState[file.id]}
-              folderOpenHandler={folderOpenHandler}
+              entity={entity}
               user={user}
               view={view}
+              tabID={tabID}
+              selected={!!highlightedEntitiesMap[entity.id]}
             />
           </li>
         ))
@@ -186,22 +198,22 @@ const TreeView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHan
     );
 }
 
-const ColumnView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
-  const selectedState = {};
-  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+const ColumnView = ({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
+  const highlightedEntitiesMap = {};
+  highlightedEntities.forEach(entityID => {highlightedEntitiesMap[entityID] = true;});
 
   return (
     <ul className="FileElementList IconViewList">
       {
-      files
-        .map(file => (
-          <li style={listStyle} key={file.id}>
+      entities
+        .map(entity => (
+          <li style={listStyle} key={entity.id}>
             <FileElement
-              file={file}
-              selected={selectedState[file.id]}
-              folderOpenHandler={folderOpenHandler}
+              entity={entity}
               user={user}
               view={view}
+              tabID={tabID}
+              selected={!!highlightedEntitiesMap[entity.id]}
             />
           </li>
         ))
@@ -210,20 +222,22 @@ const ColumnView = ({files, sortBy, selectedFiles, setSelectedFiles, folderOpenH
     );
 }
 
-const FileElementList = ({files, sortBy, directoryTree, loading, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view}) => {
-  const selectedState = {};
-  selectedFiles.forEach(fileID => { selectedState[fileID] = true });
+const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID}) => {
+  const highlightedEntities = useSelector(selectHighlightedFilesForTab(tabID));
+
+  console.log("FileElementList highlighted", highlightedEntities);
 
   if (!user) return <></>;
 
-  if (!files || loading)
+  if (!entities || loading)
     return (<div className="FileElementList centre-content"><Spinner/></div>);
 
-  if (files.length === 0)
+  if (entities.length === 0)
     return (<div className="FileElementList centre-content"><EmptyFolder/></div>);
 
-  const sortedFiles = (sortBy ? files.sort((a, b) => b[sortBy] - a[sortBy]) : files).slice(0, limit);
-  const props = {files: sortedFiles, sortBy, loading, selectedFiles, setSelectedFiles, folderOpenHandler, limit, user, view};
+
+  const sortedFiles = (sortBy ? entities.sort((a, b) => b[sortBy] - a[sortBy]) : entities).slice(0, limit);
+  const props = {entities: sortedFiles, sortBy, highlightedEntities, loading, limit, user, view, tabID};
 
   if (view === 'icon-view') return <IconView {...props} />
   if (view === 'tree-view') return <TreeView {...props} />

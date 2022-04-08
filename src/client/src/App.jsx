@@ -6,7 +6,7 @@ import FileExplorer from './components/FileExplorer';
 import SidebarPortal, { DashboardSidebar, UserSidebar } from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import StorageAnalyzer from './components/StorageAnalyzer';
-import credentials, { refreshToken } from './services/auth';
+import { refreshToken } from './services/auth';
 import { clearInvalidUsers, fetchAndAddUser, selectUsers } from './services/userSlice';
 import { clearFetchStatus, fetchDirectoryStructure } from './services/directoryTreeSlice';
 import './App.css';
@@ -183,8 +183,6 @@ const Tab = ({tabID}) => {
   const self = useSelector(selectTab(tabID));
   const activeTabPath = useSelector(selectActivePath(tabID));
 
-  const [fileExplorerSelectedFiles, setFileExplorerSelectedFiles] = useState([]);
-
   // TODO: Move SideBarPortal to storage analyzer, file explorer and dashboard itself
   return (
     <Routes>
@@ -201,16 +199,12 @@ const Tab = ({tabID}) => {
             <Route path="storage-analyzer" element={
               <StorageAnalyzer
                 userID={activeTabPath.userID}
-                selectedFiles={fileExplorerSelectedFiles}
-                setSelectedFiles={setFileExplorerSelectedFiles}
                 tab={self}
               />
             }/>
             <Route path=":fileID" element={
               <FileExplorer
                 userID={activeTabPath.userID}
-                selectedFiles={fileExplorerSelectedFiles}
-                setSelectedFiles={setFileExplorerSelectedFiles}
                 tab={self}
               />
             }/>

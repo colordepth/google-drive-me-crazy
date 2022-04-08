@@ -2,14 +2,8 @@ import axios from 'axios';
 
 // All token information will be encrypted over HTTPS
 
-let refreshTimeout = null;    // TODO: Clear on logout using clearTimeout() and set to null
-
-let credentials = {
-  expiry_date: new Date(parseInt(localStorage.getItem('expiry_date')))
-}
-
 // no use of getAuthInfo for now
-export function getAuthInfo() {
+export function getAuthInfo(credentials) {
   return axios
     .get('https://oauth2.googleapis.com/tokeninfo', {
       params: {
@@ -33,5 +27,3 @@ export function refreshToken(user) {
 
 // TODO: Fix issue when token expires on FileList loading.
 // In case of network error, keep refreshing token? or ask user to refresh
-
-export default credentials;

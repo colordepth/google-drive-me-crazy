@@ -14,7 +14,7 @@ export const tabSlice = createSlice({
         userID: null
       }],
       activePathIndex: 0,
-      highlightedFiles: []
+      highlightedEntities: []
     }]
   },
   reducers: {
@@ -51,7 +51,9 @@ export const tabSlice = createSlice({
         path: pathObject.path,
         name: pathObject.name,
         userID: pathObject.userID || null
-      })
+      });
+
+      targetTab.highlightedEntities.length = 0;
 
       targetTab.activePathIndex += 1;
     },
@@ -75,16 +77,16 @@ export const tabSlice = createSlice({
     toggleHighlight: (state, action) => {
       const { tabID, targetFileID } = action.payload;
       const tab = state.tabs.find(tab => tab.id === tabID);
-      const existingFileID = tab.highlightedFiles.find(fileID => fileID === targetFileID);
+      const existingFileID = tab.highlightedEntities.find(fileID => fileID === targetFileID);
 
-      if (!existingFileID) tab.highlightedFiles.push(targetFileID);
-      else tab.highlightedFiles.filter(fileID => fileID !== targetFileID);
+      if (!existingFileID) tab.highlightedEntities.push(targetFileID);
+      else tab.highlightedEntities = tab.highlightedEntities.filter(fileID => fileID !== targetFileID);
     },
     clearHighlights: (state, action) => {
       const tabID = action.payload;
       const tab = state.tabs.find(tab => tab.id === tabID);
       
-      tab.highlightedFiles.length = 0;
+      tab.highlightedEntities.length = 0;
     }
   }
 });
@@ -111,7 +113,7 @@ export const createTab = (tabInfo={}) => dispatch => {
     id: uuidv4(),
     pathHistory: [pathObject],
     activePathIndex: 0,
-    highlightedFiles: []
+    highlightedEntities: []
   }
   dispatch(addTab(newTab));
 
@@ -127,6 +129,6 @@ export const selectActivePath = tabID => state => {
   const tab = selectTab(tabID)(state);
   return tab.pathHistory.at(tab.activePathIndex);
 }
-export const selectHighlightedFilesForTab = tabID => state => selectTab(tabID)(state).highlightedFiles;
+export const selectHighlightedFilesForTab = tabID => state => selectTab(tabID)(state).highlightedEntities;
 
 export default tabSlice.reducer;
