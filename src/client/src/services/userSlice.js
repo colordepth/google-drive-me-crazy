@@ -74,12 +74,10 @@ export const selectUsers = state => state.users.users;
 export const selectUserByID = userID => state => selectUsers(state).find(user => user.minifiedID === userID);
 
 export const fetchAndAddUser = credentials => dispatch => {
-  dispatch(addUser(credentials));
-  dispatch(updateUser(credentials));    // Will update creds if user already existed
-
   return new Promise(async () => {
     const about = await getAbout(credentials, ['user']);
-    dispatch(updateUser({...about, ...credentials}));
+    dispatch(updateUser({...about, ...credentials}));   // Update user if existing user. Does nothing if not existing.
+    dispatch(addUser({...about, ...credentials}));      // Will add user if not existing user
   });
 }
 

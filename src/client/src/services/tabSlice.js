@@ -13,7 +13,8 @@ export const tabSlice = createSlice({
         name: 'Dashboard',
         userID: null
       }],
-      activePathIndex: 0
+      activePathIndex: 0,
+      highlightedFiles: []
     }]
   },
   reducers: {
@@ -70,11 +71,34 @@ export const tabSlice = createSlice({
       if (targetTab.activePathIndex >= noOfPaths){
         targetTab.activePathIndex = noOfPaths - 1;
       }
+    },
+    toggleHighlight: (state, action) => {
+      const { tabID, targetFileID } = action.payload;
+      const tab = state.tabs.find(tab => tab.id === tabID);
+      const existingFileID = tab.highlightedFiles.find(fileID => fileID === targetFileID);
+
+      if (!existingFileID) tab.highlightedFiles.push(targetFileID);
+      else tab.highlightedFiles.filter(fileID => fileID !== targetFileID);
+    },
+    clearHighlights: (state, action) => {
+      const tabID = action.payload;
+      const tab = state.tabs.find(tab => tab.id === tabID);
+      
+      tab.highlightedFiles.length = 0;
     }
   }
 });
 
-export const { switchActiveTab, addTab, deleteTab, openPath, pathHistoryBack, pathHistoryForward } = tabSlice.actions;
+export const {
+  switchActiveTab,
+  addTab,
+  deleteTab,
+  openPath,
+  pathHistoryBack,
+  pathHistoryForward,
+  toggleHighlight,
+  clearHighlights
+} = tabSlice.actions;
 
 export const createTab = (tabInfo={}) => dispatch => {
   const pathObject = tabInfo.pathObject || {
@@ -86,7 +110,8 @@ export const createTab = (tabInfo={}) => dispatch => {
   const newTab = {
     id: uuidv4(),
     pathHistory: [pathObject],
-    activePathIndex: 0
+    activePathIndex: 0,
+    highlightedFiles: []
   }
   dispatch(addTab(newTab));
 
@@ -102,5 +127,6 @@ export const selectActivePath = tabID => state => {
   const tab = selectTab(tabID)(state);
   return tab.pathHistory.at(tab.activePathIndex);
 }
+export const selectHighlightedFilesForTab = tabID => state => selectTab(tabID)(state).highlightedFiles;
 
 export default tabSlice.reducer;

@@ -3,7 +3,7 @@ const {google} = require('googleapis');
 const CREDENTIALS = require('./credentials');
 
 // const SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
-const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 const oAuth2Client = new google.auth.OAuth2(
   CREDENTIALS.client_id,

@@ -74,7 +74,7 @@ const UserManager = () => {
   };
 
   useEffect(() => {
-    // dispatch(clearInvalidUsers());
+    dispatch(clearInvalidUsers());
 
     users.forEach(user => {
       console.log(user);

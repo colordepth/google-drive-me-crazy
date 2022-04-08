@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Breadcrumbs, Button, InputGroup, ButtonGroup } from "@blueprintjs/core";
+import { Position, Toaster } from "@blueprintjs/core";
 
 import FileElementList from './FileElementList';
-import ParentDirectoryButton from './ParentDirectoryButton';
 import StatusBar from './StatusBar';
+import FileUpload from './FileUpload';
 
-import { getAllFilesInFolder } from '../services/files'
-import { calculatePathFromFileID, selectBreadcrumbItems } from '../services/pathSlice';
-import { openPath, pathHistoryBack, pathHistoryForward, selectActivePath } from '../services/tabSlice';
+import { selectEntitiesInsideFolder, selectEntity, calculatePathFromEntityID } from '../services/fileManagerService';
+import { openPath, pathHistoryBack, pathHistoryForward } from '../services/tabSlice';
 import { selectUserByID } from '../services/userSlice';
-import { selectDirectoryTreeForUser, selectStoreStatusForUser, updateFilesAndFolders } from '../services/directoryTreeSlice';
+import { selectDirectoryTreeForUser } from '../services/directoryTreeSlice';
 
-const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed",
+const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed", "trashed",
   "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime", "owners", "thumbnailLink"];
 
 const BackButton = ({ tab }) => {
@@ -43,14 +43,72 @@ const ForwardButton = ({ tab }) => {
   );
 }
 
-const NavigationBar = ({ tab }) => {
-  const breadcrumbItems = useSelector(selectBreadcrumbItems);
+const ParentDirectoryButton = ({ tabID, user, parentFolderID }) => {
+  const dispatch = useDispatch();
+
+  function switchToParentFolder() {
+    selectEntity(parentFolderID, user)
+      .then(parentFolder => {
+        dispatch(openPath({
+          id: tabID,
+          path: {
+            path: parentFolder.id,
+            name: parentFolder.name,
+            userID: user.minifiedID
+          }
+        }));
+      })
+  }
+
+  return (
+    <Button
+      icon='arrow-up'
+      minimal
+      small
+      className="ParentDirectoryButton"
+      disabled={ !parentFolderID }
+      onClick={switchToParentFolder}
+    />
+  );
+}
+
+const NavigationBar = ({ tab, user, folderOpenHandler }) => {
+  const currentFolderID = tab.pathHistory.at(tab.activePathIndex).path;
+  const [currentFolder, setCurrentFolder] = useState(null);
+  const [breadcrumbItems, setBreadCrumbItems] = useState([]);
+
+  console.log("Navigation bar render");
+
+  useEffect(() => {
+    if (!user) return;
+
+    selectEntity(currentFolderID, user)
+      .then(entity => setCurrentFolder(entity))
+
+    calculatePathFromEntityID(currentFolderID, user)
+      .then(path => {
+
+        let result = [];
+        path.forEach(folder => result.push({
+          icon: "folder-open",
+          intent: "primary",
+          text: folder.name,
+          onClick: () => folderOpenHandler(folder)
+        }))
+        result[0] = { ...result[0], icon: "cloud" };
+        setBreadCrumbItems(result);
+      })
+    },
+    [tab.activePathIndex]
+  );
+
+  const parentFolderID = currentFolder && currentFolder.parents && currentFolder.parents[0];
 
   return (
     <div className="NavigationBar">
       <BackButton tab={tab}/>
       <ForwardButton tab={tab}/>
-      <ParentDirectoryButton tab={tab}/>
+      <ParentDirectoryButton tabID={tab.id} user={user} parentFolderID={parentFolderID}/>
       <Breadcrumbs className="AddressBar" items={breadcrumbItems} fill/>
       <InputGroup
         leftIcon="search"
@@ -62,11 +120,15 @@ const NavigationBar = ({ tab }) => {
     </div>
   );
 }
-const ToolBar = ({ selectedFiles }) => {
+
+const ToolBar = ({ selectedFiles, user, targetFolderID }) => {
+  const [overlayState, setOverlayState] = useState(false);
+
   if (!selectedFiles.length)
     return (
       <div className="ToolBar">
-        <Button small minimal icon='add' rightIcon="chevron-down" text="New" />
+        <FileUpload isOpen={overlayState} onClose={() => setOverlayState(false)} user={user} targetFolderID={targetFolderID}/>
+        <Button small minimal icon='add' rightIcon="chevron-down" text="New" onClick={() => setOverlayState(true)}/>
     </div>
     );
   return (
@@ -82,78 +144,66 @@ const ToolBar = ({ selectedFiles }) => {
     );
 }
 
-const FileExplorer = ({ userID, selectedFiles, setSelectedFiles, tab }) => {
-  const [filesList, setFilesList] = useState(null);
-  const directoryTree = useSelector(selectDirectoryTreeForUser(userID));
-  const directoryTreeStatus = useSelector(selectStoreStatusForUser(userID));
-  const activeTabPath = useSelector(selectActivePath(tab.id));
-  const dispatch = useDispatch();
+const AppToaster = Toaster.create({
+  className: "recipe-toaster",
+  position: Position.TOP,
+});
 
+const FileExplorer = ({ userID, tab }) => {
+  const [filesList, setFilesList] = useState(null);
+  const dispatch = useDispatch();
+  const directoryTree = useSelector(selectDirectoryTreeForUser(userID));
+
+  const activePath = tab.pathHistory.at(tab.activePathIndex);
   const user = useSelector(selectUserByID(userID));
+  // const directoryTreeStatus = useSelector(selectStoreStatusForUser(userID));  
 
   function refreshFileListData() {
-    
-    if (directoryTree) {
-      setFilesListFromDirectoryTree();
-      return;
-    }
-    
+
     setFilesList(null);    // show loading
 
-    // fetch files and also update in directoryTree
-    getAllFilesInFolder(user, activeTabPath.path, requestedFields)
+    user && selectEntitiesInsideFolder(activePath.path, user, requestedFields)
       .then(files => {
         setFilesList(files);
-        dispatch(updateFilesAndFolders(userID, files));
       })
       .catch(error => {
-        console.error("updateFileListFileExplorer",
+        console.error("FileExplorer refreshFileListData",
           error.message,
           error.response ? error.response.data.error.message : null
         );
       });
-    // try { dispatch(calculatePathFromFileID(activeTabPath.path)); }
-    // catch (error) { console.error("calculatePathFromFileID", error.message);}
-  }
-
-  function setFilesListFromDirectoryTree() {
-    if (!directoryTree) return;
-    if (!directoryTree[activeTabPath.path]) return;   // without this, error when switching to non fileexplorer tab.
-
-    const fileIDsInCurrentFolder = Object.keys(directoryTree)
-      .filter(fileID => {
-        return directoryTree[fileID].parents
-          && directoryTree[fileID].parents[0] === directoryTree[activeTabPath.path].id;
-      });
-
-    setFilesList(fileIDsInCurrentFolder.map(id => directoryTree[id]));
-    console.log('set files from directory tree');
   }
 
   function folderOpenHandler(folder) {
-    dispatch(openPath({id: tab.id, path: {
-      path: folder.id,
-      name: folder.name,
-      userID
-    }}));
+    if (activePath.path === folder.id || (folder.isRoot && activePath.path ==='root'))
+      return;
+
+    dispatch(openPath({
+      id: tab.id,
+      path: {
+        path: folder.id,
+        name: folder.name,
+        userID
+      }
+    }));
+    AppToaster.show({ message: "Toasted." });
   }
 
-  useEffect(refreshFileListData, [ activeTabPath ]);
-  useEffect(setFilesListFromDirectoryTree, [ directoryTree ]);
+  useEffect(refreshFileListData, [ activePath ]);
 
   return (
     <div className="FileExplorer">
-      <NavigationBar tab={ tab }/>
-      <ToolBar selectedFiles={ selectedFiles }/>
+      <NavigationBar tab={ tab } user= { user } folderOpenHandler={ folderOpenHandler } />
+      <ToolBar selectedFiles={ tab.highlightedFiles } user={ user } targetFolderID={ activePath.path }/>
       <FileElementList
-        files={ filesList }     // For icon-view and list-view
+        files={ filesList && filesList.filter(file => !file.trashed) }     // For icon-view and list-view
         directoryTree= { directoryTree }  // For tree-view and list-view
-        selectedFiles={ selectedFiles }
+        selectedFiles={ tab.highlightedFiles }
         folderOpenHandler={ folderOpenHandler }
         user={user}
-        view='tree-view'
+        view='icon-view'
       />
-      <StatusBar noOfFiles={ filesList && filesList.length } noOfSelectedFiles={ selectedFiles.length }/>
+      <StatusBar noOfFiles={ filesList && filesList.length } noOfSelectedFiles={ tab.highlightedFiles.length }/>
     </div>
   );
 }

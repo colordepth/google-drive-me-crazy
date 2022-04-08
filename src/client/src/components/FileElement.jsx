@@ -4,7 +4,7 @@ import ReactTimeAgo from 'react-time-ago';
 
 // import store from '../services/store';
 import { selectDirectoryTreeForUser } from '../services/directoryTreeSlice';
-import { humanFileSize } from '../services/files';
+import { humanFileSize } from '../services/filesMiscellaneous';
 
 import DetailViewElement from './DetailViewElement';
 import IconViewElement from './IconViewElement';

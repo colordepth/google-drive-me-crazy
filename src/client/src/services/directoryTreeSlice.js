@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getAllFolders, getFiles } from './files.js';
+import { fetchAllFolders, fetchThousandEntities } from './filesFetch.js';
 import { selectUsers } from './userSlice.js';
 import store from './store';
 
@@ -200,7 +200,7 @@ export const directoryTreeSlice = createSlice({
   }
 });
 
-export const fetchAllFolders = (userID, requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed'], additionalQuery) => dispatch  => {
+export const getAllFolders = (userID, requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed'], additionalQuery) => dispatch  => {
   const allUsers = selectUsers(store.getState());
   const user = allUsers.find(user => user.minifiedID === userID);
 
@@ -208,7 +208,7 @@ export const fetchAllFolders = (userID, requestedFields=['id', 'name', 'parents'
 
   dispatch(incrementMajorActiveFetch(user.minifiedID));
 
-  return getAllFolders(user, requestedFields, additionalQuery)
+  return fetchAllFolders(user, requestedFields, additionalQuery)
     .then(folders => {
       dispatch(updateFolders({userID: user.minifiedID, folders}));
       dispatch(decrementMajorActiveFetch(user.minifiedID));
@@ -216,7 +216,7 @@ export const fetchAllFolders = (userID, requestedFields=['id', 'name', 'parents'
     });
 }
 
-export const fetchAllFiles = (userID, requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed'], additionalQuery) => dispatch  => {
+export const getAllFiles = (userID, requestedFields=['id', 'name', 'parents', 'mimeType', 'quotaBytesUsed'], additionalQuery) => dispatch  => {
   const allUsers = selectUsers(store.getState());
   const user = allUsers.find(user => user.minifiedID === userID);
 
@@ -229,7 +229,7 @@ export const fetchAllFiles = (userID, requestedFields=['id', 'name', 'parents', 
 
     try {
       do {
-        let data = await getFiles(user, requestedFields, pageToken, "mimeType != 'application/vnd.google-apps.folder'", additionalQuery);
+        let data = await fetchThousandEntities(user, requestedFields, pageToken, "mimeType != 'application/vnd.google-apps.folder'", additionalQuery);
         dispatch(updateFiles({userID: user.minifiedID, files: data.files}));
         pageToken = data.nextPageToken;
       }
@@ -252,15 +252,19 @@ function buildDirectoryStructure(folders, files) {
   let allFiles = [...folders, ...files];
   let directoryTree = {};
 
+  folders.forEach(folder => {
+    // Clear childrenIDs
+
+    if (!folder.childrenIDs)
+      folder.childrenIDs = [];
+
+    folder.childrenIDs.length = 0;
+  })
+
   allFiles.forEach(file => {
     directoryTree[file.id] = file;
     if (file.isRoot)
       directoryTree['root'] = directoryTree[file.id];
-  });
-
-  allFiles.forEach(file => {
-    // Clear childrenIDs
-    if (file.childrenIDs) file.childrenIDs.length = 0;
   });
 
   var noParent = 0;
@@ -270,8 +274,6 @@ function buildDirectoryStructure(folders, files) {
       const parentID = file.parents[0];
       if (!directoryTree[parentID])
         return console.log("Missing parent object. What's this?", parentID);
-      if (!directoryTree[parentID].childrenIDs)
-        directoryTree[parentID].childrenIDs = [];
       directoryTree[parentID].childrenIDs.push(file.id);
     }
     else {
@@ -316,29 +318,29 @@ export const fetchDirectoryStructure = (userID) => dispatch => {
   // Note: thumbnail link expires after a few hours. it must be refreshed forcibly, cant be cached
 
   Promise.all([
-      fetchAllFiles(userID, fieldsForStorageAnalyzer, "'me' in owners")(dispatch),
+      getAllFiles(userID, fieldsForStorageAnalyzer, "'me' in owners")(dispatch),
 
-      fetchAllFiles(userID, remainingFieldsForFileList, "'me' in owners")(dispatch),
-      fetchAllFolders(userID, remainingFieldsForFolderList, "'me' in owners")(dispatch),
+      getAllFiles(userID, remainingFieldsForFileList, "'me' in owners")(dispatch),
+      getAllFolders(userID, remainingFieldsForFolderList, "'me' in owners")(dispatch),
 
-      fetchAllFiles(userID, fieldsForDirectoryTree, "'me' in owners")(dispatch),
-      fetchAllFolders(userID, fieldsForDirectoryTree, "'me' in owners")(dispatch),
+      getAllFiles(userID, fieldsForDirectoryTree, "'me' in owners")(dispatch),
+      getAllFolders(userID, fieldsForDirectoryTree, "'me' in owners")(dispatch),
 
-      fetchAllFiles(userID, fieldsForDirectoryTree, "not ('me' in owners)")(dispatch),
-      fetchAllFolders(userID, fieldsForDirectoryTree, "not ('me' in owners)")(dispatch),
+      getAllFiles(userID, fieldsForDirectoryTree, "not ('me' in owners)")(dispatch),
+      getAllFolders(userID, fieldsForDirectoryTree, "not ('me' in owners)")(dispatch),
 
-      fetchAllFiles(userID, remainingFieldsForFileList, "not ('me' in owners)")(dispatch),
-      fetchAllFolders(userID, remainingFieldsForFolderList, "not ('me' in owners)")(dispatch),
+      getAllFiles(userID, remainingFieldsForFileList, "not ('me' in owners)")(dispatch),
+      getAllFolders(userID, remainingFieldsForFolderList, "not ('me' in owners)")(dispatch),
     ])
     .then(() => {
       dispatch(recalculateDirectoryTree(userID));
     })
   
   Promise.all([
-      fetchAllFiles(userID, miscFields, "'me' in owners")(dispatch),
-      fetchAllFolders(userID, miscFields, "'me' in owners")(dispatch),
-      fetchAllFiles(userID, miscFields, "not ('me' in owners)")(dispatch),
-      fetchAllFolders(userID, miscFields, "not ('me' in owners)")(dispatch)
+      getAllFiles(userID, miscFields, "'me' in owners")(dispatch),
+      getAllFolders(userID, miscFields, "'me' in owners")(dispatch),
+      getAllFiles(userID, miscFields, "not ('me' in owners)")(dispatch),
+      getAllFolders(userID, miscFields, "not ('me' in owners)")(dispatch)
     ])
 }
 

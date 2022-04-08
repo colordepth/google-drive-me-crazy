@@ -3,18 +3,16 @@ import localStorage from 'redux-persist/lib/storage';
 import sessionStorage from 'redux-persist/lib/storage/session';
 import {
   persistReducer,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
+  // FLUSH,
+  // REHYDRATE,
+  // PAUSE,
+  // PERSIST,
+  // PURGE,
+  // REGISTER,
 } from 'redux-persist';
 
 import directoryTreeReducer from './directoryTreeSlice';
-import currentDirectoryReducer from './currentDirectorySlice';
 import userReducer from './userSlice';
-import pathReducer from './pathSlice';
 import tabReducer from './tabSlice';
 
 const userPersistConfig = {
@@ -29,15 +27,13 @@ const tabPersistConfig = {
 
 const directoryPersistConfig = {
   key: 'directory',
-  storage: 'indexeddbssssssss'
+  storage: 'indexeddb'
 }
 
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
 
 const reducers = combineReducers({
-  path: pathReducer,
   directoryTree: directoryTreeReducer,
-  currentDirectory: currentDirectoryReducer,
   tabs: tabReducer,
   users: persistedUserReducer
 });

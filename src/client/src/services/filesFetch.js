@@ -1,9 +1,8 @@
 import axios from 'axios';
-var Buffer = require('buffer').Buffer;
 
 const baseUrlDriveAPI = 'https://www.googleapis.com/drive/v3';
 
-export function getFileByID(credentials, fileID, requestedFields) {
+export function fetchEntityByID(credentials, fileID, requestedFields) {
 
   return axios.get(baseUrlDriveAPI + '/files/' + fileID, {
     headers: { Authorization: `Bearer ${credentials.accessToken}`},
@@ -14,7 +13,7 @@ export function getFileByID(credentials, fileID, requestedFields) {
   .then(res => res.data);
 }
 
-export function getFiles(credentials, requestedFields, pageToken=null, q, additionalQuery) {
+export function fetchThousandEntities(credentials, requestedFields, pageToken=null, q, additionalQuery) {
 
   const query = !additionalQuery ? q : q.concat(' and ' + additionalQuery);
 
@@ -33,30 +32,34 @@ export function getFiles(credentials, requestedFields, pageToken=null, q, additi
   .then(res => res.data);
 }
 
-export function getAllFiles(credentials, requestedFields, query, additionalQuery) {
+export function fetchAllEntities(credentials, requestedFields, query, additionalQuery) {
+
   return new Promise(async (resolve, reject) => {
     let result = [];
     let pageToken = null;
+
     try {
       do {
-        let data = await getFiles(credentials, requestedFields, pageToken, query, additionalQuery);
+        let data = await fetchThousandEntities(credentials, requestedFields, pageToken, query, additionalQuery);
         pageToken = data.nextPageToken;
         result.push(...data.files); 
       }
       while (!!pageToken);
     }
+
     catch (error) {
       reject(error);
     }
+
     resolve(result);
   });
 }
 
-export function getAllFolders(credentials, requestedFields, additionalQuery) {
+export function fetchAllFolders(credentials, requestedFields, additionalQuery) {
   return new Promise(async (resolve, reject) => {
     try {
-      const folders = await getAllFiles(credentials, requestedFields, "mimeType = 'application/vnd.google-apps.folder'");
-      const rootFolder = await getFileByID(credentials, 'root', requestedFields);
+      const folders = await fetchAllEntities(credentials, requestedFields, "mimeType = 'application/vnd.google-apps.folder'");
+      const rootFolder = await fetchEntityByID(credentials, 'root', requestedFields);
       rootFolder.isRoot = true;
       resolve([...folders, rootFolder]);
     }
@@ -64,8 +67,8 @@ export function getAllFolders(credentials, requestedFields, additionalQuery) {
   });
 }
 
-export function getAllFilesInFolder(credentials, folderID, requestedFields, additionalQuery) {
-  return getAllFiles(credentials, requestedFields, `'${folderID}' in parents`, additionalQuery)
+export function fetchAllEntitiesInFolder(credentials, folderID, requestedFields, additionalQuery) {
+  return fetchAllEntities(credentials, requestedFields, `'${folderID}' in parents`, additionalQuery)
 }
 
 export function fetchFileThumbnail(file, credentials) {
@@ -79,7 +82,6 @@ export function fetchFileThumbnail(file, credentials) {
   })
   .then(response => response.blob());
 
-  
 }
 
 export function fetchGoogleFileThumbnail(file, credentials) {
@@ -122,7 +124,4 @@ export function fetchGoogleFileThumbnail(file, credentials) {
   .then(res => res.data);
 }
 
-export function humanFileSize(size) {
-  var i = !size ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
-  return ( size / Math.pow(1024, i) ).toFixed(1) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
-};
+

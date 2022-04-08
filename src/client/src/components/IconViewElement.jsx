@@ -1,24 +1,24 @@
 import { useState, useEffect } from 'react';
 import { singleClickHandler, doubleClickHandler} from './FileElement';
-import { fetchFileThumbnail } from '../services/files';
+import { fetchFileThumbnail } from '../services/fileManagerService';
 
-const IconViewElement = ({file, fileSize, selected, folderOpenHandler, user}) => {
-  const bigIconLink = file.iconLink.split('/').map((e,i) => i === 3 ? '128' : e).join('/');
+const IconViewElement = ({file, selected, folderOpenHandler, user}) => {
 
-  const [thumbnailImage, setThumbnailImage] = useState(null);
-
-  useEffect(() => {
+  function thumbnailSetter() {
     // Use getGoogleFileThumbnail for google docs thumbnail. also gotta add google docs to scope
+
     file && !file.mimeType.startsWith('application/vnd.google-apps.') && file.thumbnailLink && fetchFileThumbnail(file, user)
     .then(data => {
-      // console.log(URL.createObjectURL(data));
       setThumbnailImage(URL.createObjectURL(data));
     })
     .catch(error => {
-      // console.log(132);
       console.error(error);
     })
-  }, [file]);
+  }
+
+  const [thumbnailImage, setThumbnailImage] = useState(null);
+  const bigIconLink = file.iconLink.split('/').map((e,i) => i === 3 ? '128' : e).join('/');
+  useEffect(thumbnailSetter, [file, user]);
 
   return (
     <div

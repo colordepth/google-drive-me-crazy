@@ -150,3 +150,23 @@
 .SidebarElement:hover, .SidebarHeader:hover {
   background: #e4e2fb;
 }
+
+.OverlayCard {
+  /* position: absolute; */
+  background: white;
+
+  width: 400px;
+  left: calc(50vw - calc(400px/2));
+
+  height: 450px;
+  top: 120px;
+
+  border-radius: 1rem;
+  border: 1px #ddf solid;
+  box-shadow: #444 2px 6px 15px 10px;
+  padding: 2rem;
+}
+
+.Hidden {
+  display: none;
+}
