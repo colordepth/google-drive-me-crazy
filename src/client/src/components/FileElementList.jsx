@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectEntitiesInsideFolder } from '../services/fileManagerService';
-import { selectHighlightedFilesForTab } from "../services/tabSlice";
 import FileElement from './FileElement';
 
 import './FileElementList.css'
@@ -49,9 +48,7 @@ const FileElementHeader = () => {
   );
 }
 
-const ListView = ({entities, user, view, tabID, highlightedEntities}) => {
-  const highlightedEntitiesMap = {};
-  highlightedEntities.forEach(entity => {highlightedEntitiesMap[entity.id] = true;});
+const ListView = ({entities, user, view, tabID}) => {
 
   return (
     <ul className="FileElementList">
@@ -67,7 +64,6 @@ const ListView = ({entities, user, view, tabID, highlightedEntities}) => {
               user={user}
               tabID={tabID}
               view={view}
-              selected={!!highlightedEntitiesMap[entity.id]}
             />
           </li>
         ))
@@ -76,10 +72,7 @@ const ListView = ({entities, user, view, tabID, highlightedEntities}) => {
     );
 }
 
-const IconView = ({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
-  const highlightedEntitiesMap = {};
-  highlightedEntities.forEach(entity => {highlightedEntitiesMap[entity.id] = true;});
-
+const IconView = ({entities, sortBy, limit, user, view, tabID}) => {
 
   return (
     <ul className="FileElementList IconViewList">
@@ -92,7 +85,6 @@ const IconView = ({entities, sortBy, limit, user, view, tabID, highlightedEntiti
               user={user}
               tabID={tabID}
               view={view}
-              selected={!!highlightedEntitiesMap[entity.id]}
             />
           </li>
         ))
@@ -104,7 +96,7 @@ const IconView = ({entities, sortBy, limit, user, view, tabID, highlightedEntiti
 const requestedFields = ["id", "name", "mimeType",
 "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "modifiedTime", "viewedByMeTime"];
 
-const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
+const TreeFolder = React.memo(({entity, sortBy, limit, user, tabID}) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [childrenEntities, setChildrenEntities] = useState(null);
 
@@ -118,32 +110,24 @@ const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
 
   console.log("how much do i render?");
 
-  const isFolder = entity.mimeType === 'application/vnd.google-apps.folder';
-  selected && console.log(selected);
-
   return (
     <>
-      <div style={{display: 'flex', marginLeft: isFolder ? '0px' : '30px', alignItems: 'center'}}>
-        {
-          isFolder
-          &&
-          <Button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            minimal
-            style={{borderRadius: '50%', width: '3px', height: '3px'}}
-          >
-            <Icon
-              icon={'chevron-' + (isCollapsed ? 'right' : 'down')}
-              color='#677'
-              size={14}
-            />
-          </Button>
-        }
+      <div style={{display: 'flex', marginLeft: '0px', alignItems: 'center'}}>
+        <Button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          minimal
+          style={{borderRadius: '50%', width: '3px', height: '3px'}}
+        >
+          <Icon
+            icon={'chevron-' + (isCollapsed ? 'right' : 'down')}
+            color='#677'
+            size={14}
+          />
+        </Button>
         <FileElement
           entity={entity}
           user={user}
           tabID={tabID}
-          selected={selected}
           view='tree-view'
         />
       </div>
@@ -153,14 +137,22 @@ const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
           !childrenEntities ? <Spinner size={20}/> :
           childrenEntities.map(entity => 
             <li key={entity.id} style={{listStyle: 'none', marginLeft: '0.4rem'}}>
-              <Tree
-                entity={entity}
-                user={user}
-                sortBy={sortBy}
-                limit={limit}
-                tabID={tabID}
-                selected={selected}
-              />
+              {
+                entity.mimeType === 'application/vnd.google-apps.folder'  ?
+                <TreeFolder
+                  entity={entity}
+                  user={user}
+                  sortBy={sortBy}
+                  limit={limit}
+                  tabID={tabID}
+                />
+                :
+                <TreeFile
+                  entity={entity}
+                  user={user}
+                  tabID={tabID}
+                />
+              }
             </li>
           )
         }
@@ -168,14 +160,27 @@ const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
       }
     </>
   );
-  
 });
 
-const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
-  // List of trees below a Header
+const TreeFile = React.memo(({entity, user, tabID}) => {
+  console.log("how much do i render?");
 
-  const highlightedEntitiesMap = {};
-  highlightedEntities.forEach(entity => {highlightedEntitiesMap[entity.id] = true;});
+  return (
+    <>
+      <div style={{display: 'flex', marginLeft: '30px', alignItems: 'center'}}>
+        <FileElement
+          entity={entity}
+          user={user}
+          tabID={tabID}
+          view='tree-view'
+        />
+      </div>
+    </>
+  );
+});
+
+const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID}) => {
+  // List of trees below a Header
 
   return (
     <ul className="FileElementList TreeViewList">
@@ -186,13 +191,22 @@ const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID, highli
       entities
         .map(entity => (
           <li style={listStyle} key={entity.id}>
-            <Tree
-              entity={entity}
-              user={user}
-              view={view}
-              tabID={tabID}
-              selected={!!highlightedEntitiesMap[entity.id]}
-            />
+            {
+              entity.mimeType === 'application/vnd.google-apps.folder'  ?
+              <TreeFolder
+                entity={entity}
+                user={user}
+                sortBy={sortBy}
+                limit={limit}
+                tabID={tabID}
+              />
+              :
+              <TreeFile
+                entity={entity}
+                user={user}
+                tabID={tabID}
+              />
+            }
           </li>
         ))
       }
@@ -200,9 +214,7 @@ const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID, highli
     );
 });
 
-const ColumnView = ({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
-  const highlightedEntitiesMap = {};
-  highlightedEntities.forEach(entity => {highlightedEntitiesMap[entity.id] = true;});
+const ColumnView = ({entities, sortBy, limit, user, view, tabID}) => {
 
   return (
     <ul className="FileElementList IconViewList">
@@ -215,7 +227,6 @@ const ColumnView = ({entities, sortBy, limit, user, view, tabID, highlightedEnti
               user={user}
               view={view}
               tabID={tabID}
-              selected={!!highlightedEntitiesMap[entity.id]}
             />
           </li>
         ))
@@ -225,7 +236,6 @@ const ColumnView = ({entities, sortBy, limit, user, view, tabID, highlightedEnti
 }
 
 const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID}) => {
-  const highlightedEntities = useSelector(selectHighlightedFilesForTab(tabID));
 
   if (!user) return <></>;
 
@@ -235,9 +245,8 @@ const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID}) 
   if (entities.length === 0)
     return (<div className="FileElementList centre-content"><EmptyFolder/></div>);
 
-
   const sortedFiles = (sortBy ? entities.sort((a, b) => b[sortBy] - a[sortBy]) : entities).slice(0, limit);
-  const props = {entities: sortedFiles, sortBy, highlightedEntities, loading, limit, user, view, tabID};
+  const props = {entities: sortedFiles, sortBy, loading, limit, user, view, tabID};
 
   if (view === 'icon-view') return <IconView {...props} />
   if (view === 'tree-view') return <TreeView {...props} />

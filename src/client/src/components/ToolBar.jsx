@@ -34,7 +34,7 @@ function renameSelectedFile(entityID, credentials) {
     })
 }
 
-const ToolBar = ({ highlightedEntities, user, targetFolderID, viewMode, setViewMode }) => {
+const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setViewMode }) => {
   const [overlayState, setOverlayState] = useState(false);
   const clipboard = useSelector(selectClipboard);
   const dispatch = useDispatch();
@@ -45,14 +45,14 @@ const ToolBar = ({ highlightedEntities, user, targetFolderID, viewMode, setViewM
       <Button small minimal icon='add' rightIcon="chevron-down" text="New" onClick={() => setOverlayState(true)}/>
       <ButtonGroup>
         <Button small minimal icon='cut'
-          className={highlightedEntities.length ? '':'Hidden'}
+          className={highlightedEntitiesList.length ? '':'Hidden'}
           text="Cut"
-          onClick={() => moveToClipboard(highlightedEntities, 'cut', dispatch)}
+          onClick={() => moveToClipboard(highlightedEntitiesList, 'cut', dispatch)}
         />
         <Button small minimal icon='duplicate'
-          className={highlightedEntities.length ? '':'Hidden'}
+          className={highlightedEntitiesList.length ? '':'Hidden'}
           text="Copy"
-          onClick={() => moveToClipboard(highlightedEntities, 'copy', dispatch)}
+          onClick={() => moveToClipboard(highlightedEntitiesList, 'copy', dispatch)}
         />
         <Button small minimal icon='clipboard'
           className={clipboard.entities.length ? '':'Hidden'}
@@ -61,12 +61,12 @@ const ToolBar = ({ highlightedEntities, user, targetFolderID, viewMode, setViewM
         />
       </ButtonGroup>
       <Button small minimal icon='edit'
-        className={highlightedEntities.length===1 ? '':'Hidden'}
+        className={highlightedEntitiesList.length===1 ? '':'Hidden'}
         text="Rename"
-        onClick={() => renameSelectedFile(highlightedEntities[0].id, user)}
+        onClick={() => renameSelectedFile(highlightedEntitiesList[0].id, user)}
       />
       <Button small minimal intent='danger' icon='trash'
-        className={highlightedEntities.length ? '':'Hidden'}
+        className={highlightedEntitiesList.length ? '':'Hidden'}
         text="Trash"
       />
       

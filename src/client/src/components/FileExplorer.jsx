@@ -76,11 +76,15 @@ const FileExplorer = ({ userID, tab }) => {
 
   useEffect(refreshFileListData, [ activePath, directoryTreeChange ]);
 
+  const highlightedEntitiesList = Object
+    .keys(tab.highlightedEntities)
+    .map(entityID => tab.highlightedEntities[entityID]);
+
   return (
     <div className="FileExplorer" onClick={(event) => resetHighlightedFiles(event.target, dispatch, tab.id)}>
       <NavigationBar tab={ tab } user= { user } folderOpenHandler={ folderOpenHandler } />
       <ToolBar
-        highlightedEntities={ tab.highlightedEntities }
+        highlightedEntitiesList={ highlightedEntitiesList }
         user={ user }
         targetFolderID={ activePath.path }
         viewMode={ viewMode }
@@ -92,7 +96,7 @@ const FileExplorer = ({ userID, tab }) => {
         tabID={tab.id}
         view={ viewMode }
       />
-      <StatusBar noOfFiles={ entitiesList && entitiesList.length } noOfSelectedFiles={ tab.highlightedEntities.length }/>
+      <StatusBar noOfFiles={ entitiesList && entitiesList.length } noOfSelectedFiles={ highlightedEntitiesList.length }/>
     </div>
   );
 }

@@ -1,9 +1,10 @@
 import { Spinner } from '@blueprintjs/core';
 import ReactTimeAgo from 'react-time-ago';
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 import { humanFileSize } from '../services/filesMiscellaneous';
-import { clearHighlights, toggleHighlight } from '../services/tabSlice';
+import { clearHighlights, toggleHighlight, selectHighlightedStatus } from '../services/tabSlice';
 import store from '../services/store';
 import { openPath, selectTab } from '../services/tabSlice';
 
@@ -49,7 +50,9 @@ export function doubleClickHandler(entity, tabID) {
     window.open(entity.webViewLink);
 }
 
-const FileElement = React.memo(({entity, selected, user, view, tabID}) => {
+const FileElement = React.memo(({entity, user, view, tabID}) => {
+
+  const selected = !!useSelector(selectHighlightedStatus(tabID, entity.id));
 
   let fileSize = humanFileSize(parseInt(entity.quotaBytesUsed));
 

@@ -42,7 +42,7 @@ export function moveEntitiesToFolder(entities, targetFolderID, credentials) {
       const validMove = await checkAncestor(entity.id, targetFolderID, credentials);
   
       console.log(validMove);
-  
+
       if (validMove) {
         return reject('Cannot move entity into its descendant folders');
       }
