@@ -26,7 +26,7 @@ export function getQuotaDetails(credentials) {
   return axios.get(baseUrlDriveAPIv2 + '/about', {
     headers: { Authorization: `Bearer ${credentials.accessToken}`},
     params: {
-      fields: 'quotaBytesUsed,quotaBytesUsed,quotaBytesUsedAggregate,quotaBytesUsedInTrash,quotaType,quotaBytesByService'
+      fields: 'quotaBytesUsed,quotaBytesUsedAggregate,quotaBytesUsedInTrash,quotaType,quotaBytesByService,quotaBytesTotal'
     }
   })
   .then(res => res.data);

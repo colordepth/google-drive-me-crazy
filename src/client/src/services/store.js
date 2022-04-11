@@ -14,6 +14,7 @@ import {
 import directoryTreeReducer from './directoryTreeSlice';
 import userReducer from './userSlice';
 import tabReducer from './tabSlice';
+import clipboardReducer from './clipboardSlice';
 
 const userPersistConfig = {
   key: 'user',
@@ -35,7 +36,8 @@ const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
 const reducers = combineReducers({
   directoryTree: directoryTreeReducer,
   tabs: tabReducer,
-  users: persistedUserReducer
+  users: persistedUserReducer,
+  clipboard: clipboardReducer
 });
 
 export default configureStore({

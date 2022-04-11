@@ -75,12 +75,12 @@ export const tabSlice = createSlice({
       }
     },
     toggleHighlight: (state, action) => {
-      const { tabID, targetFileID } = action.payload;
+      const { tabID, targetFile } = action.payload;
       const tab = state.tabs.find(tab => tab.id === tabID);
-      const existingFileID = tab.highlightedEntities.find(fileID => fileID === targetFileID);
+      const existingFile = tab.highlightedEntities.find(entity => entity.id === targetFile.id);
 
-      if (!existingFileID) tab.highlightedEntities.push(targetFileID);
-      else tab.highlightedEntities = tab.highlightedEntities.filter(fileID => fileID !== targetFileID);
+      if (!existingFile) tab.highlightedEntities.push(targetFile);
+      else tab.highlightedEntities = tab.highlightedEntities.filter(entity => entity.id !== targetFile.id);
     },
     clearHighlights: (state, action) => {
       const tabID = action.payload;

@@ -6,7 +6,7 @@ const DetailViewElement = ({entity, fileSize, selected, tabID}) => {
     <div
       onClick={(event) => singleClickHandler(event, entity, tabID)}
       onDoubleClick={() => doubleClickHandler(entity, tabID)}
-      className={selected ? 'DetailFileElement DetailFileElementSelected' : 'DetailFileElement'}
+      className={selected ? 'FileElement DetailFileElement DetailFileElementSelected' : 'FileElement DetailFileElement'}
     >
       <Icon icon={<img src={ entity.iconLink } alt="icon"/>} intent='none'/>
       <div style={{maxWidth: '25rem'}}><Text ellipsize='true' style={{color: "black"}}>{ entity.name }</Text></div>

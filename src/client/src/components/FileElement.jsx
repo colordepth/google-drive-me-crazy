@@ -20,12 +20,12 @@ export const HumanReadableTime = ({epoch}) => {
 }
 
 export function singleClickHandler(event, entity, tabID) {
-  console.log('single click', entity);
+  console.log('single click', entity, tabID);
   if (!event.ctrlKey) {
     store.dispatch(clearHighlights(tabID));
   }
-  console.log("Toggling highlight", entity.id);
-  store.dispatch(toggleHighlight({tabID, targetFileID: entity.id}));
+
+  store.dispatch(toggleHighlight({tabID, targetFile: entity}));
 }
 
 export function doubleClickHandler(entity, tabID) {
@@ -59,7 +59,7 @@ const FileElement = React.memo(({entity, selected, user, view, tabID}) => {
   const props = {entity, fileSize, selected, user, tabID};
 
   if (view === 'icon-view') return <IconViewElement {...props} />
-  if (view === 'tree-view') return <DetailViewElement {...props} />
+  if (view === 'tree-view') return <TreeViewElement {...props} />
   if (view === 'column-view') return <IconViewElement {...props} />
 
   return <DetailViewElement {...props} />;

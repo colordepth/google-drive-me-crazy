@@ -1,5 +1,7 @@
 import { Icon } from "@blueprintjs/core";
 import ReactDOM from 'react-dom';
+import { useDispatch } from 'react-redux';
+import { openPath } from "../services/tabSlice";
 
 const SidebarElement = ({ icon, text, size })  => {
   return (
@@ -84,7 +86,9 @@ export const DashboardSidebar = () => {
   );
 }
 
-export const UserSidebar = ({ userID }) => {
+export const UserSidebar = ({ userID, tabID }) => {
+  const dispatch = useDispatch();
+
   return (
     <div className="SideBar">
       <div className="SidebarBlock">
@@ -124,7 +128,18 @@ export const UserSidebar = ({ userID }) => {
           <Icon icon='trash' size={15} style={{paddingRight: '0.6rem'}}/>
           Trash
         </div>
-        <div style={{marginTop: "4px"}}className="SidebarHeader">
+        <div style={{marginTop: "4px"}} className="SidebarHeader"
+          onClick={() => {
+            dispatch(openPath({
+              id: tabID,
+              path: {
+                path: 'storage-analyzer',
+                name: "Storage Analyzer",
+                userID: userID
+              }
+            }));
+          }}
+        >
           <Icon icon='database' size={15} style={{paddingRight: '0.6rem'}}/>
           Storage
         </div>

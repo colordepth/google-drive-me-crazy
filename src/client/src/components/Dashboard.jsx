@@ -7,7 +7,6 @@ import { selectUsers } from "../services/userSlice";
 import './Dashboard.css';
 
 const UserCard = ({user, tabID}) => {
-  // console.log("B", user);
   const dispatch = useDispatch();
 
   return (

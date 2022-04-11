@@ -7,8 +7,10 @@ import StatusBar from './StatusBar';
 import './StorageAnalyzer.css';
 
 import { selectFilesForUser, selectActiveMajorFetchCount } from '../services/fileManagerService';
+import { selectUserByID } from '../services/userSlice';
 
 import { humanFileSize } from '../services/filesMiscellaneous';
+import ToolBar from './ToolBar';
 
 const defaultOptions = {
   responsive: true,
@@ -150,10 +152,13 @@ const DonutChart = memo(({name}) => {
 const StorageAnalyzer = ({ userID, tab }) => {
 
   const allFiles = useSelector(selectFilesForUser(userID));
+  const user = useSelector(selectUserByID(userID));
   const files = allFiles && allFiles.filter(file => 
     file.owners && file.owners.length && file.owners[0].me
   );
   // const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));
+
+  console.log(11, files);
 
   useEffect(() => {
     if (!files) return;
@@ -198,6 +203,13 @@ const StorageAnalyzer = ({ userID, tab }) => {
 
   return (
     <div className='StorageAnalyzer'>
+      <ToolBar
+        highlightedEntities={ tab.highlightedEntities }
+        user={ user }
+        targetFolderID={ 'storage-analyzer' }
+        viewMode={ 'list-view' }
+        setViewMode={ null }
+      />
       <div className='StorageGraphs'>
         <DonutChart name='fileSize'/>
         <DonutChart name='fileCount'/>
@@ -208,7 +220,7 @@ const StorageAnalyzer = ({ userID, tab }) => {
         foldersFirst={false}
         sortBy='quotaBytesUsed'
         limit={100}
-        userID={userID}
+        user={user}
         tabID={tab.id}
         view='detail-list'
       />

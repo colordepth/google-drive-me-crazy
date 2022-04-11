@@ -10,7 +10,7 @@ const FileUpload = ({isOpen, onClose, user, targetFolderID}) => {
   useEffect(() => files && files[0] && setFileInputText(files[0].name), [files]);
 
   return (
-    <Overlay isOpen={isOpen} onClose={onClose}>
+    <Overlay isOpen={isOpen} onClose={onClose} onClosing={node => node.classList.toggle('OverlayCardClosing')} transitionDuration={300}>
       <div className='OverlayCard'>
         <FileInput text={fileInputText} inputProps={{multiple: false}} onInputChange={(e) => setFiles(e.target.files)} />
         <Button icon='upload' onClick={() => files && uploadSelectedFile(files[0], targetFolderID, user)}>

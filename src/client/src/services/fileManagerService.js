@@ -9,11 +9,63 @@
 import store from './store';
 import * as filesFetch from './filesFetch';
 import * as filesWrite from './filesWrite';
+import * as filesUpdate from './filesUpdate';
 import * as directoryTreeSlice from './directoryTreeSlice';
 
 export const { createFolder, uploadSelectedFile } = filesWrite;
 export const { fetchFileThumbnail, fetchGoogleFileThumbnail } = filesFetch;
-export const { fetchDirectoryStructure, selectFilesForUser, selectActiveMajorFetchCount } = directoryTreeSlice;
+export const { fetchDirectoryStructure, selectFilesForUser, selectActiveMajorFetchCount, selectDirectoryTreeForUser } = directoryTreeSlice;
+
+function checkAncestor(entityAncestorID, entityDescendantID, credentials) {
+  return calculatePathFromEntityID(entityDescendantID, credentials)
+    .then(entityList => {
+      console.log("Ancestor", entityList);
+      return !!entityList.find(entity => entity.id === entityAncestorID);
+    })
+}
+
+export function renameEntity(entityID, newName, credentials) {
+
+  return filesUpdate.renameEntity(entityID, newName, credentials)
+    .then(result => {
+      store.dispatch(directoryTreeSlice.updateFilesAndFolders(credentials.minifiedID, [result]));
+      store.dispatch(directoryTreeSlice.recalculateDirectoryTree(credentials.minifiedID));
+      return result;
+    })
+}
+
+export function moveEntitiesToFolder(entities, targetFolderID, credentials) {
+
+  return new Promise(async (resolve, reject) => {
+    for (const entity of entities) {
+      // Cannot an entity into its descendant
+      const validMove = await checkAncestor(entity.id, targetFolderID, credentials);
+  
+      console.log(validMove);
+  
+      if (validMove) {
+        return reject('Cannot move entity into its descendant folders');
+      }
+    }
+
+    let promises = [];
+
+    entities.forEach(entity => {
+      promises.push(filesUpdate.changeParentFolder(entity, targetFolderID, credentials));
+    });
+
+    Promise.all(promises)
+      .then(results => {
+        store.dispatch(directoryTreeSlice.updateFilesAndFolders(credentials.minifiedID, results));
+        // TODO: NOTE: Do not recalculate directory tree like this directly.
+        // After initial directory tree has be calculated, check Google Drive for changes and only then recalculate tree
+        if (directoryTreeSlice.selectDirectoryTreeForUser(credentials.minifiedID)(store.getState()))
+          store.dispatch(directoryTreeSlice.recalculateDirectoryTree(credentials.minifiedID));
+        resolve(results);
+      })
+      .catch(error => reject(error))
+  })
+}
 
 export function selectEntity(entityID, user) {
 
@@ -50,7 +102,7 @@ export function selectEntity(entityID, user) {
 export function selectEntitiesInsideFolder(folderID, user, requestedFields) {
 
   const startTime = new Date();
-
+  // console.log(store.getState().directoryTree['qvuQXkR7SAA='].directoryTree['171e19sj7XgVNlBiN9og-RijRkoUvdYxt']);
   return new Promise((resolve) => {
     const state = store.getState();
     const directoryTree = directoryTreeSlice.selectDirectoryTreeForUser(user.minifiedID)(state);

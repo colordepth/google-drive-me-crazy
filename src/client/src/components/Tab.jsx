@@ -21,7 +21,7 @@ const Tab = ({tabID}) => {
       }/>
       <Route path="/:userID/*" element={
         <>
-          <SidebarPortal element={ <UserSidebar userID={activeTabPath.userID}/> } />
+          <SidebarPortal element={ <UserSidebar userID={activeTabPath.userID} tabID={ tabID }/> } />
           <Routes>
             <Route path="storage-analyzer" element={
               <StorageAnalyzer

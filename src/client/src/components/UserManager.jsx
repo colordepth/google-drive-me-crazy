@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { refreshToken } from '../services/auth';
 import { clearInvalidUsers, fetchAndAddUser, selectUsers } from '../services/userSlice';
+import { getQuotaDetails } from '../services/userInfo';
 import { clearFetchStatus, fetchDirectoryStructure } from '../services/directoryTreeSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -53,7 +54,7 @@ const UserManager = () => {
             permissionId: user.permissionId,
           }))
         });
-    }, (expiryDate - new Date()) - 10000);
+    }, (expiryDate - new Date()) - 10*60*1000);   // 10 minutes before expiry
   };
 
   useEffect(() => {
@@ -63,18 +64,22 @@ const UserManager = () => {
       console.log(user);
       dispatch(clearFetchStatus(user.minifiedID));
 
+      getQuotaDetails(user)
+        .then(data => console.log(data));
+
       dispatch(fetchAndAddUser({
         refreshToken: user.refreshToken,
         accessToken: user.accessToken,
         refreshTimeout: setTokenRefreshTimeout(user, user.expiryDate)
-      }));
-      dispatch(fetchDirectoryStructure(user.minifiedID));   // Remove this once directory is persisted.
+      }))
+      .then(() => dispatch(fetchDirectoryStructure(user.minifiedID))) // Remove this once directory is persisted.
+
     });
   }, []);
 
   return (
     <>
-      <div style={{margin: "0 1rem", position: "absolute", "top": "3px", "right": "3px"}}>
+      <div style={{margin: "0 1rem", position: "fixed", "top": "3px", "right": "3px"}}>
         <img
           src={users.at(0) && users[0].photoLink}
           alt="user profile"

@@ -5,6 +5,12 @@
   user-select: none;
 }
 
+html {
+  /* transform: scale(0.9);
+  zoom: 90%; */
+  box-shadow: #aaa 0px 4px 10px 2px;
+}
+
 body {
   margin: 0;
   padding:  0;
@@ -12,6 +18,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #e8eaf6;  /* purple */
   background: #E7EAF7;    /* blue */
+  background: #f0efff;
   /*background-color: #eeeaf7;*/ /* this is for top bar */
   /* background: linear-gradient(to right, #eaeaf6,  #eeeaf7); */
   font-size:  13px;

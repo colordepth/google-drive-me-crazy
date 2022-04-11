@@ -145,9 +145,9 @@ export const directoryTreeSlice = createSlice({
         return;
       }
       
-      let newFolders = action.payload.folders;
+      const newFolders = action.payload.folders;
 
-      let originalStateFolderMap = {};
+      const originalStateFolderMap = {};
       state[userID].folders.forEach(folder => originalStateFolderMap[folder.id] = folder);
 
       newFolders
@@ -334,9 +334,7 @@ export const fetchDirectoryStructure = (userID) => dispatch => {
       getAllFiles(userID, remainingFieldsForFileList, "not ('me' in owners)")(dispatch),
       getAllFolders(userID, remainingFieldsForFolderList, "not ('me' in owners)")(dispatch),
     ])
-    .then(() => {
-      dispatch(recalculateDirectoryTree(userID));
-    })
+    .then(() => dispatch(recalculateDirectoryTree(userID)));
   
   Promise.all([
       getAllFiles(userID, miscFields, "'me' in owners")(dispatch),

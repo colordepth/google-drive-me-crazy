@@ -24,7 +24,7 @@ const IconViewElement = ({entity, selected, user, tabID}) => {
     <div
       onClick={(event) => singleClickHandler(event, entity, tabID)}
       onDoubleClick={() => doubleClickHandler(entity, tabID)}
-      className={selected ? 'IconFileElement IconFileElementSelected' : 'IconFileElement'}
+      className={selected ? 'FileElement IconFileElement IconFileElementSelected' : 'FileElement IconFileElement'}
     >
       <div>
         {

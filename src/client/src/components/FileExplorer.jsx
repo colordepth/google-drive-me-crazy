@@ -7,8 +7,8 @@ import StatusBar from './StatusBar';
 import NavigationBar from './NavigationBar';
 import ToolBar from './ToolBar';
 
-import { selectEntitiesInsideFolder } from '../services/fileManagerService';
-import { openPath } from '../services/tabSlice';
+import { selectEntitiesInsideFolder, selectDirectoryTreeForUser } from '../services/fileManagerService';
+import { openPath, clearHighlights } from '../services/tabSlice';
 import { selectUserByID } from '../services/userSlice';
 
 const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed", "trashed",
@@ -16,8 +16,22 @@ const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed", 
 
 const AppToaster = Toaster.create({
   className: "recipe-toaster",
-  position: Position.TOP,
+  position: Position.BOTTOM_RIGHT,
 });
+
+function resetHighlightedFiles(clickedNode, dispatch, tabID) {
+  const fileElementsDOM = Array.from(document.getElementsByClassName('FileElement'));
+
+  let clickedOnFileElement = false;
+
+  fileElementsDOM.forEach(fileElement => {
+    if (fileElement.contains(clickedNode)) {
+      clickedOnFileElement = true;
+    }
+  })
+
+  if (!clickedOnFileElement) dispatch(clearHighlights(tabID));
+}
 
 const FileExplorer = ({ userID, tab }) => {
   const [entitiesList, setEntitiesList] = useState(null);
@@ -25,10 +39,13 @@ const FileExplorer = ({ userID, tab }) => {
 
   const activePath = tab.pathHistory.at(tab.activePathIndex);
   const user = useSelector(selectUserByID(userID));
+  const directoryTreeChange = useSelector(selectDirectoryTreeForUser(userID));
+  const [viewMode, setViewMode] = useState('detail-view');
 
   function refreshFileListData() {
 
     setEntitiesList(null);    // show loading
+    console.log("refreshed fileList");
 
     user && selectEntitiesInsideFolder(activePath.path, user, requestedFields)
       .then(entities => {
@@ -54,20 +71,26 @@ const FileExplorer = ({ userID, tab }) => {
         userID
       }
     }));
-    AppToaster.show({ message: "Toasted." });
+    AppToaster.show({ message: "Toasted.." });
   }
 
-  useEffect(refreshFileListData, [ activePath ]);
+  useEffect(refreshFileListData, [ activePath, directoryTreeChange ]);
 
   return (
-    <div className="FileExplorer">
+    <div className="FileExplorer" onClick={(event) => resetHighlightedFiles(event.target, dispatch, tab.id)}>
       <NavigationBar tab={ tab } user= { user } folderOpenHandler={ folderOpenHandler } />
-      <ToolBar highlightedEntities={ tab.highlightedEntities } user={ user } targetFolderID={ activePath.path }/>
+      <ToolBar
+        highlightedEntities={ tab.highlightedEntities }
+        user={ user }
+        targetFolderID={ activePath.path }
+        viewMode={ viewMode }
+        setViewMode={ setViewMode }
+      />
       <FileElementList
         entities={ entitiesList && entitiesList.filter(entity => !entity.trashed) }     // For icon-view and list-view
         user={user}
         tabID={tab.id}
-        view='icon-view'
+        view={ viewMode }
       />
       <StatusBar noOfFiles={ entitiesList && entitiesList.length } noOfSelectedFiles={ tab.highlightedEntities.length }/>
     </div>

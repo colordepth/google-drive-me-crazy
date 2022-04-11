@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { resolveObjectURL } from 'buffer';
 import { getAbout } from './userInfo';
 
 export const userSlice = createSlice({
@@ -74,10 +75,11 @@ export const selectUsers = state => state.users.users;
 export const selectUserByID = userID => state => selectUsers(state).find(user => user.minifiedID === userID);
 
 export const fetchAndAddUser = credentials => dispatch => {
-  return new Promise(async () => {
+  return new Promise(async (resolve) => {
     const about = await getAbout(credentials, ['user']);
     dispatch(updateUser({...about, ...credentials}));   // Update user if existing user. Does nothing if not existing.
     dispatch(addUser({...about, ...credentials}));      // Will add user if not existing user
+    return resolve({...about, ...credentials});
   });
 }
 

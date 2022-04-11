@@ -51,7 +51,7 @@ const FileElementHeader = () => {
 
 const ListView = ({entities, user, view, tabID, highlightedEntities}) => {
   const highlightedEntitiesMap = {};
-  highlightedEntities.forEach(entityID => {highlightedEntitiesMap[entityID] = true;});
+  highlightedEntities.forEach(entity => {highlightedEntitiesMap[entity.id] = true;});
 
   return (
     <ul className="FileElementList">
@@ -78,9 +78,8 @@ const ListView = ({entities, user, view, tabID, highlightedEntities}) => {
 
 const IconView = ({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
   const highlightedEntitiesMap = {};
-  highlightedEntities.forEach(entityID => {highlightedEntitiesMap[entityID] = true;});
+  highlightedEntities.forEach(entity => {highlightedEntitiesMap[entity.id] = true;});
 
-  console.log("IconView highlighted", highlightedEntities);
 
   return (
     <ul className="FileElementList IconViewList">
@@ -120,6 +119,7 @@ const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
   console.log("how much do i render?");
 
   const isFolder = entity.mimeType === 'application/vnd.google-apps.folder';
+  selected && console.log(selected);
 
   return (
     <>
@@ -130,11 +130,12 @@ const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
           <Button
             onClick={() => setIsCollapsed(!isCollapsed)}
             minimal
-            style={{borderRadius: '50%', width: '10px', height: '10px'}}
+            style={{borderRadius: '50%', width: '3px', height: '3px'}}
           >
             <Icon
               icon={'chevron-' + (isCollapsed ? 'right' : 'down')}
               color='#677'
+              size={14}
             />
           </Button>
         }
@@ -143,10 +144,11 @@ const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
           user={user}
           tabID={tabID}
           selected={selected}
+          view='tree-view'
         />
       </div>
       {
-        !isCollapsed && <ul style={{paddingLeft: '0px'}}>
+        !isCollapsed && <ul style={{paddingLeft: '8px'}}>
         {
           !childrenEntities ? <Spinner size={20}/> :
           childrenEntities.map(entity => 
@@ -156,6 +158,8 @@ const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
                 user={user}
                 sortBy={sortBy}
                 limit={limit}
+                tabID={tabID}
+                selected={selected}
               />
             </li>
           )
@@ -167,13 +171,11 @@ const Tree = React.memo(({entity, sortBy, limit, user, tabID, selected}) => {
   
 });
 
-const TreeView = ({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
+const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
   // List of trees below a Header
 
-  console.log("TreeView highlighted", highlightedEntities);
-
   const highlightedEntitiesMap = {};
-  highlightedEntities.forEach(entityID => {highlightedEntitiesMap[entityID] = true;});
+  highlightedEntities.forEach(entity => {highlightedEntitiesMap[entity.id] = true;});
 
   return (
     <ul className="FileElementList TreeViewList">
@@ -196,11 +198,11 @@ const TreeView = ({entities, sortBy, limit, user, view, tabID, highlightedEntiti
       }
     </ul>
     );
-}
+});
 
 const ColumnView = ({entities, sortBy, limit, user, view, tabID, highlightedEntities}) => {
   const highlightedEntitiesMap = {};
-  highlightedEntities.forEach(entityID => {highlightedEntitiesMap[entityID] = true;});
+  highlightedEntities.forEach(entity => {highlightedEntitiesMap[entity.id] = true;});
 
   return (
     <ul className="FileElementList IconViewList">
@@ -224,8 +226,6 @@ const ColumnView = ({entities, sortBy, limit, user, view, tabID, highlightedEnti
 
 const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID}) => {
   const highlightedEntities = useSelector(selectHighlightedFilesForTab(tabID));
-
-  console.log("FileElementList highlighted", highlightedEntities);
 
   if (!user) return <></>;
 
