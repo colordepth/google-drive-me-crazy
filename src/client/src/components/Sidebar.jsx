@@ -1,7 +1,7 @@
 import { Icon } from "@blueprintjs/core";
 import ReactDOM from 'react-dom';
 import { useDispatch } from 'react-redux';
-import { openPath } from "../services/tabSlice";
+import { openPath, clearHighlights } from '../services/tabSlice';
 
 const SidebarElement = ({ icon, text, size })  => {
   return (
@@ -86,11 +86,25 @@ export const DashboardSidebar = () => {
   );
 }
 
+function resetHighlightedFiles(clickedNode, dispatch, tabID) {
+  const fileElementsDOM = Array.from(document.getElementsByClassName('FileElement'));
+
+  let clickedOnFileElement = false;
+
+  fileElementsDOM.forEach(fileElement => {
+    if (fileElement.contains(clickedNode)) {
+      clickedOnFileElement = true;
+    }
+  })
+
+  if (!clickedOnFileElement) dispatch(clearHighlights(tabID));
+}
+
 export const UserSidebar = ({ userID, tabID }) => {
   const dispatch = useDispatch();
 
   return (
-    <div className="SideBar">
+    <div className="SideBar" onClick={(event) => resetHighlightedFiles(event.target, dispatch, tabID)}>
       <div className="SidebarBlock">
         <div className="HomeHeader">
           <Icon icon='home' size={15} style={{paddingRight: '0.6rem'}}/>
