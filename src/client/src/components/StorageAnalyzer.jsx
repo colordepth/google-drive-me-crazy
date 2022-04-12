@@ -1,34 +1,21 @@
-import { useEffect, useState, useRef, memo } from 'react';
+import { useEffect, memo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { useSelector } from 'react-redux';
 
-import FileElementList from './FileElementList';
-import StatusBar from './StatusBar';
+import NavigationBar from './NavigationBar';
 import './StorageAnalyzer.css';
 
-import { selectFilesForUser, selectActiveMajorFetchCount } from '../services/fileManagerService';
+import { selectFilesForUser } from '../services/fileManagerService';
 import { selectUserByID } from '../services/userSlice';
 
 import { humanFileSize } from '../services/filesMiscellaneous';
-import ToolBar from './ToolBar';
 
-const defaultOptions = {
+const halfPieOptions = {
   responsive: true,
   maintainAspectRatio: false,
   animationDurationUpdate: 5000,
-  legend: {
-    orient: 'horizontal',
-    x: 'center',
-    y: '12%',
-    data: []
-  },
-  title: {
-    text: '',
-    left: 'center',
-    top: 'top'
-  },
   tooltip: {
-    trigger: "item",  //item
+    trigger: "item",
     axisPointer: {
       type: "shadow",
     },
@@ -48,50 +35,19 @@ const defaultOptions = {
   },
   series: [
     {
+      startAngle: 180,
+      endAngle: 360,
       name: '',
       type: 'pie',
+      label: {
+        show: false,
+      },
       itemStyle: {
         borderRadius: 0,
         borderColor: '#f8f6fb',
         borderWidth: 0
       },
-      // labelLine: {
-      //   length: 30
-      // },
-      // label: {
-      //   formatter: '{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ',
-      //   backgroundColor: '#F6F8FC',
-      //   borderColor: '#8C8D8E',
-      //   borderWidth: 1,
-      //   borderRadius: 4,
-      //   rich: {
-      //     a: {
-      //       color: '#6E7079',
-      //       lineHeight: 22,
-      //       align: 'center'
-      //     },
-      //     hr: {
-      //       borderColor: '#8C8D8E',
-      //       width: '100%',
-      //       borderWidth: 1,
-      //       height: 0
-      //     },
-      //     b: {
-      //       color: '#4C5058',
-      //       fontSize: 14,
-      //       fontWeight: 'bold',
-      //       lineHeight: 33
-      //     },
-      //     per: {
-      //       color: '#fff',
-      //       backgroundColor: '#4C5058',
-      //       padding: [3, 4],
-      //       borderRadius: 4
-      //     }
-      //   }
-      // },
       data: [],
-      // radius: ['35%', '60%'],
       radius: ['30%', '50%'],
       center: ['50%', '67%']
     }
@@ -108,44 +64,55 @@ function updateChart(chartName, data, dataPoint, title='') {
 
   const chartRef = chartRefs[chartName].getEchartsInstance();
 
-  const label = {
-    formatter: (params) => {
+  const invisibleHalf = data.reduce((halfObj, curObj) => {
+    halfObj.quotaBytesUsed += curObj.quotaBytesUsed;
+    halfObj.count += curObj.count;
+    return halfObj
+  }, {
+    name: null,
+    count: 0,
+    quotaBytesUsed: 0,
+    itemStyle:{opacity:0},
+    tooltip:{show:false} 
+  });
 
-      let accompanyingValue = params.data[dataPoint];
-
-      if (dataPoint == 'quotaBytesUsed') {
-        accompanyingValue = humanFileSize(accompanyingValue);
-      }
-
-      return `${params.data.name} (${accompanyingValue})`
-    }
-  }
-
-  const newSeries = { ...defaultOptions.series, title, label, data: data.map(obj => {return {...obj, value: obj[dataPoint]}}) };
-  const newTitle =  { ...defaultOptions.title, text: title };
-  const newLegend = { ...defaultOptions.legend, data: data.map(obj => obj.name) }
-  const newOption = { ...defaultOptions, title: newTitle, legend: newLegend, series: newSeries };
+  const newSeries = { ...halfPieOptions.series, title, data: data.concat(invisibleHalf).map(obj => {return {...obj, value: obj[dataPoint]}}) };
+  const newOption = { ...halfPieOptions, series: newSeries };
 
   // chartRef.resize();
   chartRef.setOption(newOption);
+
+  chartRef.on('mousemove', params => {
+    if (params.data.name === null) chartRef.getZr().setCursorStyle('default')
+  })
 }
 
-const DonutChart = memo(({name}) => {
-  const chartRef = useRef(null);
+const DonutChart = memo(({name, className}) => {
 
   return (
-    <ReactECharts
-      option={defaultOptions}
-      notMerge={false}
-      lazyUpdate={false}
-      ref={(e) => { chartRefs[name] = e }}
-      onChartReady={() => console.log("chart ready")}
-      onEvents={{'click': (event) => console.log("clicked", event)}}
-      className='FileTypeChart'
-      // width={100}
-      // height={100}
-      // opts={{ renderer: "svg" }}
-    />
+    <div className={className}>
+      <div className='HalfDonutContainer'>
+        <ReactECharts
+          option={halfPieOptions}
+          notMerge={false}
+          lazyUpdate={false}
+          ref={(e) => { chartRefs[name] = e }}
+          onChartReady={() => console.log("chart", name, "ready")}
+          onEvents={{'click': (event) => console.log("clicked", event)}}
+          className='FileTypeChart'
+          // width={100}
+          // height={100}
+          // opts={{ renderer: "svg" }}
+        />
+      </div>
+      <div className='HalfDonutLegend'>
+        <li>Application</li>
+        <li>Images</li>
+        <li>Videos</li>
+        <li>Documents</li>
+        <li>Other</li>
+      </div>
+    </div>
   );
 });
 
@@ -156,7 +123,6 @@ const StorageAnalyzer = ({ userID, tab }) => {
   const files = allFiles && allFiles.filter(file => 
     file.owners && file.owners.length && file.owners[0].me
   );
-  // const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));
 
   console.log("Storage analyzer rerender");
 
@@ -197,38 +163,28 @@ const StorageAnalyzer = ({ userID, tab }) => {
     });
 
     updateChart('fileSize', newData, 'quotaBytesUsed', 'File size');
-    updateChart('fileCount', newData, 'count', 'Number of files');
     
   }, [files]);
 
-  const highlightedEntitiesList = Object
-    .keys(tab.highlightedEntities)
-    .map(entityID => tab.highlightedEntities[entityID]);
 
   return (
     <div className='StorageAnalyzer'>
-      {/* <ToolBar
-        highlightedEntitiesList={ highlightedEntitiesList }
-        user={ user }
-        targetFolderID={ 'storage-analyzer' }
-        viewMode={ 'detail-view' }
-        setViewMode={ () => {} }
-      /> */}
+      <NavigationBar tab={ tab } user= { user } />
       <div className='StorageGraphs'>
-        <DonutChart name='fileSize'/>
-        <DonutChart name='fileCount'/>
+        <div className='TopLeft Card'>
+          Network stuff
+        </div>
+        <div className='BottomLeft Card'>
+          extensions
+        </div>
+        <div className='Middle Card'>
+          Drive Activity
+        </div>
+        <div className='BottomRight Card'>
+          Folder Size Sunburst
+        </div>
+        <DonutChart name='fileSize' className='TopRight Card'/>
       </div>
-      <FileElementList
-        loading={!(files && files.length)}
-        entities={files}
-        foldersFirst={false}
-        sortBy='quotaBytesUsed'
-        limit={100}
-        user={user}
-        tabID={tab.id}
-        view='detail-view'
-      />
-      <StatusBar noOfFiles={files && files.length}/>
     </div>
   );  
 }

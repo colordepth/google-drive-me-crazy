@@ -16,7 +16,11 @@ const NavigationBar = ({ tab, user, folderOpenHandler }) => {
   useEffect(() => {
     if (!user) return;
 
-    if (currentFolderID === 'storage-analyzer') return;
+    if (currentFolderID === 'storage-analyzer') return setBreadCrumbItems([{
+      icon: "folder-open",
+      intent: "primary",
+      text: 'Storage Analyzer'
+    }]);
 
     selectEntity(currentFolderID, user)
       .then(entity => setCurrentFolder(entity))
