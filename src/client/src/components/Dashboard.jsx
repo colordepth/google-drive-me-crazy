@@ -10,22 +10,22 @@ const UserCard = ({user, tabID}) => {
   const dispatch = useDispatch();
 
   return (
-    <div className='UserCard'>
+    <div className='UserCard' onClick={() => {
+      dispatch(openPath({
+        id: tabID,
+        path: {
+          path: 'root',
+          name: "College",
+          userID: user.minifiedID
+        }
+      }));
+    }}
+    >
       <div>
         <img src={user.photoLink} style={{borderRadius: '50%'}}/>
       </div>
       <div>
-        <div onClick={() => {
-            dispatch(openPath({
-              id: tabID,
-              path: {
-                path: 'root',
-                name: "College",
-                userID: user.minifiedID
-              }
-            }));
-          }}
-        >
+        <div>
           <b style={{color: '#333'}}>College</b><br/><br/>
           <span style={{color: '#555'}}>{user.emailAddress}</span><br/>
         </div>
@@ -60,7 +60,7 @@ const Dashboard = ({tab}) => {
             users.map(user => <UserCard key={user.minifiedID} user={user} tabID={tab.id}/>)
           }
           <div className='UserCard AddAccountCard'>
-            <div className='AddAccountBorder'>
+            <div className='AddAccountBorder' onClick={() => window.location.replace('/authenticate/google')}>
               Add Account
             </div>
           </div>

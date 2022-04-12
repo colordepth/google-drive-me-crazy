@@ -76,6 +76,7 @@ export const selectUserByID = userID => state => selectUsers(state).find(user =>
 
 export const fetchAndAddUser = credentials => dispatch => {
   return new Promise(async (resolve) => {
+    dispatch(updateUser({...credentials}));   // Update user if existing user. Does nothing if not existing.
     const about = await getAbout(credentials, ['user']);
     dispatch(updateUser({...about, ...credentials}));   // Update user if existing user. Does nothing if not existing.
     dispatch(addUser({...about, ...credentials}));      // Will add user if not existing user

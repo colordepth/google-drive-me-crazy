@@ -42,11 +42,13 @@ const UserManager = () => {
         })
         // .then(() => window.location.reload(false))
         .catch((error) => {
-          alert(JSON.stringify(error));
+          console.error(error);
 
           let newRefreshToken = prompt(`Enter new refresh token for ${user.emailAddress}`);
           
           if (!newRefreshToken) return;
+
+          console.log("Updating refresh token", newRefreshToken);
 
           dispatch(fetchAndAddUser({
             minifiedID: user.minifiedID,

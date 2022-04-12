@@ -44,6 +44,8 @@ const FileExplorer = ({ userID, tab }) => {
 
   function refreshFileListData() {
 
+    if (activePath.path  === 'storage-analyzer') return;
+
     setEntitiesList(null);    // show loading
     console.log("refreshed fileList");
 

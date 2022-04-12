@@ -158,7 +158,7 @@ const StorageAnalyzer = ({ userID, tab }) => {
   );
   // const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));
 
-  console.log(11, files);
+  console.log("Storage analyzer rerender");
 
   useEffect(() => {
     if (!files) return;
@@ -201,15 +201,19 @@ const StorageAnalyzer = ({ userID, tab }) => {
     
   }, [files]);
 
+  const highlightedEntitiesList = Object
+    .keys(tab.highlightedEntities)
+    .map(entityID => tab.highlightedEntities[entityID]);
+
   return (
     <div className='StorageAnalyzer'>
-      <ToolBar
-        highlightedEntities={ tab.highlightedEntities }
+      {/* <ToolBar
+        highlightedEntitiesList={ highlightedEntitiesList }
         user={ user }
         targetFolderID={ 'storage-analyzer' }
-        viewMode={ 'list-view' }
-        setViewMode={ null }
-      />
+        viewMode={ 'detail-view' }
+        setViewMode={ () => {} }
+      /> */}
       <div className='StorageGraphs'>
         <DonutChart name='fileSize'/>
         <DonutChart name='fileCount'/>
@@ -222,7 +226,7 @@ const StorageAnalyzer = ({ userID, tab }) => {
         limit={100}
         user={user}
         tabID={tab.id}
-        view='detail-list'
+        view='detail-view'
       />
       <StatusBar noOfFiles={files && files.length}/>
     </div>

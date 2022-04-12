@@ -1,6 +1,5 @@
 import { Spinner, Icon, Button } from "@blueprintjs/core";
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import { selectEntitiesInsideFolder } from '../services/fileManagerService';
 import FileElement from './FileElement';
