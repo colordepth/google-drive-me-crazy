@@ -1,7 +1,7 @@
 # google-drive-me-crazy
 A Google Drive file manager built with React. <br/>
 
-Latest build from deployment branch hosted [here](https://googledrivemecrazy.deepsharma.me).
+Latest build from deployment branch hosted [here](https://googledrivemecrazy.deep.moe).
 
 Node version 16.
 
