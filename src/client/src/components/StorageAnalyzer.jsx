@@ -10,6 +10,337 @@ import { selectUserByID } from '../services/userSlice';
 
 import { humanFileSize } from '../services/filesMiscellaneous';
 
+const item1 = {
+  color: '#F54F4A'
+};
+const item2 = {
+  color: '#FF8C75'
+};
+const item3 = {
+  color: '#FFB499'
+};
+const sunburstData = [
+  {
+    children: [
+      {
+        value: 5,
+        children: [
+          {
+            value: 1,
+            itemStyle: item1
+          },
+          {
+            value: 2,
+            children: [
+              {
+                value: 1,
+                itemStyle: item2
+              }
+            ]
+          },
+          {
+            children: [
+              {
+                value: 1
+              }
+            ]
+          }
+        ],
+        itemStyle: item1
+      },
+      {
+        value: 10,
+        children: [
+          {
+            value: 6,
+            children: [
+              {
+                value: 1,
+                itemStyle: item1
+              },
+              {
+                value: 1
+              },
+              {
+                value: 1,
+                itemStyle: item2
+              },
+              {
+                value: 1
+              }
+            ],
+            itemStyle: item3
+          },
+          {
+            value: 2,
+            children: [
+              {
+                value: 1
+              }
+            ],
+            itemStyle: item3
+          },
+          {
+            children: [
+              {
+                value: 1,
+                itemStyle: item2
+              }
+            ]
+          }
+        ],
+        itemStyle: item1
+      }
+    ],
+    itemStyle: item1
+  },
+  {
+    value: 9,
+    children: [
+      {
+        value: 4,
+        children: [
+          {
+            value: 2,
+            itemStyle: item2
+          },
+          {
+            children: [
+              {
+                value: 1,
+                itemStyle: item1
+              }
+            ]
+          }
+        ],
+        itemStyle: item1
+      },
+      {
+        children: [
+          {
+            value: 3,
+            children: [
+              {
+                value: 1
+              },
+              {
+                value: 1,
+                itemStyle: item2
+              }
+            ]
+          }
+        ],
+        itemStyle: item3
+      }
+    ],
+    itemStyle: item2
+  },
+  {
+    value: 7,
+    children: [
+      {
+        children: [
+          {
+            value: 1,
+            itemStyle: item3
+          },
+          {
+            value: 3,
+            children: [
+              {
+                value: 1,
+                itemStyle: item2
+              },
+              {
+                value: 1
+              }
+            ],
+            itemStyle: item2
+          },
+          {
+            value: 2,
+            children: [
+              {
+                value: 1
+              },
+              {
+                value: 1,
+                itemStyle: item1
+              }
+            ],
+            itemStyle: item1
+          }
+        ],
+        itemStyle: item3
+      }
+    ],
+    itemStyle: item1
+  },
+  {
+    children: [
+      {
+        value: 6,
+        children: [
+          {
+            value: 1,
+            itemStyle: item2
+          },
+          {
+            value: 2,
+            children: [
+              {
+                value: 2,
+                itemStyle: item2
+              }
+            ],
+            itemStyle: item1
+          },
+          {
+            value: 1,
+            itemStyle: item3
+          }
+        ],
+        itemStyle: item3
+      },
+      {
+        value: 3,
+        children: [
+          {
+            value: 1
+          },
+          {
+            children: [
+              {
+                value: 1,
+                itemStyle: item2
+              }
+            ]
+          },
+          {
+            value: 1
+          }
+        ],
+        itemStyle: item3
+      }
+    ],
+    itemStyle: item1
+  }
+];
+
+const sunburstOption = {
+  series: {
+    radius: ['15%', '80%'],
+    type: 'sunburst',
+    sort: undefined,
+    emphasis: {
+      focus: 'ancestor'
+    },
+    data: sunburstData,
+    label: {
+      rotate: 'radial'
+    },
+    levels: [],
+    itemStyle: {
+      color: '#ddd',
+      borderWidth: 2
+    }
+  }
+};
+
+const driveActivityOptions = {
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      label: {
+        backgroundColor: '#6a7985'
+      }
+    }
+  },
+  legend: {
+    data: ['Documents', 'Videos', 'Images', 'Compressed', 'Other']
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: [
+    {
+      type: 'category',
+      boundaryGap: false,
+      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value'
+    }
+  ],
+  series: [
+    {
+      name: 'Documents',
+      type: 'line',
+      stack: 'Total',
+      areaStyle: {},
+      emphasis: {
+        focus: 'series'
+      },
+      data: [120, 132, 101, 134, 90, 230, 210]
+    },
+    {
+      name: 'Videos',
+      type: 'line',
+      stack: 'Total',
+      areaStyle: {},
+      emphasis: {
+        focus: 'series'
+      },
+      data: [220, 182, 191, 234, 290, 330, 310]
+    },
+    {
+      name: 'Images',
+      type: 'line',
+      stack: 'Total',
+      areaStyle: {},
+      emphasis: {
+        focus: 'series'
+      },
+      data: [150, 232, 201, 154, 190, 330, 410]
+    },
+    {
+      name: 'Compressed',
+      type: 'line',
+      stack: 'Total',
+      areaStyle: {},
+      emphasis: {
+        focus: 'series'
+      },
+      data: [320, 332, 301, 334, 390, 330, 320]
+    },
+    {
+      name: 'Other',
+      type: 'line',
+      stack: 'Total',
+      label: {
+        show: true,
+        position: 'top'
+      },
+      areaStyle: {},
+      emphasis: {
+        focus: 'series'
+      },
+      data: [820, 932, 901, 934, 1290, 1330, 1320]
+    }
+  ]
+};
+
 const halfPieOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -107,11 +438,53 @@ const DonutChart = memo(({name, className}) => {
       </div>
       <div className='HalfDonutLegend'>
         <li>Application</li>
-        <li>Images</li>
+        <li>Documents</li>
         <li>Videos</li>
         <li>Documents</li>
         <li>Other</li>
       </div>
+    </div>
+  );
+});
+
+const DriveActivityChart = memo(({name, className}) => {
+
+  return (
+    <div className={className} style={{height: '300px'}}>
+      <h1>Drive Activity</h1>
+      <ReactECharts
+        option={driveActivityOptions}
+        notMerge={false}
+        lazyUpdate={false}
+        ref={(e) => { chartRefs[name] = e }}
+        onChartReady={() => console.log("chart", name, "ready")}
+        onEvents={{'click': (event) => console.log("clicked", event)}}
+        className='DriveActivityChart'
+        // width='100%'
+        height={100}
+        // opts={{ renderer: "svg" }}
+      />
+    </div>
+  );
+});
+
+const FoldersSunburstChart = memo(({name, className}) => {
+
+  return (
+    <div className={className} style={{height: '350px'}}>
+      <h2>Folder Size</h2>
+      <ReactECharts
+        option={sunburstOption}
+        notMerge={false}
+        lazyUpdate={false}
+        ref={(e) => { chartRefs[name] = e }}
+        onChartReady={() => console.log("chart", name, "ready")}
+        onEvents={{'click': (event) => console.log("clicked", event)}}
+        className='FolderSunburstChart'
+        // width='100%'
+        // height={100}
+        // opts={{ renderer: "svg" }}
+      />
     </div>
   );
 });
@@ -177,12 +550,8 @@ const StorageAnalyzer = ({ userID, tab }) => {
         <div className='BottomLeft Card'>
           extensions
         </div>
-        <div className='Middle Card'>
-          Drive Activity
-        </div>
-        <div className='BottomRight Card'>
-          Folder Size Sunburst
-        </div>
+        <DriveActivityChart name='driveActivity' className='Middle Card' />
+        <FoldersSunburstChart name='folderSunburst' className='BottomRight Card' />
         <DonutChart name='fileSize' className='TopRight Card'/>
       </div>
     </div>

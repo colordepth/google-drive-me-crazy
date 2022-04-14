@@ -3,6 +3,16 @@
   width: 100%;
 }
 
+.DriveActivityChart {
+  width: 100%;
+  height: 100%;
+}
+
+.FolderSunburstChart {
+  width: 100%;
+  height: 50%;
+}
+
 .HalfDonutContainer {
   /* min-height: 300px; */
   /* border: 2px dashed gray; */
@@ -38,9 +48,9 @@
 }
 
 .StorageAnalyzer {
-  background-color: #f8f6fb;
+  background-color: #fbfbfd;
   flex-grow: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
   
   display: flex;
   flex-direction: column;
@@ -53,8 +63,8 @@
   padding: 1rem;
   max-width: 100%; */
   display: grid;
-  grid-template-columns: repeat(20, 5%);
-  grid-template-rows: repeat(20, 5%);
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(20, 1fr);
   height: 100%;
 }
 
@@ -75,10 +85,10 @@
 
 .BottomRight {
   grid-column: 15/21;
-  grid-row: 12/22;
+  grid-row: 11/21;
 }
 
 .TopRight {
   grid-column: 15/21;
-  grid-row: 1/12;
+  grid-row: 1/11;
 }
