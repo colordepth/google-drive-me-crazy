@@ -95,7 +95,7 @@ const IconView = ({entities, sortBy, limit, user, view, tabID}) => {
 const requestedFields = ["id", "name", "mimeType",
 "quotaBytesUsed", "webViewLink", "webContentLink", "iconLink", "modifiedTime", "viewedByMeTime"];
 
-const TreeFolder = React.memo(({entity, sortBy, limit, user, tabID}) => {
+const TreeFolder = React.memo(({entity, sortBy, limit, user, tabID, onlyFolders}) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [childrenEntities, setChildrenEntities] = useState(null);
 
@@ -116,6 +116,11 @@ const TreeFolder = React.memo(({entity, sortBy, limit, user, tabID}) => {
           onClick={() => setIsCollapsed(!isCollapsed)}
           minimal
           style={{borderRadius: '50%', width: '3px', height: '3px'}}
+          className={
+            childrenEntities && (
+              childrenEntities.length===0 || (onlyFolders && !childrenEntities.find(entity => entity.mimeType === 'application/vnd.google-apps.folder'))
+            )
+            ? 'Hidden' : ''}
         >
           <Icon
             icon={'chevron-' + (isCollapsed ? 'right' : 'down')}
@@ -128,6 +133,7 @@ const TreeFolder = React.memo(({entity, sortBy, limit, user, tabID}) => {
           user={user}
           tabID={tabID}
           view='tree-view'
+          onlyFolders={onlyFolders}
         />
       </div>
       {
@@ -144,9 +150,10 @@ const TreeFolder = React.memo(({entity, sortBy, limit, user, tabID}) => {
                   sortBy={sortBy}
                   limit={limit}
                   tabID={tabID}
+                  onlyFolders={onlyFolders}
                 />
                 :
-                <TreeFile
+                onlyFolders ? <></> : <TreeFile
                   entity={entity}
                   user={user}
                   tabID={tabID}
@@ -178,14 +185,16 @@ const TreeFile = React.memo(({entity, user, tabID}) => {
   );
 });
 
-const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID}) => {
+export const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID, onlyFolders}) => {
   // List of trees below a Header
 
   return (
     <ul className="FileElementList TreeViewList">
+      {!onlyFolders && 
       <li className="DetailFileElementHeader" style={listStyle}>
         <FileElementHeader/>
       </li>
+      }
       {
       entities
         .map(entity => (
@@ -198,8 +207,10 @@ const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID}) => {
                 sortBy={sortBy}
                 limit={limit}
                 tabID={tabID}
+                onlyFolders={onlyFolders}
               />
               :
+              onlyFolders ? <></> :
               <TreeFile
                 entity={entity}
                 user={user}
@@ -245,7 +256,7 @@ const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID}) 
     return (<div className="FileElementList centre-content"><EmptyFolder/></div>);
 
   const sortedFiles = (sortBy ? entities.sort((a, b) => b[sortBy] - a[sortBy]) : entities).slice(0, limit);
-  const props = {entities: sortedFiles, sortBy, loading, limit, user, view, tabID};
+  const props = {entities: sortedFiles, sortBy, loading, limit, user, view, tabID, onlyFolders: false};
 
   if (view === 'icon-view') return <IconView {...props} />
   if (view === 'tree-view') return <TreeView {...props} />

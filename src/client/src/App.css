@@ -187,6 +187,7 @@
 
 .Hidden {
   display: none;
+  /* opacity: 0; */
 }
 
 .Clipboard {

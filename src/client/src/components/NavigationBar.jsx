@@ -14,7 +14,11 @@ const NavigationBar = ({ tab, user, folderOpenHandler }) => {
   console.log("Navigation bar render");
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) return setBreadCrumbItems([{
+      icon: "home",
+      intent: "primary",
+      text: 'Home'
+    }]);;
 
     if (currentFolderID === 'storage-analyzer') return setBreadCrumbItems([{
       icon: "folder-open",

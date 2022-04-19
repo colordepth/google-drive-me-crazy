@@ -2,6 +2,8 @@ import { Spinner } from '@blueprintjs/core';
 import ReactTimeAgo from 'react-time-ago';
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { Menu, MenuItem, MenuDivider } from "@blueprintjs/core";
+import { ContextMenu2 } from "@blueprintjs/popover2";
 
 import { humanFileSize } from '../services/filesMiscellaneous';
 import { clearHighlights, toggleHighlight, selectHighlightedStatus } from '../services/tabSlice';
@@ -50,7 +52,39 @@ export function doubleClickHandler(entity, tabID) {
     window.open(entity.webViewLink);
 }
 
-const FileElement = React.memo(({entity, user, view, tabID}) => {
+const FileElementContextMenu = ({target}) => {
+  return (
+    <ContextMenu2
+      content={
+        <Menu style={{maxWidth: "5rem"}}> 
+          {/* <MenuItem icon="new-text-box" text="New text box" />
+          <MenuItem icon="new-object" text="New object" />
+          <MenuItem icon="new-link" text="New link" />
+          <MenuDivider />
+          <MenuItem text="Settings..." icon="cog">
+              <MenuItem icon="tick" text="Save on edit" />
+              <MenuItem icon="blank" text="Compile on edit" />
+          </MenuItem>
+          <MenuItem icon="graph" text="Graph" />
+          <MenuItem icon="map" text="Map" />
+          <MenuItem icon="th" text="Table" shouldDismissPopover={false} />
+          <MenuItem icon="zoom-to-fit" text="Nucleus" disabled={true} />
+          <MenuDivider />
+          <MenuItem icon="cog" text="Settings...">
+              <MenuItem icon="add" text="Add new application" disabled={true} />
+              <MenuItem icon="remove" text="Remove application" />
+          </MenuItem> */}
+          <MenuItem icon="map" text="Open in new tab" shouldDismissPopover={false} />
+          <MenuItem icon="trash" text="Move to Trash" intent='danger' />
+      </Menu>
+      }
+    >
+      {target}
+    </ContextMenu2>
+  );
+}
+
+const FileElement = React.memo(({entity, user, view, tabID, onlyFolders}) => {
 
   const selected = !!useSelector(selectHighlightedStatus(tabID, entity.id));
 
@@ -59,11 +93,11 @@ const FileElement = React.memo(({entity, user, view, tabID}) => {
   if (entity.mimeType === 'application/vnd.google-apps.folder' && !entity.childrenIDs)
     fileSize = <><Spinner size={20}/></>;
 
-  const props = {entity, fileSize, selected, user, tabID};
+  const props = {entity, fileSize, selected, user, tabID, onlyFolders};
 
-  if (view === 'icon-view') return <IconViewElement {...props} />
-  if (view === 'tree-view') return <TreeViewElement {...props} />
-  if (view === 'column-view') return <IconViewElement {...props} />
+  if (view === 'icon-view') return <FileElementContextMenu target={<IconViewElement {...props} />} />
+  if (view === 'tree-view') return <FileElementContextMenu target={<TreeViewElement {...props} />} />
+  if (view === 'column-view') return <FileElementContextMenu target={<IconViewElement {...props} />} />
 
   return <DetailViewElement {...props} />;
 });

@@ -99,7 +99,7 @@ export function selectEntity(entityID, user) {
   })
 }
 
-export function selectEntitiesInsideFolder(folderID, user, requestedFields) {
+export function selectEntitiesInsideFolder(folderID, user, requestedFields, additionalQuery) {
 
   const startTime = new Date();
   // console.log(store.getState().directoryTree['qvuQXkR7SAA='].directoryTree['171e19sj7XgVNlBiN9og-RijRkoUvdYxt']);
@@ -114,7 +114,7 @@ export function selectEntitiesInsideFolder(folderID, user, requestedFields) {
       return resolve(cachedFolder.childrenIDs.map(id => directoryTree[id]));
     }
 
-    filesFetch.fetchAllEntitiesInFolder(user, folderID, requestedFields)
+    filesFetch.fetchAllEntitiesInFolder(user, folderID, requestedFields, additionalQuery)
       .then(files => {
         store.dispatch(directoryTreeSlice.updateFilesAndFolders(user.minifiedID, files));
         // console.log("selectEntitiesInsideFolder resolved fetch", (new Date() - startTime).valueOf());

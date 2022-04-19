@@ -83,7 +83,7 @@ const FileExplorer = ({ userID, tab }) => {
     .map(entityID => tab.highlightedEntities[entityID]);
 
   return (
-    <div className="FileExplorer" onClick={(event) => resetHighlightedFiles(event.target, dispatch, tab.id)}>
+    <div className="FileExplorer" onClick={(event) => resetHighlightedFiles(event.target, dispatch, tab.id)}> 
       <NavigationBar tab={ tab } user= { user } folderOpenHandler={ folderOpenHandler } />
       <ToolBar
         highlightedEntitiesList={ highlightedEntitiesList }

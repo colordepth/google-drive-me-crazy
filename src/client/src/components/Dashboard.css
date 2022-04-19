@@ -1,5 +1,16 @@
+.Dashboard {
+  background-color: #fbfbfd;
+  flex-grow: 1;
+  overflow-y: auto;
+  
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .DashboardElement {
   margin-top: 1rem;
+  margin-left: 3.2rem;
 }
 
 .UserCard {
@@ -31,6 +42,7 @@
 .AddAccountCard {
   padding: 0.5rem;
   background: #E2E2F0;
+  background: #ddddff20;
 }
 
 .AddAccountBorder {
