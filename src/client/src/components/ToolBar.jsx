@@ -42,7 +42,15 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
   return (
     <div className="ToolBar">
       <FileUpload isOpen={overlayState} onClose={() => setOverlayState(false)} user={user} targetFolderID={targetFolderID}/>
-      <Button small minimal icon='add' rightIcon="chevron-down" text="New" onClick={() => setOverlayState(true)}/>
+      <Button
+        small
+        minimal
+        icon='add'
+        rightIcon="chevron-down"
+        text="New"
+        onClick={() => setOverlayState(true)}
+        className = {!['storage-analyzer', 'storage-organizer'].find(x => targetFolderID==x) ? '' : 'Hidden'}
+      />
       <ButtonGroup>
         <Button small minimal icon='cut'
           className={highlightedEntitiesList.length ? '':'Hidden'}
@@ -55,7 +63,7 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
           onClick={() => moveToClipboard(highlightedEntitiesList, 'copy', dispatch)}
         />
         <Button small minimal icon='clipboard'
-          className={clipboard.entities.length ? '':'Hidden'}
+          className={clipboard.entities.length && !['storage-analyzer', 'storage-organizer'].find(x => targetFolderID==x) ? '':'Hidden'}
           text="Paste"
           onClick={() => pasteToFolder(clipboard, targetFolderID, user, dispatch)}
         />

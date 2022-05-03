@@ -15,7 +15,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 1.4rem;
+  gap: 0.8rem;
   background: #E7EAF7;    /* blue */
   background: #f0efff;    /* blue */
   overflow-y: auto;
@@ -242,4 +242,10 @@
 .bp3-button:focus {
   outline: rgba(0,0,0,0) auto 0;
   outline-offset: 0;
+}
+
+span[icon="cross"]:hover {
+  background-color: #44444420;
+  border-radius: 50%;
+  /* cursor: pointer; */
 }

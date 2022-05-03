@@ -163,6 +163,9 @@ export const UserSidebar = ({ userID, tabID }) => {
         <SidebarElement icon='cloud' size={15} text='Personal Drive' />
       </div>
       <div className="SidebarBlock">
+        
+      </div>
+      <div className="SidebarBlock">
         <div className="SidebarHeader">
           <Icon icon='trash' size={15} style={{paddingRight: '0.6rem'}}/>
           Trash
@@ -180,7 +183,22 @@ export const UserSidebar = ({ userID, tabID }) => {
           }}
         >
           <Icon icon='database' size={15} style={{paddingRight: '0.6rem'}}/>
-          Storage
+          Storage Analyzer
+        </div>
+        <div style={{marginTop: "4px"}} className="SidebarHeader"
+          onClick={() => {
+            dispatch(openPath({
+              id: tabID,
+              path: {
+                path: 'storage-organizer',
+                name: "Storage Organizer",
+                userID: userID
+              }
+            }));
+          }}
+        >
+          <Icon icon='clean' size={15} style={{paddingRight: '0.6rem'}}/>
+          Storage Organizer
         </div>
       </div>
       <div className="SidebarBlock">

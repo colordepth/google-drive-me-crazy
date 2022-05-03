@@ -1,16 +1,32 @@
 import { useEffect, useState, useRef, memo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import FileElementList from './FileElementList';
+import NavigationBar from './NavigationBar';
 import StatusBar from './StatusBar';
 import './StorageAnalyzer.css';
 
 import { selectFilesForUser, selectActiveMajorFetchCount } from '../services/fileManagerService';
 import { selectUserByID } from '../services/userSlice';
+import { clearHighlights } from '../services/tabSlice';
 
 import { humanFileSize } from '../services/filesMiscellaneous';
 import ToolBar from './ToolBar';
+
+function resetHighlightedFiles(clickedNode, dispatch, tabID) {
+  const fileElementsDOM = Array.from(document.getElementsByClassName('FileElement'));
+
+  let clickedOnFileElement = false;
+
+  fileElementsDOM.forEach(fileElement => {
+    if (fileElement.contains(clickedNode)) {
+      clickedOnFileElement = true;
+    }
+  })
+
+  if (!clickedOnFileElement) dispatch(clearHighlights(tabID));
+}
 
 const defaultOptions = {
   responsive: true,
@@ -156,6 +172,7 @@ const StorageAnalyzer = ({ userID, tab }) => {
   const files = allFiles && allFiles.filter(file => 
     file.owners && file.owners.length && file.owners[0].me
   );
+  const dispatch = useDispatch();
   // const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));
 
   console.log("Storage analyzer rerender");
@@ -206,7 +223,7 @@ const StorageAnalyzer = ({ userID, tab }) => {
     .map(entityID => tab.highlightedEntities[entityID]);
 
   return (
-    <div className='StorageAnalyzer'>
+    <div className='StorageAnalyzer' onClick={(event) => resetHighlightedFiles(event.target, dispatch, tab.id)}>
       {/* <ToolBar
         highlightedEntitiesList={ highlightedEntitiesList }
         user={ user }
@@ -214,6 +231,7 @@ const StorageAnalyzer = ({ userID, tab }) => {
         viewMode={ 'detail-view' }
         setViewMode={ () => {} }
       /> */}
+      <NavigationBar tab={ tab } user= { user } folderOpenHandler={ () => {} } />
       <div className='StorageGraphs'>
         <DonutChart name='fileSize'/>
         <DonutChart name='fileCount'/>

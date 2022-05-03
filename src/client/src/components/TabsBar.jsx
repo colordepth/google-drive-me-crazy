@@ -24,6 +24,7 @@ const TabsBar = () => {
               size={13}
               style={{
                 color: tabs.length === 1 ? '#ddd' : '#777',
+                marginLeft: '3px'
                 // cursor: tabs.length === 1 ? 'not-allowed' : 'inherit',
                 // visibility: tabs.length === 1 ? 'hidden' : 'inherit'
               }}

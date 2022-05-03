@@ -4,6 +4,7 @@ import { singleClickHandler, rightClickHandler, doubleClickHandler, HumanReadabl
 
 const TreeViewElement = React.memo(({entity, fileSize, selected, tabID, onlyFolders}) => {
   const classes = 'FileElement DetailFileElement'.concat(selected ? ' DetailFileElementSelected' : '')
+  console.log(33, classes.concat(onlyFolders ? ' SidebarTreeElement' : ''));
   return (
     <div
       onClick={(event) => doubleClickHandler(entity, tabID)}

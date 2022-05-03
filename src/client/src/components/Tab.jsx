@@ -4,6 +4,7 @@ import FileExplorer from './FileExplorer';
 import SidebarPortal, { DashboardSidebar, UserSidebar } from './Sidebar';
 import Dashboard from './Dashboard';
 import StorageAnalyzer from './StorageAnalyzer';
+import StorageOrganizer from './StorageOrganizer';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 const Tab = ({tabID}) => {
@@ -25,6 +26,12 @@ const Tab = ({tabID}) => {
           <Routes>
             <Route path="storage-analyzer" element={
               <StorageAnalyzer
+                userID={activeTabPath.userID}
+                tab={self}
+              />
+            }/>
+            <Route path="storage-organizer" element={
+              <StorageOrganizer
                 userID={activeTabPath.userID}
                 tab={self}
               />

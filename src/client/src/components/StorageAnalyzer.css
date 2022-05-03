@@ -17,6 +17,16 @@
   width: 100%;
 }
 
+.StorageOrganizer {
+  background-color: #f8f6fb;
+  flex-grow: 1;
+  overflow-y: hidden;
+  
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .StorageGraphs {
   display: flex;
   justify-content: space-around;
