@@ -1,7 +1,10 @@
-.FileElementList {
-  overflow-y: scroll;
+.FileElementListContainer {
   background-color: #fbfbfd;
   flex-grow: 1;
+  overflow-y: scroll;
+}
+
+.FileElementList {
   padding: 0 2rem 0 2rem;
   margin: 0;
   max-width: 100%;

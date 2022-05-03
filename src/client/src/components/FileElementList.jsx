@@ -50,7 +50,7 @@ const FileElementHeader = () => {
 const ListView = ({entities, user, view, tabID}) => {
 
   return (
-    <ul className="FileElementList">
+    <ul className="FileElementListContainer FileElementList">
       <li className="DetailFileElementHeader" style={listStyle}>
         <FileElementHeader/>
       </li>
@@ -74,21 +74,23 @@ const ListView = ({entities, user, view, tabID}) => {
 const IconView = ({entities, sortBy, limit, user, view, tabID}) => {
 
   return (
-    <ul className="FileElementList IconViewList">
-      {
-      entities
-        .map(entity => (
-          <li style={listStyle} key={entity.id}>
-            <FileElement
-              entity={entity}
-              user={user}
-              tabID={tabID}
-              view={view}
-            />
-          </li>
-        ))
-      }
-    </ul>
+    <div className="FileElementListContainer">
+      <ul className="FileElementList IconViewList">
+        {
+        entities
+          .map(entity => (
+            <li style={listStyle} key={entity.id}>
+              <FileElement
+                entity={entity}
+                user={user}
+                tabID={tabID}
+                view={view}
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
     );
 }
 
@@ -189,7 +191,7 @@ export const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID,
   // List of trees below a Header
 
   return (
-    <ul className={"FileElementList TreeViewList".concat(onlyFolders ? " SidebarTreeList" : "")}>
+    <ul className={"FileElementListContainer FileElementList TreeViewList".concat(onlyFolders ? " SidebarTreeList" : "")}>
       {!onlyFolders && 
       <li className="DetailFileElementHeader" style={listStyle}>
         <FileElementHeader/>
@@ -227,7 +229,7 @@ export const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID,
 const ColumnView = ({entities, sortBy, limit, user, view, tabID}) => {
 
   return (
-    <ul className="FileElementList IconViewList">
+    <ul className="FileElementListContainer FileElementList IconViewList">
       {
       entities
         .map(entity => (
@@ -250,10 +252,10 @@ const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID}) 
   if (!user) return <></>;
 
   if (!entities || loading)
-    return (<div className="FileElementList centre-content"><Spinner/></div>);
+    return (<div className="FileElementListContainer FileElementList centre-content"><Spinner/></div>);
 
   if (entities.length === 0)
-    return (<div className="FileElementList centre-content"><EmptyFolder/></div>);
+    return (<div className="FileElementListContainer FileElementList centre-content"><EmptyFolder/></div>);
 
   const sortedFiles = (sortBy ? entities.sort((a, b) => b[sortBy] - a[sortBy]) : entities).slice(0, limit);
   const props = {entities: sortedFiles, sortBy, loading, limit, user, view, tabID, onlyFolders: false};

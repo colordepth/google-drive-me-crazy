@@ -119,7 +119,7 @@ export const UserSidebar = ({ userID, tabID }) => {
     setEntitiesList(null);    // show loading
     console.log("refreshed sidebar tree");
 
-    user && selectEntitiesInsideFolder(activePath.path, user, requestedFields, "mimeType = 'application/vnd.google-apps.folder'")
+    user && selectEntitiesInsideFolder('root', user, requestedFields, "mimeType = 'application/vnd.google-apps.folder'")
       .then(entities => {
         setEntitiesList(entities);
         console.log("TREE", entities);
