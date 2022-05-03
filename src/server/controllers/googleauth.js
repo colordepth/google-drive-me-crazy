@@ -44,7 +44,7 @@ const supplyAccessToken = (res, code) => {;
         <script>
           const response = ${JSON.stringify(token)}
             Object.keys(response).forEach(key => {
-              localStorage.setItem(key, response[key]);
+              sessionStorage.setItem(key, response[key]);
             })
           window.location.replace('/app')
         </script>

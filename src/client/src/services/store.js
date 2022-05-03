@@ -1,5 +1,5 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import localStorage from 'redux-persist/lib/storage';
+import sessionStorage from 'redux-persist/lib/storage';
 import sessionStorage from 'redux-persist/lib/storage/session';
 import {
   persistReducer,
@@ -18,7 +18,7 @@ import clipboardReducer from './clipboardSlice';
 
 const userPersistConfig = {
   key: 'user',
-  storage: localStorage
+  storage: sessionStorage
 }
 
 const tabPersistConfig = {

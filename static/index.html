@@ -9,7 +9,7 @@
   	<a id="login_link" href='/authenticate/google'>Log in</a>
     <a id="app_link" hidden href='/app'>Go to App</a>
     <script>
-      if (localStorage.hasOwnProperty('refresh_token'))
+      if (sessionStorage.hasOwnProperty('refresh_token'))
       {
         document.getElementById('login_link').hidden=true;
         document.getElementById('app_link').hidden=false;

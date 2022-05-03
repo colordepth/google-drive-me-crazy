@@ -10,18 +10,18 @@ const UserManager = () => {
   const users = useSelector(selectUsers);
   const dispatch = useDispatch();
 
-  if (localStorage.getItem('refresh_token')) {
+  if (sessionStorage.getItem('refresh_token')) {
 
     dispatch(fetchAndAddUser({
-      refreshToken: localStorage.getItem('refresh_token'),
-      accessToken: localStorage.getItem('access_token'),
-      expiryDate: localStorage.getItem('expiry_date'),
-      scope: localStorage.getItem('scope')
+      refreshToken: sessionStorage.getItem('refresh_token'),
+      accessToken: sessionStorage.getItem('access_token'),
+      expiryDate: sessionStorage.getItem('expiry_date'),
+      scope: sessionStorage.getItem('scope')
     }));
 
     ['refresh_token', 'access_token', 'expiry_date', 'scope', 'token_type']
       .forEach(key =>
-        localStorage.removeItem(key)
+        sessionStorage.removeItem(key)
       );
   }
 
