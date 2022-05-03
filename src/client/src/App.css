@@ -187,7 +187,13 @@
 
 .Hidden {
   display: none;
-  /* opacity: 0; */
+  /* opacity: 0;   */
+  /* Looks better on sidebartree */
+}
+
+.HiddenSidebarButton {
+  opacity: 0;
+  margin: 0;
 }
 
 .Clipboard {

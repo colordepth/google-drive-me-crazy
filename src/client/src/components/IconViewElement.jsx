@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { singleClickHandler, doubleClickHandler} from './FileElement';
+import { singleClickHandler, rightClickHandler, doubleClickHandler} from './FileElement';
 import { fetchFileThumbnail } from '../services/fileManagerService';
 
 const IconViewElement = ({entity, selected, user, tabID}) => {
@@ -24,6 +24,7 @@ const IconViewElement = ({entity, selected, user, tabID}) => {
     <div
       onClick={(event) => singleClickHandler(event, entity, tabID)}
       onDoubleClick={() => doubleClickHandler(entity, tabID)}
+      onContextMenu={(event) => rightClickHandler(event, entity, tabID)}
       className={selected ? 'FileElement IconFileElement IconFileElementSelected' : 'FileElement IconFileElement'}
     >
       <div>

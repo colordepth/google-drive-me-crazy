@@ -185,8 +185,8 @@ export const UserSidebar = ({ userID, tabID }) => {
       </div>
       <div className="SidebarBlock">
         <div className="SidebarHeader">
-          <Icon icon='tag' size={15} style={{paddingRight: '0.6rem'}}/>
-          Directory Tree?
+          <Icon icon='diagram-tree' size={15} style={{paddingRight: '0.6rem'}}/>
+          Tree Navigation
         </div>
         <TreeView entities={entitiesList ? entitiesList : []} user={user} tabID={tabID} onlyFolders={true} view='tree-view'/>
       </div>

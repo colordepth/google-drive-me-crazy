@@ -120,7 +120,7 @@ const TreeFolder = React.memo(({entity, sortBy, limit, user, tabID, onlyFolders}
             childrenEntities && (
               childrenEntities.length===0 || (onlyFolders && !childrenEntities.find(entity => entity.mimeType === 'application/vnd.google-apps.folder'))
             )
-            ? 'Hidden' : ''}
+            ? 'HiddenSidebarButton' : ''}
         >
           <Icon
             icon={'chevron-' + (isCollapsed ? 'right' : 'down')}
@@ -189,7 +189,7 @@ export const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID,
   // List of trees below a Header
 
   return (
-    <ul className="FileElementList TreeViewList">
+    <ul className={"FileElementList TreeViewList".concat(onlyFolders ? " SidebarTreeList" : "")}>
       {!onlyFolders && 
       <li className="DetailFileElementHeader" style={listStyle}>
         <FileElementHeader/>

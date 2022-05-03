@@ -20,3 +20,20 @@
 .TreeViewList {
   
 }
+
+.SidebarTreeList {
+  background: none;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 0;
+}
+
+.SidebarTreeElement {
+  /* margin: 0; */
+  padding: 0;
+  grid-template-columns: 34px 1fr;
+}
+
+.bp3-context-menu2 {
+  width: 100%;
+}

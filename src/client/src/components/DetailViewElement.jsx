@@ -1,11 +1,12 @@
 import { Icon, Text } from '@blueprintjs/core';
-import { singleClickHandler, doubleClickHandler, HumanReadableTime} from './FileElement';
+import { singleClickHandler, rightClickHandler, doubleClickHandler, HumanReadableTime} from './FileElement';
 
 const DetailViewElement = ({entity, fileSize, selected, tabID}) => {
   return (
     <div
       onClick={(event) => singleClickHandler(event, entity, tabID)}
       onDoubleClick={() => doubleClickHandler(entity, tabID)}
+      onContextMenu={(event) => rightClickHandler(event, entity, tabID)}
       className={selected ? 'FileElement DetailFileElement DetailFileElementSelected' : 'FileElement DetailFileElement'}
     >
       <Icon icon={<img src={ entity.iconLink } alt="icon"/>} intent='none'/>

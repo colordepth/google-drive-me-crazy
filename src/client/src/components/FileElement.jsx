@@ -31,6 +31,16 @@ export function singleClickHandler(event, entity, tabID) {
   store.dispatch(toggleHighlight({tabID, targetFile: entity}));
 }
 
+export function rightClickHandler(event, entity, tabID) {
+  console.log('right click', entity, tabID);
+
+  const tab = selectTab(tabID)(store.getState());
+
+  if (Object.keys(tab.highlightedEntities).length === 0) {
+    store.dispatch(toggleHighlight({tabID, targetFile: entity}));
+  }
+}
+
 export function doubleClickHandler(entity, tabID) {
   console.log('double click', entity);
 
@@ -56,26 +66,26 @@ const FileElementContextMenu = ({target}) => {
   return (
     <ContextMenu2
       content={
-        <Menu style={{maxWidth: "5rem"}}> 
-          {/* <MenuItem icon="new-text-box" text="New text box" />
-          <MenuItem icon="new-object" text="New object" />
-          <MenuItem icon="new-link" text="New link" />
+        <Menu>
+          <MenuItem icon="document-open" text="Open" />
+          <MenuItem icon="folder-shared-open" text="Open folder in new tab" shouldDismissPopover={false} />
+          {/* <MenuItem icon="star" text="Add to Starred" /> */}
+          <MenuItem icon="star-empty" text="Remove from Starred" />
           <MenuDivider />
-          <MenuItem text="Settings..." icon="cog">
-              <MenuItem icon="tick" text="Save on edit" />
-              <MenuItem icon="blank" text="Compile on edit" />
-          </MenuItem>
-          <MenuItem icon="graph" text="Graph" />
-          <MenuItem icon="map" text="Map" />
-          <MenuItem icon="th" text="Table" shouldDismissPopover={false} />
-          <MenuItem icon="zoom-to-fit" text="Nucleus" disabled={true} />
+          <MenuItem icon="cut" text="Cut"/>
+          <MenuItem icon="duplicate" text="Copy"/>
+          <MenuItem icon="clipboard" text="Paste"/>
           <MenuDivider />
-          <MenuItem icon="cog" text="Settings...">
-              <MenuItem icon="add" text="Add new application" disabled={true} />
-              <MenuItem icon="remove" text="Remove application" />
-          </MenuItem> */}
-          <MenuItem icon="map" text="Open in new tab" shouldDismissPopover={false} />
+          <MenuItem icon="edit" text="Rename"/>
           <MenuItem icon="trash" text="Move to Trash" intent='danger' />
+          <MenuItem icon="link" text="Share"/>
+          <MenuItem icon="tag" text="Add to tags">
+            <MenuItem icon="tag" text="Design"/>
+            <MenuItem icon="tag" text="Programming"/>
+            <MenuItem icon="tag" text="Photography"/>
+          </MenuItem>
+          <MenuDivider />
+          <MenuItem icon="properties" text="Properties" />
       </Menu>
       }
     >
@@ -99,7 +109,7 @@ const FileElement = React.memo(({entity, user, view, tabID, onlyFolders}) => {
   if (view === 'tree-view') return <FileElementContextMenu target={<TreeViewElement {...props} />} />
   if (view === 'column-view') return <FileElementContextMenu target={<IconViewElement {...props} />} />
 
-  return <DetailViewElement {...props} />;
+  return <FileElementContextMenu target={<DetailViewElement {...props} />} />;
 });
 
 // {<Icon icon='folder-close' intent='primary' style={iconStyle}/>}

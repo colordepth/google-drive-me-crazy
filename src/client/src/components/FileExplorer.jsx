@@ -40,7 +40,7 @@ const FileExplorer = ({ userID, tab }) => {
   const activePath = tab.pathHistory.at(tab.activePathIndex);
   const user = useSelector(selectUserByID(userID));
   const directoryTreeChange = useSelector(selectDirectoryTreeForUser(userID));
-  const [viewMode, setViewMode] = useState('detail-view');
+  const [viewMode, setViewMode] = useState('icon-view');
 
   function refreshFileListData() {
 
