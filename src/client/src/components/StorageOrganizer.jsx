@@ -99,7 +99,7 @@ const DuplicateFilesManager = ({ userID, tab }) => {
 }
 
 const StorageOrganizer = ({ userID, tab }) => {
-  return <UntitledFilesManager userID={userID} tab={tab} />;
+  return <DuplicateFilesManager userID={userID} tab={tab} />;
 }
 
 const UntitledFilesManager = ({ userID, tab }) => {

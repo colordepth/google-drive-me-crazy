@@ -21,9 +21,15 @@ const NavigationBar = ({ tab, user, folderOpenHandler }) => {
     }]);;
 
     if (currentFolderID === 'storage-analyzer') return setBreadCrumbItems([{
-      icon: "folder-open",
+      icon: "database",
       intent: "primary",
       text: 'Storage Analyzer'
+    }]);
+
+    if (currentFolderID === 'storage-organizer') return setBreadCrumbItems([{
+      icon: "clean",
+      intent: "primary",
+      text: 'Storage Organizer'
     }]);
 
     selectEntity(currentFolderID, user)
