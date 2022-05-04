@@ -74,14 +74,15 @@ export const { addUser, removeUserByID, updateUser, clearInvalidUsers } = userSl
 export const selectUsers = state => state.users.users;
 export const selectUserByID = userID => state => selectUsers(state).find(user => user.minifiedID === userID);
 
-export const fetchAndAddUser = credentials => dispatch => {
+export const fetchAndAddUser = (credentials, callback) => dispatch => {
   return new Promise(async (resolve) => {
     dispatch(updateUser({...credentials}));   // Update user if existing user. Does nothing if not existing.
     const about = await getAbout(credentials, ['user']);
     dispatch(updateUser({...about, ...credentials}));   // Update user if existing user. Does nothing if not existing.
     dispatch(addUser({...about, ...credentials}));      // Will add user if not existing user
     return resolve({...about, ...credentials});
-  });
+  })
+  .then((result) => {if (callback!==undefined) callback(); return result;} );
 }
 
 export default userSlice.reducer;

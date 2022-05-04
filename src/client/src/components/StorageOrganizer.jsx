@@ -89,6 +89,7 @@ const DuplicateFilesManager = ({ userID, tab }) => {
               user={user}
               tabID={tab.id}
               view={ viewMode }
+              hideScrollbar={true}
             />
             {/* <StatusBar noOfFiles={filesList.length}/> */}
           </div>)

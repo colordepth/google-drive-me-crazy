@@ -24,7 +24,7 @@ refreshTokenRouter.get('/', (req, res) => {
     })
     .catch(error => {
       console.error(error);
-      res.status(error.response.status).send(JSON.stringify(error));
+      res.status(error.response? error.response.status : 500).json(error);
     })
 })
 

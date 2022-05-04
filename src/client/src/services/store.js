@@ -1,5 +1,5 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import sessionStorage from 'redux-persist/lib/storage';
+// import localStorage from 'redux-persist/lib/storage';
 import sessionStorage from 'redux-persist/lib/storage/session';
 import {
   persistReducer,

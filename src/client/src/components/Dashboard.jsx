@@ -52,7 +52,7 @@ const PinnedItems = ({tab}) => {
 
 const RecentFiles = ({files, tab, user}) => {
   return (
-    <FileElementList entities={files} sortBy='viewedByMeTime' limit={100} view='icon-view' tabID={tab.id} user={user}/>
+    <FileElementList entities={files} sortBy='viewedByMeTime' limit={100} view='icon-view' tabID={tab.id} user={user} hideScrollbar={true}/>
   );
 }
 
@@ -106,8 +106,6 @@ const DashboardTabs = ({tab}) => {
   const files = allFiles && allFiles.filter(file => 
     file.owners && file.owners.length && file.owners[0].me
   );
-
-  console.log(files);
 
   return (
     <div style={dashboardTabsContainerStyle}>

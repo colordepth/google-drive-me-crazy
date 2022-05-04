@@ -109,6 +109,7 @@ const requestedFields = ["id", "name", "parents", "mimeType", "trashed", "iconLi
 export const UserSidebar = ({ userID, tabID }) => {
   const dispatch = useDispatch();
   const [entitiesList, setEntitiesList] = useState(null);
+  const [treeIsOpen, setTreeIsOpen] = useState(true);
   const tab = useSelector(selectTab(tabID));
   const activePath = tab.pathHistory.at(tab.activePathIndex);
   const directoryTreeChange = useSelector(selectDirectoryTreeForUser(userID));
@@ -140,18 +141,6 @@ export const UserSidebar = ({ userID, tabID }) => {
         <div className="HomeHeader">
           <Icon icon='home' size={15} style={{paddingRight: '0.6rem'}}/>
           Home
-        </div>
-      </div>
-      <div className="SidebarBlock"> 
-        <div className="SidebarHeader">
-          <Icon icon='star' size={15} style={{paddingRight: '0.6rem'}}/>
-          Starred
-        </div>
-      </div>
-      <div className="SidebarBlock"> 
-        <div className="SidebarHeader">
-          <Icon icon='history' size={15} style={{paddingRight: '0.6rem'}}/>
-          Recent
         </div>
       </div>
       <div className="SidebarBlock">
@@ -202,11 +191,11 @@ export const UserSidebar = ({ userID, tabID }) => {
         </div>
       </div>
       <div className="SidebarBlock">
-        <div className="SidebarHeader">
-          <Icon icon='diagram-tree' size={15} style={{paddingRight: '0.6rem'}}/>
+        <div className="SidebarHeader" onClick={() => setTreeIsOpen(!treeIsOpen)}>
+          <Icon icon='diagram-tree' size={15} style={{marginLeft: '-0.5rem', marginRight: '0.3rem', padding: '0.5rem', borderRadius: '50%', background: '#00003020', boxShadow: 'inset 0 0 0 1px rgb(17 20 24 / 20%), inset 0 1px 2px rgb(17 20 24 / 20%)'}}/>
           Tree Navigation
         </div>
-        <TreeView entities={entitiesList ? entitiesList : []} user={user} tabID={tabID} onlyFolders={true} view='tree-view'/>
+        {treeIsOpen && <TreeView entities={entitiesList ? entitiesList : []} user={user} tabID={tabID} onlyFolders={true} view='tree-view'/>}
       </div>
       <div className="SidebarBlock">
         <div className="SidebarHeader">

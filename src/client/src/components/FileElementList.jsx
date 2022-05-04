@@ -47,10 +47,11 @@ const FileElementHeader = () => {
   );
 }
 
-const ListView = ({entities, user, view, tabID}) => {
+const ListView = ({entities, user, view, tabID, hideScrollbar}) => {
+  const style = hideScrollbar ? {overflowY: 'hidden'} : {};
 
   return (
-    <ul className="FileElementListContainer FileElementList">
+    <ul className="FileElementListContainer FileElementList" style={style}>
       <li className="DetailFileElementHeader" style={listStyle}>
         <FileElementHeader/>
       </li>
@@ -71,10 +72,11 @@ const ListView = ({entities, user, view, tabID}) => {
     );
 }
 
-const IconView = ({entities, sortBy, limit, user, view, tabID}) => {
-
+const IconView = ({entities, sortBy, limit, user, view, tabID, hideScrollbar}) => {
+  const style = hideScrollbar ? {overflowY: 'hidden'} : {};
+  
   return (
-    <div className="FileElementListContainer">
+    <div className="FileElementListContainer" style={style}>
       <ul className="FileElementList IconViewList">
         {
         entities
@@ -187,11 +189,12 @@ const TreeFile = React.memo(({entity, user, tabID}) => {
   );
 });
 
-export const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID, onlyFolders}) => {
+export const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID, onlyFolders, hideScrollbar}) => {
   // List of trees below a Header
+  const style = hideScrollbar ? {overflowY: 'hidden'} : {};
 
   return (
-    <ul className={"FileElementListContainer FileElementList TreeViewList".concat(onlyFolders ? " SidebarTreeList" : "")}>
+    <ul className={"FileElementListContainer FileElementList TreeViewList".concat(onlyFolders ? " SidebarTreeList" : "")} style={style}>
       {!onlyFolders && 
       <li className="DetailFileElementHeader" style={listStyle}>
         <FileElementHeader/>
@@ -226,10 +229,11 @@ export const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID,
     );
 });
 
-const ColumnView = ({entities, sortBy, limit, user, view, tabID}) => {
+const ColumnView = ({entities, sortBy, limit, user, view, tabID, hideScrollbar}) => {
+  const style = hideScrollbar ? {overflowY: 'hidden'} : {};
 
   return (
-    <ul className="FileElementListContainer FileElementList IconViewList">
+    <ul className="FileElementListContainer FileElementList IconViewList" style={style}>
       {
       entities
         .map(entity => (
@@ -247,7 +251,7 @@ const ColumnView = ({entities, sortBy, limit, user, view, tabID}) => {
     );
 }
 
-const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID}) => {
+const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID, hideScrollbar}) => {
 
   if (!user) return <></>;
 
@@ -258,7 +262,7 @@ const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID}) 
     return (<div className="FileElementListContainer FileElementList centre-content"><EmptyFolder/></div>);
 
   const sortedFiles = (sortBy ? entities.sort((a, b) => b[sortBy] - a[sortBy]) : entities).slice(0, limit);
-  const props = {entities: sortedFiles, sortBy, loading, limit, user, view, tabID, onlyFolders: false};
+  const props = {entities: sortedFiles, sortBy, loading, limit, user, view, tabID, onlyFolders: false, hideScrollbar};
 
   if (view === 'icon-view') return <IconView {...props} />
   if (view === 'tree-view') return <TreeView {...props} />

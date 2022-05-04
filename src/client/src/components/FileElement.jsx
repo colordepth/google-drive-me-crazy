@@ -6,7 +6,7 @@ import { Menu, MenuItem, MenuDivider } from "@blueprintjs/core";
 import { ContextMenu2 } from "@blueprintjs/popover2";
 
 import { humanFileSize } from '../services/filesMiscellaneous';
-import { clearHighlights, toggleHighlight, selectHighlightedStatus } from '../services/tabSlice';
+import { clearHighlights, toggleHighlight, selectHighlightedStatus, selectActiveTab } from '../services/tabSlice';
 import store from '../services/store';
 import { openPath, selectTab } from '../services/tabSlice';
 
@@ -36,7 +36,8 @@ export function rightClickHandler(event, entity, tabID) {
 
   const tab = selectTab(tabID)(store.getState());
 
-  if (Object.keys(tab.highlightedEntities).length === 0) {
+  if (!tab.highlightedEntities[entity.id]) {
+    store.dispatch(clearHighlights(tabID));
     store.dispatch(toggleHighlight({tabID, targetFile: entity}));
   }
 }
@@ -63,29 +64,38 @@ export function doubleClickHandler(entity, tabID) {
 }
 
 const FileElementContextMenu = ({target}) => {
+  const tab = useSelector(selectActiveTab);
+  const entity = target.props.entity;
+  const highlightedEntities = tab.highlightedEntities;
+  const multipleSelected = Object.keys(highlightedEntities).length > 1;
+
   return (
     <ContextMenu2
       content={
         <Menu>
-          <MenuItem icon="document-open" text="Open" />
-          <MenuItem icon="folder-shared-open" text="Open folder in new tab" shouldDismissPopover={false} />
+          {!multipleSelected && <MenuItem icon="document-open" text="Open" onClick={() => doubleClickHandler(entity, tab.id)} />}
+          <MenuItem
+            icon="folder-shared-open"
+            text="Open containing folder"
+            shouldDismissPopover={false}
+          />
           {/* <MenuItem icon="star" text="Add to Starred" /> */}
-          <MenuItem icon="star-empty" text="Remove from Starred" />
+          {/* <MenuItem icon="star-empty" text="Remove from Starred" /> */}
           <MenuDivider />
           <MenuItem icon="cut" text="Cut"/>
           <MenuItem icon="duplicate" text="Copy"/>
-          <MenuItem icon="clipboard" text="Paste"/>
+          {/* <MenuItem icon="clipboard" text="Paste"/> */}
           <MenuDivider />
-          <MenuItem icon="edit" text="Rename"/>
+          {!multipleSelected && <MenuItem icon="edit" text="Rename"/>}
           <MenuItem icon="trash" text="Move to Trash" intent='danger' />
-          <MenuItem icon="link" text="Share"/>
+          {!multipleSelected && <MenuItem icon="link" text="Share"/>}
           <MenuItem icon="tag" text="Add to tags">
             <MenuItem icon="tag" text="Design"/>
             <MenuItem icon="tag" text="Programming"/>
             <MenuItem icon="tag" text="Photography"/>
           </MenuItem>
           <MenuDivider />
-          <MenuItem icon="properties" text="Properties" />
+          {!multipleSelected && <MenuItem icon="properties" text="Properties" />}
       </Menu>
       }
     >
