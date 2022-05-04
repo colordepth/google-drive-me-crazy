@@ -31,6 +31,12 @@ const NavigationBar = ({ tab, user, folderOpenHandler }) => {
       intent: "primary",
       text: 'Storage Organizer'
     }]);
+    
+    if (currentFolderID.startsWith('tag')) return setBreadCrumbItems([{
+      icon: "tag",
+      intent: "primary",
+      text: currentFolderID.substring(4).replace('&', ' ')
+    }]);
 
     selectEntity(currentFolderID, user)
       .then(entity => setCurrentFolder(entity))

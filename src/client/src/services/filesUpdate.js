@@ -15,6 +15,21 @@ export function renameEntity(entityID, newName, credentials) {
   .then(res => res.data);
 }
 
+export function updateProperty(entityID, [key, value], credentials) {
+  const appProperties = {};
+  appProperties[key] = value;
+
+  return axios.patch(baseUrlDriveAPI + '/files/' + entityID, 
+  { appProperties },
+  {
+    headers: { Authorization: `Bearer ${credentials.accessToken}`},
+    params: {
+      fields: '*',
+    }
+  })
+  .then(res => res.data);
+}
+
 export function changeParentFolder(entity, newParentID, credentials) {
   return axios.patch(baseUrlDriveAPI + '/files/' + entity.id,
   {},

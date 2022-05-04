@@ -2,10 +2,10 @@ import { Icon } from "@blueprintjs/core";
 import ReactDOM from 'react-dom';
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { openPath, clearHighlights, selectTab, createTab, switchActiveTab, selectActiveTab, selectActiveTabID } from '../services/tabSlice';
-import { selectEntitiesInsideFolder, selectDirectoryTreeForUser, selectEntity } from '../services/fileManagerService';
+import { openPath, clearHighlights, selectTab, selectActiveTab } from '../services/tabSlice';
+import { selectEntitiesInsideFolder, selectDirectoryTreeForUser } from '../services/fileManagerService';
 import { TreeView } from "./FileElementList";
-import { selectUserByID, selectUsers } from "../services/userSlice";
+import { addTag, selectUserByID, selectUsers, setCreateTagVisibility } from "../services/userSlice";
 
 const SidebarElement = ({ icon, text, size })  => {
   return (
@@ -122,8 +122,10 @@ export const DashboardSidebar = () => {
 
 function resetHighlightedFiles(clickedNode, dispatch, tabID) {
   const fileElementsDOM = Array.from(document.getElementsByClassName('FileElement'));
+  const contextMenuDOM = Array.from(document.getElementsByClassName('bp3-menu'));
 
   let clickedOnFileElement = false;
+  let clickedOnContextMenu = false;
 
   fileElementsDOM.forEach(fileElement => {
     if (fileElement.contains(clickedNode)) {
@@ -131,7 +133,13 @@ function resetHighlightedFiles(clickedNode, dispatch, tabID) {
     }
   })
 
-  if (!clickedOnFileElement) dispatch(clearHighlights(tabID));
+  contextMenuDOM.forEach(menu => {
+    if (menu.contains(clickedNode)) {
+      clickedOnContextMenu = true;
+    }
+  })
+
+  if (!clickedOnFileElement && !clickedOnContextMenu) dispatch(clearHighlights(tabID));
 }
 
 const requestedFields = ["id", "name", "parents", "mimeType", "trashed", "iconLink"];
@@ -150,6 +158,16 @@ export const UserSidebar = ({ userID, tabID }) => {
 
     setEntitiesList(null);    // show loading
     console.log("refreshed sidebar tree");
+
+    directoryTreeChange && Object.keys(directoryTreeChange).forEach(id => {
+      const entity = directoryTreeChange[id];
+
+      if (entity.appProperties) {
+        Object.keys(entity.appProperties).forEach(tagName => {
+          dispatch(addTag({userID, tag: tagName}));
+        })
+      }
+    })
 
     user && selectEntitiesInsideFolder('root', user, requestedFields, "mimeType = 'application/vnd.google-apps.folder'")
       .then(entities => {
@@ -224,7 +242,7 @@ export const UserSidebar = ({ userID, tabID }) => {
       </div>
       <div className="SidebarBlock">
         <div className="SidebarHeader" onClick={() => setTreeIsOpen(!treeIsOpen)}>
-          <Icon icon='diagram-tree' size={15} style={{marginLeft: '-0.5rem', marginRight: '0.3rem', padding: '0.5rem', borderRadius: '50%', background: '#00003020', boxShadow: 'inset 0 0 0 1px rgb(17 20 24 / 20%), inset 0 1px 2px rgb(17 20 24 / 20%)'}}/>
+          <Icon icon='diagram-tree' size={15} style={{marginLeft: '-0.5rem', marginRight: '0.3rem', padding: '0.5rem', borderRadius: '50%', background: '#00003020', boxShadow: treeIsOpen ? 'inset 0 0 0 1px rgb(17 20 24 / 20%), inset 0 1px 2px rgb(17 20 24 / 20%)' : ''}}/>
           Tree Navigation
         </div>
         {treeIsOpen && 
@@ -238,17 +256,30 @@ export const UserSidebar = ({ userID, tabID }) => {
           <Icon icon='tag' size={15} style={{paddingRight: '0.6rem'}}/>
           Tags
         </div>
-        <div className="SidebarElement">
-          <Icon icon='full-circle' size={14} style={{color: 'maroon', paddingRight: '0.6rem'}}/>
-          Design
-        </div>
-        <div className="SidebarElement">
-          <Icon icon='full-circle' size={14} style={{color: 'teal', paddingRight: '0.6rem'}}/>
-          Dev
-        </div>
-        <div className="SidebarElement">
-          <Icon icon='full-circle' size={14} style={{color: 'orange', paddingRight: '0.6rem'}}/>
-          Games
+        {user && user.tags && user.tags.map((tag, i) => 
+          tag.name && 
+          <div
+            className="SidebarElement"
+            key={tag.name}
+            onClick={() => dispatch(openPath({
+                id: tabID,
+                path: {
+                  path: `tag_${tag.name}`,
+                  name: tag.name.replace('&', ' '),
+                  userID: user.minifiedID
+                }
+              }))
+            }
+          >
+            {/* <Icon icon='full-circle' size={14} style={{color: tag.color, paddingRight: '0.6rem'}}/> */}
+            {/* <div style={{marginRight: '0.5rem'}}>{i}</div> */}
+            <div style={{ width: '16px', height: '16px', marginRight: '0.6rem', background: tag.color, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F0EFFF'}}>{}</div>
+            {tag.name.replace('&', ' ')}
+          </div>
+        )}
+        <div className="SidebarElement" onClick={() => dispatch(setCreateTagVisibility({userID: user.minifiedID, visible: true}))}>
+          <Icon icon='plus' size={14} style={{paddingRight: '0.6rem'}}/>
+          Create new tag
         </div>
       </div>
     </div>

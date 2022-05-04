@@ -3,9 +3,11 @@ import { useEffect } from 'react';
 import { refreshToken } from '../services/auth';
 import { clearInvalidUsers, fetchAndAddUser, selectUsers } from '../services/userSlice';
 import { getQuotaDetails } from '../services/userInfo';
-import { selectActivePath, selectActiveTab } from '../services/tabSlice';
+import { selectActiveTab } from '../services/tabSlice';
 import { clearFetchStatus, fetchDirectoryStructure } from '../services/directoryTreeSlice';
 import { useDispatch, useSelector } from 'react-redux';
+
+import CreateTag from './CreateTag';
 
 const UserManager = () => {
   const users = useSelector(selectUsers);
@@ -96,6 +98,7 @@ const UserManager = () => {
           style={{borderRadius: '50%', width: '32px', height: '32px'}}
         />
       </div>
+      <CreateTag user={displayedUser} />
     </>
   );
 }

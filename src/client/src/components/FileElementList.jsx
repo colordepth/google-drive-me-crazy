@@ -18,8 +18,8 @@ function EmptyFolder() {
         <span className="bp3-icon bp3-icon-folder-open"></span>
       </div>
       <div style={{fontSize: "18px", fontWeight: 300}}>Empty Folder</div>
-      <div style={{fontSize: "15px", fontWeight: 300}}>Upload a new entity to populate the folder.</div>
-      <Button intent="primary" icon="upload" text="Upload"/>
+      {/* <div style={{fontSize: "15px", fontWeight: 300}}>Upload a new entity to populate the folder.</div> */}
+      {/* <Button intent="primary" icon="upload" text="Upload"/> */}
     </div>
   );
 }

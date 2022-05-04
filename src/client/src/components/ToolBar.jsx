@@ -95,14 +95,14 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
             onClick={() => setViewMode('tree-view')}
             active={viewMode === 'tree-view'}
           />
-          <Button small style={{padding: '0 15px'}} icon='list-columns'
+          {/* <Button small style={{padding: '0 15px'}} icon='list-columns'
             onClick={() => setViewMode('list-view')}
             active={viewMode === 'list-view'}
           />
           <Button small style={{padding: '0 15px'}} icon='two-columns'
             onClick={() => setViewMode('column-view')}
             active={viewMode === 'column-view'}
-          />
+          /> */}
         </ButtonGroup>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchAllFolders, fetchThousandEntities } from './filesFetch.js';
-import { selectUsers } from './userSlice.js';
+import { addTag, selectUsers } from './userSlice.js';
 import store from './store';
 
 /*
@@ -249,7 +249,7 @@ function buildDirectoryStructure(folders, files) {
     return;
   }
 
-  let allFiles = [...folders, ...files];
+  let allEntities = [...folders, ...files];
   let directoryTree = {};
 
   folders.forEach(folder => {
@@ -261,20 +261,21 @@ function buildDirectoryStructure(folders, files) {
     folder.childrenIDs.length = 0;
   })
 
-  allFiles.forEach(file => {
-    directoryTree[file.id] = file;
-    if (file.isRoot)
-      directoryTree['root'] = directoryTree[file.id];
+  allEntities.forEach(entity => {
+    directoryTree[entity.id] = entity;
+
+    if (entity.isRoot)
+      directoryTree['root'] = directoryTree[entity.id];
   });
 
   var noParent = 0;
 
-  allFiles.forEach(file => {
-    if (file.parents) {
-      const parentID = file.parents[0];
+  allEntities.forEach(entity => {
+    if (entity.parents) {
+      const parentID = entity.parents[0];
       if (!directoryTree[parentID])
         return console.log("Missing parent object. What's this?", parentID);
-      directoryTree[parentID].childrenIDs.push(file.id);
+      directoryTree[parentID].childrenIDs.push(entity.id);
     }
     else {
       noParent += 1;
@@ -307,7 +308,7 @@ export const fetchDirectoryStructure = (userID) => dispatch => {
   // Fetches all files and folders.
   // Builds tree, calculates foldersize and sets directoryTree to it.
 
-  const fieldsForDirectoryTree = ['id', 'parents', 'mimeType', 'quotaBytesUsed'];
+  const fieldsForDirectoryTree = ['id', 'parents', 'mimeType', 'quotaBytesUsed', 'appProperties'];
   const fieldsForStorageAnalyzer = ['id', 'mimeType', 'quotaBytesUsed'];
   
   const remainingFieldsForFolderList = ['id', 'name', 'iconLink', 'modifiedTime', 'viewedByMeTime'];
@@ -334,7 +335,9 @@ export const fetchDirectoryStructure = (userID) => dispatch => {
       getAllFiles(userID, remainingFieldsForFileList, "not ('me' in owners)")(dispatch),
       getAllFolders(userID, remainingFieldsForFolderList, "not ('me' in owners)")(dispatch),
     ])
-    .then(() => dispatch(recalculateDirectoryTree(userID)));
+    .then(() => {
+      dispatch(recalculateDirectoryTree(userID))
+    });
   
   Promise.all([
       getAllFiles(userID, miscFields, "'me' in owners")(dispatch),

@@ -1,8 +1,9 @@
 import { Spinner } from '@blueprintjs/core';
 import ReactTimeAgo from 'react-time-ago';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Menu, MenuItem, MenuDivider } from "@blueprintjs/core";
+
 import { createTab, switchActiveTab } from '../services/tabSlice';
 import { ContextMenu2 } from "@blueprintjs/popover2";
 
@@ -16,8 +17,9 @@ import IconViewElement from './IconViewElement';
 import TreeViewElement from './TreeViewElement';
 
 import './FileElement.css';
-import { selectEntity } from '../services/fileManagerService';
-import { selectUserByID } from '../services/userSlice';
+import { addFileToTag, selectEntity } from '../services/fileManagerService';
+import { selectUserByID, setCreateTagVisibility } from '../services/userSlice';
+import { updateProperty } from '../services/filesUpdate';
 
 export const HumanReadableTime = ({epoch}) => {
   if (epoch)
@@ -27,7 +29,7 @@ export const HumanReadableTime = ({epoch}) => {
 
 export function singleClickHandler(event, entity, tabID) {
   console.log('single click', entity, tabID);
-  if (!event.ctrlKey) {
+  if (!(event.ctrlKey || event.metaKey)) {
     store.dispatch(clearHighlights(tabID));
   }
 
@@ -60,13 +62,13 @@ export function doubleClickHandler(entity, tabID) {
         userID: tab.pathHistory.at(tab.activePathIndex).userID
       }
     }));
-      
+
   }
   else
     window.open(entity.webViewLink);
 }
 
-const FileElementContextMenu = ({target}) => {
+const FileElementContextMenu = React.memo(({target}) => {
   const tab = useSelector(selectActiveTab);
   const userID = tab.pathHistory.at(-1).userID;
   const user = useSelector(selectUserByID(userID));
@@ -87,6 +89,15 @@ const FileElementContextMenu = ({target}) => {
     }));
     dispatch(switchActiveTab(newTabID));
     dispatch(toggleHighlight({tabID: newTabID, targetFile: entity}));
+  }
+
+  function addHighlightedItemsToTag(tag) {
+    console.log("added items to tag", tag.name);
+  
+    Object.keys(tab.highlightedEntities).forEach(async entityID => {
+      await addFileToTag(entityID, [tag.name, 'tag'], user);
+      dispatch(toggleHighlight({tabID: tab.id, targetFile: await selectEntity(entityID, user)}))
+    })
   }
 
   return (
@@ -114,9 +125,9 @@ const FileElementContextMenu = ({target}) => {
           <MenuItem icon="trash" text="Move to Trash" intent='danger' />
           {!multipleSelected && <MenuItem icon="link" text="Share"/>}
           <MenuItem icon="tag" text="Add to tags">
-            <MenuItem icon="tag" text="Design"/>
-            <MenuItem icon="tag" text="Programming"/>
-            <MenuItem icon="tag" text="Photography"/>
+            {user && user.tags.map(tag => <MenuItem key={tag.name} icon="tag" text={tag.name.replace('&', ' ')} onClick={() => addHighlightedItemsToTag(tag)}/>)}
+            <MenuDivider />
+            <MenuItem icon="plus" text="Create Tag" onClick={() => {dispatch(setCreateTagVisibility({userID: user.minifiedID, visible: true}))}}/>
           </MenuItem>
           <MenuDivider />
           {!multipleSelected && <MenuItem icon="properties" text="Properties" />}
@@ -126,10 +137,9 @@ const FileElementContextMenu = ({target}) => {
       {target}
     </ContextMenu2>
   );
-}
+});
 
 const FileElement = React.memo(({entity, user, view, tabID, onlyFolders}) => {
-
   const selected = !!useSelector(selectHighlightedStatus(tabID, entity.id));
 
   let fileSize = humanFileSize(parseInt(entity.quotaBytesUsed));
@@ -139,11 +149,11 @@ const FileElement = React.memo(({entity, user, view, tabID, onlyFolders}) => {
 
   const props = {entity, fileSize, selected, user, tabID, onlyFolders};
 
-  if (view === 'icon-view') return <FileElementContextMenu target={<IconViewElement {...props} />} />
-  if (view === 'tree-view') return <FileElementContextMenu target={<TreeViewElement {...props} />} />
-  if (view === 'column-view') return <FileElementContextMenu target={<IconViewElement {...props} />} />
+  if (view === 'icon-view') return <FileElementContextMenu target={<IconViewElement {...props} />}/>
+  if (view === 'tree-view') return <FileElementContextMenu target={<TreeViewElement {...props} />}/>
+  if (view === 'column-view') return <FileElementContextMenu target={<IconViewElement {...props} />}/>
 
-  return <FileElementContextMenu target={<DetailViewElement {...props} />} />;
+  return <FileElementContextMenu target={<DetailViewElement {...props} />}/>;
 });
 
 // {<Icon icon='folder-close' intent='primary' style={iconStyle}/>}

@@ -34,6 +34,15 @@ export function renameEntity(entityID, newName, credentials) {
     })
 }
 
+export function addFileToTag(entityID, [key, value], credentials) {
+  return filesUpdate.updateProperty(entityID, [key.replace(' ', '&'), value], credentials)
+    .then(result => {
+      store.dispatch(directoryTreeSlice.updateFilesAndFolders(credentials.minifiedID, [result]));
+      store.dispatch(directoryTreeSlice.recalculateDirectoryTree(credentials.minifiedID));
+      return result;
+    })
+}
+
 export function moveEntitiesToFolder(entities, targetFolderID, credentials) {
 
   return new Promise(async (resolve, reject) => {
@@ -126,6 +135,22 @@ export function selectEntitiesInsideFolder(folderID, user, requestedFields, addi
           error.response ? error.response.data.error.message : null
         );
       });
+  })
+}
+
+export function selectEntitiesInsideTag(tagName, user) {
+
+  const startTime = new Date();
+  return new Promise((resolve) => {
+    const state = store.getState();
+    const directoryTree = directoryTreeSlice.selectDirectoryTreeForUser(user.minifiedID)(state);
+
+    if (directoryTree) {
+      return resolve(Object.keys(directoryTree)
+        .filter(id => directoryTree[id].appProperties && directoryTree[id].appProperties[tagName.replace(' ', '&')])
+        .map(id => directoryTree[id])
+      )
+    }
   })
 }
 

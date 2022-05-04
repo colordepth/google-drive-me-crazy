@@ -3,6 +3,7 @@ import { selectTab, selectActivePath } from '../services/tabSlice';
 import FileExplorer from './FileExplorer';
 import SidebarPortal, { DashboardSidebar, UserSidebar } from './Sidebar';
 import Dashboard from './Dashboard';
+import TagViewer from './TagViewer';
 import StorageAnalyzer from './StorageAnalyzer';
 import StorageOrganizer from './StorageOrganizer';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -32,6 +33,12 @@ const Tab = ({tabID}) => {
             }/>
             <Route path="storage-organizer" element={
               <StorageOrganizer
+                userID={activeTabPath.userID}
+                tab={self}
+              />
+            }/>
+            <Route path="tag_:tagName" element={
+              <TagViewer
                 userID={activeTabPath.userID}
                 tab={self}
               />

@@ -7,17 +7,11 @@ import StatusBar from './StatusBar';
 import NavigationBar from './NavigationBar';
 import ToolBar from './ToolBar';
 
-import { selectEntitiesInsideFolder, selectDirectoryTreeForUser } from '../services/fileManagerService';
+import { selectDirectoryTreeForUser, selectEntitiesInsideTag } from '../services/fileManagerService';
 import { openPath, clearHighlights } from '../services/tabSlice';
 import { selectUserByID } from '../services/userSlice';
-
-const requestedFields = ["id", "name", "parents", "mimeType", "quotaBytesUsed", "trashed",
-  "webViewLink", "iconLink", "modifiedTime", "viewedByMeTime", "owners", "thumbnailLink"];
-
-const AppToaster = Toaster.create({
-  className: "recipe-toaster",
-  position: Position.BOTTOM_RIGHT,
-});
+import { selectFilesForUser, selectFoldersForUser } from '../services/directoryTreeSlice';
+import { useParams } from 'react-router-dom';
 
 function resetHighlightedFiles(clickedNode, dispatch, tabID) {
   const fileElementsDOM = Array.from(document.getElementsByClassName('FileElement'));
@@ -41,58 +35,39 @@ function resetHighlightedFiles(clickedNode, dispatch, tabID) {
   if (!clickedOnFileElement && !clickedOnContextMenu) dispatch(clearHighlights(tabID));
 }
 
-const FileExplorer = ({ userID, tab }) => {
-  const [entitiesList, setEntitiesList] = useState(null);
+const TagViewer = ({ userID, tab }) => {
   const dispatch = useDispatch();
 
   const activePath = tab.pathHistory.at(tab.activePathIndex);
   const user = useSelector(selectUserByID(userID));
-  const directoryTreeChange = useSelector(selectDirectoryTreeForUser(userID));
   const [viewMode, setViewMode] = useState('icon-view');
+  const [taggedFiles, setTaggedFiles] = useState(null);
 
-  function refreshFileListData() {
-
-    if (activePath.path  === 'storage-analyzer') return;
-
-    setEntitiesList(null);    // show loading
-    console.log("refreshed fileList");
-
-    user && selectEntitiesInsideFolder(activePath.path, user, requestedFields)
-      .then(entities => {
-        setEntitiesList(entities);
-      })
-      .catch(error => {
-        console.error("FileExplorer refreshFileListData",
-          error.message,
-          error.response ? error.response.data.error.message : null
-        );
-      });
-  }
-
-  function folderOpenHandler(folder) {
-    if (activePath.path === folder.id || (folder.isRoot && activePath.path ==='root'))
-      return;
-
-    dispatch(openPath({
-      id: tab.id,
-      path: {
-        path: folder.id,
-        name: folder.name,
-        userID
-      }
-    }));
-    AppToaster.show({ message: "Toasted.." });
-  }
-
-  useEffect(refreshFileListData, [ activePath, directoryTreeChange ]);
+  const { tagName } = useParams();
+  const directoryTreeChange = useSelector(selectDirectoryTreeForUser(userID));
 
   const highlightedEntitiesList = Object
     .keys(tab.highlightedEntities)
     .map(entityID => tab.highlightedEntities[entityID]);
 
+  useEffect(() => {
+    async function findTaggedFiles() {
+      user && selectEntitiesInsideTag(tagName, user)
+        .then(results => {
+          return results
+            .filter(file => file.owners && file.owners.length && file.owners[0].me)
+            .filter(entity => !entity.trashed);
+        })
+        .then(results => setTaggedFiles(results))
+    }
+    findTaggedFiles();
+  }, [directoryTreeChange, tagName])
+
+  // return <></>;
+
   return (
     <div className="FileExplorer" onClick={(event) => resetHighlightedFiles(event.target, dispatch, tab.id)}> 
-      <NavigationBar tab={ tab } user= { user } folderOpenHandler={ folderOpenHandler } />
+      <NavigationBar tab={ tab } user= { user } folderOpenHandler={ () => {} } />
       <ToolBar
         highlightedEntitiesList={ highlightedEntitiesList }
         user={ user }
@@ -101,14 +76,14 @@ const FileExplorer = ({ userID, tab }) => {
         setViewMode={ setViewMode }
       />
       <FileElementList
-        entities={ entitiesList && entitiesList.filter(entity => !entity.trashed) }     // For icon-view and list-view
+        entities={ taggedFiles }     // For icon-view and list-view
         user={user}
         tabID={tab.id}
         view={ viewMode }
       />
-      <StatusBar noOfFiles={ entitiesList && entitiesList.length } noOfSelectedFiles={ highlightedEntitiesList.length }/>
+      <StatusBar noOfFiles={ taggedFiles && taggedFiles.length } noOfSelectedFiles={ highlightedEntitiesList.length }/>
     </div>
   );
 }
 
-export default FileExplorer;
+export default TagViewer;

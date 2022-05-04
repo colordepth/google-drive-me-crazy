@@ -16,8 +16,10 @@ import ToolBar from './ToolBar';
 
 function resetHighlightedFiles(clickedNode, dispatch, tabID) {
   const fileElementsDOM = Array.from(document.getElementsByClassName('FileElement'));
+  const contextMenuDOM = Array.from(document.getElementsByClassName('bp3-menu'));
 
   let clickedOnFileElement = false;
+  let clickedOnContextMenu = false;
 
   fileElementsDOM.forEach(fileElement => {
     if (fileElement.contains(clickedNode)) {
@@ -25,7 +27,13 @@ function resetHighlightedFiles(clickedNode, dispatch, tabID) {
     }
   })
 
-  if (!clickedOnFileElement) dispatch(clearHighlights(tabID));
+  contextMenuDOM.forEach(menu => {
+    if (menu.contains(clickedNode)) {
+      clickedOnContextMenu = true;
+    }
+  })
+
+  if (!clickedOnFileElement && !clickedOnContextMenu) dispatch(clearHighlights(tabID));
 }
 
 const defaultOptions = {

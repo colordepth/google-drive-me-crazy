@@ -250,3 +250,28 @@ span[icon="cross"]:hover {
   border-radius: 50%;
   /* cursor: pointer; */
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+.SideBar::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #e6e5f5; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #c3c1d6;
+  background: linear-gradient(to bottom, #d0cee1, #b3b2c6);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #b5b3c9;
+}
