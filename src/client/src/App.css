@@ -113,21 +113,6 @@
   gap: 0rem;
 }
 
-.HomeHeader {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem;
-  padding-left: 0.5rem;
-  font-size: 15px;
-  font-weight: 600;
-  color:  #444;
-  background-color: #f8feff;
-  max-width: 13rem;
-  border-radius: 0.4rem;
-  border-top-left-radius: 0.2rem;
-  border-bottom-left-radius: 0.2rem;
-}
-
 .SidebarHeader {
   display: flex;
   align-items: center;
@@ -157,6 +142,25 @@
 
 .SidebarElement:hover, .SidebarHeader:hover {
   background: #e4e2fb;
+}
+
+.HomeHeader {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  padding-left: 0.5rem;
+  font-size: 15px;
+  font-weight: 600;
+  color:  #444;
+  background: #f8feff;
+  max-width: 13rem;
+  border-radius: 0.4rem;
+  border-top-left-radius: 0.2rem;
+  border-bottom-left-radius: 0.2rem;
+}
+
+.HomeHeader:hover {
+  background: #f8feff;
 }
 
 .OverlayCard {

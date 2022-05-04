@@ -54,67 +54,24 @@ const SidebarPortal = ({ element }) => {
 }
 
 export const DashboardSidebar = () => {
+  const users = useSelector(selectUsers);
+
   return (
     <div className="SideBar">
       <div className="SidebarBlock">
-        <div className="HomeHeader">
+        <div className="SidebarHeader HomeHeader">
           <Icon icon='home' size={15} style={{paddingRight: '0.6rem'}}/>
           Home
         </div>
-      </div>
-      <div className="SidebarBlock"> 
-        <div className="SidebarHeader">
-          <Icon icon='star' size={15} style={{paddingRight: '0.6rem'}}/>
-          Starred
-        </div>
-        <SidebarElement icon='folder-open' text='Avant Garde' />
-        <SidebarElement icon='folder-open' text='Minerva' />
-        <SidebarElement icon='folder-open' text='Ruhaniyat' />
       </div>
       <div className="SidebarBlock">
         <div className="SidebarHeader">
           <Icon icon='cloud' size={15} style={{paddingRight: '0.6rem'}}/>
           Drives
         </div>
-        <SidebarElement icon='cloud' size={15} text='Drive Drive' />
-        <SidebarElement icon='cloud' size={15} text='Personal Drive' />
-      </div>
-      <div className="SidebarBlock">
-        <div className="SidebarHeader">
-          <Icon icon='history' size={15} style={{paddingRight: '0.6rem'}}/>
-          Recent
-        </div>
-        <SidebarElement icon='document' size={14} text='Planner.xlsx' />
-        <SidebarElement icon='document' size={14} text='Resume.pdf' />
-        <SidebarElement icon='document' size={14} text='Literature Survey.docx' />
-      </div>
-      <div className="SidebarBlock">
-        <div className="SidebarHeader">
-          <Icon icon='trash' size={15} style={{paddingRight: '0.6rem'}}/>
-          Trash
-        </div>
-        <div style={{marginTop: "4px"}}className="SidebarHeader">
-          <Icon icon='database' size={15} style={{paddingRight: '0.6rem'}}/>
-          Storage
-        </div>
-      </div>
-      <div className="SidebarBlock">
-        <div className="SidebarHeader">
-          <Icon icon='tag' size={15} style={{paddingRight: '0.6rem'}}/>
-          Tags
-        </div>
-        <div className="SidebarElement">
-          <Icon icon='full-circle' size={14} style={{color: 'maroon', paddingRight: '0.6rem'}}/>
-          Design
-        </div>
-        <div className="SidebarElement">
-          <Icon icon='full-circle' size={14} style={{color: 'teal', paddingRight: '0.6rem'}}/>
-          Dev
-        </div>
-        <div className="SidebarElement">
-          <Icon icon='full-circle' size={14} style={{color: 'orange', paddingRight: '0.6rem'}}/>
-          Games
-        </div>
+        {
+          users && users.map(user => <UserElement user={user}/>)
+        }
       </div>
     </div>
   );
@@ -149,7 +106,7 @@ export const UserSidebar = ({ userID, tabID }) => {
   const [entitiesList, setEntitiesList] = useState(null);
   const [treeIsOpen, setTreeIsOpen] = useState(true);
   const tab = useSelector(selectTab(tabID));
-  const activePath = tab.pathHistory.at(tab.activePathIndex);
+  const activePath = tab.pathHistory.at(tab.activePathIndex).path;
   const directoryTreeChange = useSelector(selectDirectoryTreeForUser(userID));
   const user = useSelector(selectUserByID(userID));
   const users = useSelector(selectUsers);
@@ -187,7 +144,16 @@ export const UserSidebar = ({ userID, tabID }) => {
   return (
     <div className="SideBar" onClick={(event) => resetHighlightedFiles(event.target, dispatch, tabID)}>
       <div className="SidebarBlock">
-        <div className="HomeHeader">
+        <div className={"SidebarHeader".concat(activePath == 'dashboard' ? ' HomeHeader' : '')} onClick={() => {
+            dispatch(openPath({
+              id: tabID,
+              path: {
+                path: 'dashboard',
+                name: "Dashboard",
+                userID: null
+              }
+            }));
+          }}>
           <Icon icon='home' size={15} style={{paddingRight: '0.6rem'}}/>
           Home
         </div>
@@ -202,14 +168,14 @@ export const UserSidebar = ({ userID, tabID }) => {
         }
       </div>
       <div className="SidebarBlock">
-        
+
       </div>
       <div className="SidebarBlock">
-        <div className="SidebarHeader">
+        <div className={"SidebarHeader".concat(activePath == 'trash' ? ' HomeHeader' : '')}>
           <Icon icon='trash' size={15} style={{paddingRight: '0.6rem'}}/>
           Trash
         </div>
-        <div style={{marginTop: "4px"}} className="SidebarHeader"
+        <div style={{marginTop: "4px"}} className={"SidebarHeader".concat(activePath == 'storage-analyzer' ? ' HomeHeader' : '')}
           onClick={() => {
             dispatch(openPath({
               id: tabID,
@@ -224,7 +190,7 @@ export const UserSidebar = ({ userID, tabID }) => {
           <Icon icon='database' size={15} style={{paddingRight: '0.6rem'}}/>
           Storage Analyzer
         </div>
-        <div style={{marginTop: "4px"}} className="SidebarHeader"
+        <div style={{marginTop: "4px"}} className={"SidebarHeader".concat(activePath == 'storage-organizer' ? ' HomeHeader' : '')}
           onClick={() => {
             dispatch(openPath({
               id: tabID,
@@ -241,25 +207,14 @@ export const UserSidebar = ({ userID, tabID }) => {
         </div>
       </div>
       <div className="SidebarBlock">
-        <div className="SidebarHeader" onClick={() => setTreeIsOpen(!treeIsOpen)}>
-          <Icon icon='diagram-tree' size={15} style={{marginLeft: '-0.5rem', marginRight: '0.3rem', padding: '0.5rem', borderRadius: '50%', background: '#00003020', boxShadow: treeIsOpen ? 'inset 0 0 0 1px rgb(17 20 24 / 20%), inset 0 1px 2px rgb(17 20 24 / 20%)' : ''}}/>
-          Tree Navigation
-        </div>
-        {treeIsOpen && 
-        <div style={{maxHeight: '400px', overflow: 'auto'}}>
-          <TreeView entities={entitiesList ? entitiesList : []} user={user} tabID={tabID} onlyFolders={true} view='tree-view'/>
-        </div>
-        }
-      </div>
-      <div className="SidebarBlock">
-        <div className="SidebarHeader">
+        <div className={"SidebarHeader"}>
           <Icon icon='tag' size={15} style={{paddingRight: '0.6rem'}}/>
           Tags
         </div>
         {user && user.tags && user.tags.map((tag, i) => 
           tag.name && 
           <div
-            className="SidebarElement"
+            className={"SidebarElement".concat(activePath == 'tag_'.concat(tag.name) ? ' HomeHeader' : '')}
             key={tag.name}
             onClick={() => dispatch(openPath({
                 id: tabID,
@@ -281,6 +236,17 @@ export const UserSidebar = ({ userID, tabID }) => {
           <Icon icon='plus' size={14} style={{paddingRight: '0.6rem'}}/>
           Create new tag
         </div>
+      </div>  
+      <div className="SidebarBlock">
+        <div className="SidebarHeader" onClick={() => setTreeIsOpen(!treeIsOpen)}>
+          <Icon icon='diagram-tree' size={15} style={{marginLeft: '-0.5rem', marginRight: '0.3rem', padding: '0.5rem', borderRadius: '50%', background: '#00003020', boxShadow: treeIsOpen ? 'inset 0 0 0 1px rgb(17 20 24 / 20%), inset 0 1px 2px rgb(17 20 24 / 20%)' : ''}}/>
+          Tree Navigation
+        </div>
+        {treeIsOpen && 
+        <div style={{maxHeight: '400px', overflow: 'auto'}}>
+          <TreeView entities={entitiesList ? entitiesList : []} user={user} tabID={tabID} onlyFolders={true} view='tree-view'/>
+        </div>
+        }
       </div>
     </div>
   );
