@@ -1,8 +1,9 @@
 import { Spinner } from '@blueprintjs/core';
 import ReactTimeAgo from 'react-time-ago';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Menu, MenuItem, MenuDivider } from "@blueprintjs/core";
+import { createTab, switchActiveTab } from '../services/tabSlice';
 import { ContextMenu2 } from "@blueprintjs/popover2";
 
 import { humanFileSize } from '../services/filesMiscellaneous';
@@ -15,6 +16,8 @@ import IconViewElement from './IconViewElement';
 import TreeViewElement from './TreeViewElement';
 
 import './FileElement.css';
+import { selectEntity } from '../services/fileManagerService';
+import { selectUserByID } from '../services/userSlice';
 
 export const HumanReadableTime = ({epoch}) => {
   if (epoch)
@@ -65,23 +68,44 @@ export function doubleClickHandler(entity, tabID) {
 
 const FileElementContextMenu = ({target}) => {
   const tab = useSelector(selectActiveTab);
+  const userID = tab.pathHistory.at(-1).userID;
+  const user = useSelector(selectUserByID(userID));
   const entity = target.props.entity;
   const highlightedEntities = tab.highlightedEntities;
   const multipleSelected = Object.keys(highlightedEntities).length > 1;
+  const dispatch = useDispatch();
+
+  async function openContainingFolder() {
+    const parent = await selectEntity(entity.parents[0], user);
+
+    const newTabID = dispatch(createTab({
+      pathObject: {
+        name: parent.name,
+        path: entity.parents[0],
+        userID
+      }
+    }));
+    dispatch(switchActiveTab(newTabID));
+    dispatch(toggleHighlight({tabID: newTabID, targetFile: entity}));
+  }
 
   return (
     <ContextMenu2
       content={
         <Menu>
           {!multipleSelected && <MenuItem icon="document-open" text="Open" onClick={() => doubleClickHandler(entity, tab.id)} />}
-          <MenuItem
-            icon="folder-shared-open"
-            text="Open containing folder"
-            shouldDismissPopover={false}
-          />
+          {
+          !multipleSelected && entity.parents && 
+            <MenuItem
+              icon="folder-shared-open"
+              text="Open containing folder"
+              shouldDismissPopover={false}
+              onClick = {openContainingFolder}
+            />
+          }
           {/* <MenuItem icon="star" text="Add to Starred" /> */}
           {/* <MenuItem icon="star-empty" text="Remove from Starred" /> */}
-          <MenuDivider />
+          {!multipleSelected && <MenuDivider />}
           <MenuItem icon="cut" text="Cut"/>
           <MenuItem icon="duplicate" text="Copy"/>
           {/* <MenuItem icon="clipboard" text="Paste"/> */}

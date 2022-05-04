@@ -2,16 +2,46 @@ import { Icon } from "@blueprintjs/core";
 import ReactDOM from 'react-dom';
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { openPath, clearHighlights, selectTab } from '../services/tabSlice';
-import { selectEntitiesInsideFolder, selectDirectoryTreeForUser } from '../services/fileManagerService';
+import { openPath, clearHighlights, selectTab, createTab, switchActiveTab, selectActiveTab, selectActiveTabID } from '../services/tabSlice';
+import { selectEntitiesInsideFolder, selectDirectoryTreeForUser, selectEntity } from '../services/fileManagerService';
 import { TreeView } from "./FileElementList";
-import { selectUserByID } from "../services/userSlice";
+import { selectUserByID, selectUsers } from "../services/userSlice";
 
 const SidebarElement = ({ icon, text, size })  => {
   return (
     <div className="SidebarElement">
       <Icon icon={ icon } size={size} style={{paddingRight: '0.6rem'}}/>
       { text }
+    </div>
+  );
+}
+
+const UserElement = ({ user })  => {
+  const dispatch = useDispatch();
+  const tab = useSelector(selectActiveTab);
+
+  function openUserDrive() {
+    dispatch(openPath({
+      id: tab.id,
+      path: {
+        path: 'root',
+        name: 'My Drive',
+        userID: user.minifiedID
+      }
+    }));
+  }
+
+  const style = tab.pathHistory.at(-1).userID === user.minifiedID ? {background: '#d4d2fb'} : {};
+
+  return (
+    <div className="SidebarElement" onClick={openUserDrive} style={style}>
+      <img
+        src={user && user.photoLink}
+        alt="user profile"
+        referrerPolicy="no-referrer"
+        style={{borderRadius: '50%', width: '28px', height: '28px', marginRight: '0.5rem'}}
+      />
+      { user.displayName }
     </div>
   );
 }
@@ -46,7 +76,7 @@ export const DashboardSidebar = () => {
           <Icon icon='cloud' size={15} style={{paddingRight: '0.6rem'}}/>
           Drives
         </div>
-        <SidebarElement icon='cloud' size={15} text='College Drive' />
+        <SidebarElement icon='cloud' size={15} text='Drive Drive' />
         <SidebarElement icon='cloud' size={15} text='Personal Drive' />
       </div>
       <div className="SidebarBlock">
@@ -114,6 +144,7 @@ export const UserSidebar = ({ userID, tabID }) => {
   const activePath = tab.pathHistory.at(tab.activePathIndex);
   const directoryTreeChange = useSelector(selectDirectoryTreeForUser(userID));
   const user = useSelector(selectUserByID(userID));
+  const users = useSelector(selectUsers);
 
   function refreshSidebarTree() {
 
@@ -148,8 +179,9 @@ export const UserSidebar = ({ userID, tabID }) => {
           <Icon icon='cloud' size={15} style={{paddingRight: '0.6rem'}}/>
           Drives
         </div>
-        <SidebarElement icon='cloud' size={15} text='College Drive' />
-        <SidebarElement icon='cloud' size={15} text='Personal Drive' />
+        {
+          users.map(user => <UserElement user={user}/>)
+        }
       </div>
       <div className="SidebarBlock">
         
@@ -195,7 +227,11 @@ export const UserSidebar = ({ userID, tabID }) => {
           <Icon icon='diagram-tree' size={15} style={{marginLeft: '-0.5rem', marginRight: '0.3rem', padding: '0.5rem', borderRadius: '50%', background: '#00003020', boxShadow: 'inset 0 0 0 1px rgb(17 20 24 / 20%), inset 0 1px 2px rgb(17 20 24 / 20%)'}}/>
           Tree Navigation
         </div>
-        {treeIsOpen && <TreeView entities={entitiesList ? entitiesList : []} user={user} tabID={tabID} onlyFolders={true} view='tree-view'/>}
+        {treeIsOpen && 
+        <div style={{maxHeight: '400px', overflow: 'auto'}}>
+          <TreeView entities={entitiesList ? entitiesList : []} user={user} tabID={tabID} onlyFolders={true} view='tree-view'/>
+        </div>
+        }
       </div>
       <div className="SidebarBlock">
         <div className="SidebarHeader">

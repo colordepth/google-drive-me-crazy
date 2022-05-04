@@ -19,7 +19,7 @@ const UserCard = ({user, tabID}) => {
         id: tabID,
         path: {
           path: 'root',
-          name: "College",
+          name: "Drive",
           userID: user.minifiedID
         }
       }));
@@ -30,7 +30,7 @@ const UserCard = ({user, tabID}) => {
       </div>
       <div>
         <div>
-          <b style={{color: '#333'}}>College</b><br/><br/>
+          <b style={{color: '#333'}}>Drive</b><br/><br/>
           <span style={{color: '#555'}}>{user.emailAddress}</span><br/>
         </div>
       </div>
