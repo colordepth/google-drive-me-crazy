@@ -21,6 +21,10 @@ import { addFileToTag, selectEntity } from '../services/fileManagerService';
 import { selectUserByID, setCreateTagVisibility } from '../services/userSlice';
 import { updateProperty } from '../services/filesUpdate';
 
+import { Toaster, Position } from "@blueprintjs/core";
+import { clearClipboard, setClipboard } from '../services/clipboardSlice';
+import { renameEntity, moveEntitiesToFolder } from '../services/fileManagerService';
+
 export const HumanReadableTime = ({epoch}) => {
   if (epoch)
     return <span><ReactTimeAgo date={ new Date(epoch)}/></span>
@@ -68,12 +72,50 @@ export function doubleClickHandler(entity, tabID) {
     window.open(entity.webViewLink);
 }
 
+const AppToaster = Toaster.create({
+  className: "recipe-toaster",
+  position: Position.BOTTOM_RIGHT,
+});
+
+function moveToClipboard(entities, mode, dispatch) {
+  dispatch(setClipboard({entities, mode}));
+  AppToaster.show({ message: `Added ${entities.length} files to clipboard` });
+}
+
+function pasteToFolder(clipboard, targetFolderID, credentials, dispatch) {
+  // if directoryTree is not built, changes will not reflect on the screen.
+
+  if (clipboard.mode === 'cut') {
+    moveEntitiesToFolder(clipboard.entities, targetFolderID, credentials)
+      .then(results => {
+        console.log("Successfully moved", results);
+        dispatch(clearClipboard());
+        AppToaster.show({ message: `Pasted ${clipboard.entities.length} files successfully`})
+      })
+  }
+}
+
+function renameSelectedFile(entityID, credentials) {
+  // TODO: renameEntity will only reflect on screen after directory tree is initialized.
+  const newName = prompt("Enter new file name");
+
+  if (!newName) return;
+
+  renameEntity(entityID, newName, credentials)
+    .then(result => {
+      console.log(result);
+    })
+}
+
 const FileElementContextMenu = React.memo(({target}) => {
   const tab = useSelector(selectActiveTab);
   const userID = tab.pathHistory.at(-1).userID;
   const user = useSelector(selectUserByID(userID));
   const entity = target.props.entity;
   const highlightedEntities = tab.highlightedEntities;
+  const highlightedEntitiesList = Object
+    .keys(tab.highlightedEntities)
+    .map(entityID => tab.highlightedEntities[entityID]);
   const multipleSelected = Object.keys(highlightedEntities).length > 1;
   const dispatch = useDispatch();
 
@@ -117,11 +159,11 @@ const FileElementContextMenu = React.memo(({target}) => {
           {/* <MenuItem icon="star" text="Add to Starred" /> */}
           {/* <MenuItem icon="star-empty" text="Remove from Starred" /> */}
           {!multipleSelected && <MenuDivider />}
-          <MenuItem icon="cut" text="Cut"/>
-          <MenuItem icon="duplicate" text="Copy"/>
+          <MenuItem icon="cut" text="Cut" onClick={() => moveToClipboard(highlightedEntitiesList, 'cut', dispatch)}/>
+          <MenuItem icon="duplicate" text="Copy" onClick={() => moveToClipboard(highlightedEntitiesList, 'cut', dispatch)}/>
           {/* <MenuItem icon="clipboard" text="Paste"/> */}
           <MenuDivider />
-          {!multipleSelected && <MenuItem icon="edit" text="Rename"/>}
+          {!multipleSelected && <MenuItem icon="edit" text="Rename" onClick={() => renameSelectedFile(highlightedEntitiesList[0].id, user)}/>}
           <MenuItem icon="trash" text="Move to Trash" intent='danger' />
           {!multipleSelected && <MenuItem icon="link" text="Share"/>}
           <MenuItem icon="tag" text="Add to tags">

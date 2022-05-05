@@ -178,7 +178,7 @@ const StorageAnalyzer = ({ userID, tab }) => {
   const allFiles = useSelector(selectFilesForUser(userID));
   const user = useSelector(selectUserByID(userID));
   const files = allFiles && allFiles.filter(file => 
-    file.owners && file.owners.length && file.owners[0].me
+    file.owners && file.owners.length && file.owners[0].me && !file.trashed
   );
   const dispatch = useDispatch();
   // const activeMajorFetchCount = useSelector(selectActiveMajorFetchCount(userID));

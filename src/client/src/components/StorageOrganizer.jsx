@@ -49,7 +49,7 @@ const DuplicateFilesManager = ({ userID, tab }) => {
     const fileChecksumMap = {};
 
     allFiles && allFiles.filter(file => 
-        file.owners && file.owners.length && file.owners[0].me
+        file.owners && file.owners.length && file.owners[0].me && !file.trashed
       ).forEach(file => {
         if (!file.md5Checksum) return;
         if (!fileChecksumMap[file.md5Checksum])

@@ -6,7 +6,6 @@ import { openPath, clearHighlights, selectTab, selectActiveTab } from '../servic
 import { selectEntitiesInsideFolder, selectDirectoryTreeForUser } from '../services/fileManagerService';
 import { TreeView } from "./FileElementList";
 import { addTag, selectUserByID, selectUsers, setCreateTagVisibility } from "../services/userSlice";
-import { Tooltip2 } from "@blueprintjs/popover2";
 
 const SidebarElement = ({ icon, text, size })  => {
   return (
@@ -154,7 +153,9 @@ export const UserSidebar = ({ userID, tabID }) => {
                 userID: null
               }
             }));
-          }}>
+          }}
+          title="Visit homepage"
+          >
           <Icon icon='home' size={15} style={{paddingRight: '0.6rem'}}/>
           Home
         </div>
@@ -172,10 +173,6 @@ export const UserSidebar = ({ userID, tabID }) => {
 
       </div>
       <div className="SidebarBlock">
-        <div className={"SidebarHeader Clickable".concat(activePath == 'trash' ? ' HomeHeader' : '')} title="View or permanently delete trashed files">
-          <Icon icon='trash' size={15} style={{paddingRight: '0.6rem'}}/>
-          Trash
-        </div>
         <div style={{marginTop: "4px"}} className={"SidebarHeader Clickable".concat(activePath == 'storage-analyzer' ? ' HomeHeader' : '')}
           onClick={() => {
             dispatch(openPath({
@@ -208,6 +205,10 @@ export const UserSidebar = ({ userID, tabID }) => {
           <Icon icon='clean' size={15} style={{paddingRight: '0.6rem'}}/>
           Storage Organizer
         </div>
+        {/* <div className={"SidebarHeader Clickable".concat(activePath == 'trash' ? ' HomeHeader' : '')} title="View or permanently delete trashed files">
+          <Icon icon='trash' size={15} style={{paddingRight: '0.6rem'}}/>
+          Trash
+        </div> */}
       </div>
       <div className="SidebarBlock">
         <div className={"SidebarHeader"}>

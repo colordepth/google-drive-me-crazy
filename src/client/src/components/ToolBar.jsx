@@ -24,6 +24,7 @@ function pasteToFolder(clipboard, targetFolderID, credentials, dispatch) {
       .then(results => {
         console.log("Successfully moved", results);
         dispatch(clearClipboard());
+        AppToaster.show({ message: `Pasted ${clipboard.entities.length} files successfully`})
       })
   }
 }
@@ -46,7 +47,7 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
   const dispatch = useDispatch();
 
   return (
-    <div className="ToolBar">
+    <div className="ToolBar" style={{display: 'flex', alignItems: 'center'}}>
       <FileUpload isOpen={overlayState} onClose={() => setOverlayState(false)} user={user} targetFolderID={targetFolderID}/>
       <Button
         small
@@ -57,6 +58,7 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
         onClick={() => setOverlayState(true)}
         className = {!['storage-analyzer', 'storage-organizer'].find(x => targetFolderID==x) ? '' : 'Hidden'}
       />
+      {targetFolderID === 'storage-organizer' && <span style={{display: 'flex', alignItems: 'center', fontWeight: '600', fontSize: '18px'}}>Duplicate Files</span>}
       <ButtonGroup>
         <Button small minimal icon='cut'
           className={highlightedEntitiesList.length ? '':'Hidden'}
@@ -66,7 +68,7 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
         <Button small minimal icon='duplicate'
           className={highlightedEntitiesList.length ? '':'Hidden'}
           text="Copy"
-          onClick={() => moveToClipboard(highlightedEntitiesList, 'copy', dispatch)}
+          onClick={() => moveToClipboard(highlightedEntitiesList, 'cut', dispatch)}
         />
         <Button small minimal icon='clipboard'
           className={clipboard.entities.length && !['storage-analyzer', 'storage-organizer'].find(x => targetFolderID==x) ? '':'Hidden'}
