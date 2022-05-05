@@ -34,6 +34,16 @@ export function renameEntity(entityID, newName, credentials) {
     })
 }
 
+export function trashEntity(entityID, credentials) {
+
+  return filesUpdate.trashEntity(entityID, credentials)
+    .then(result => {
+      store.dispatch(directoryTreeSlice.updateFilesAndFolders(credentials.minifiedID, [result]));
+      store.dispatch(directoryTreeSlice.recalculateDirectoryTree(credentials.minifiedID));
+      return result;
+    })
+}
+
 export function addFileToTag(entityID, [key, value], credentials) {
   return filesUpdate.updateProperty(entityID, [key.replace(' ', '&'), value], credentials)
     .then(result => {

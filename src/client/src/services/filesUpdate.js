@@ -15,6 +15,19 @@ export function renameEntity(entityID, newName, credentials) {
   .then(res => res.data);
 }
 
+export function trashEntity(entityID, credentials) {
+  return axios.patch(baseUrlDriveAPI + '/files/' + entityID, {
+    trashed: true
+  },
+  {
+    headers: { Authorization: `Bearer ${credentials.accessToken}`},
+    params: {
+      fields: '*',
+    }
+  })
+  .then(res => res.data);
+}
+
 export function updateProperty(entityID, [key, value], credentials) {
   const appProperties = {};
   appProperties[key] = value;

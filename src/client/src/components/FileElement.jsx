@@ -23,7 +23,7 @@ import { updateProperty } from '../services/filesUpdate';
 
 import { Toaster, Position } from "@blueprintjs/core";
 import { clearClipboard, setClipboard } from '../services/clipboardSlice';
-import { renameEntity, moveEntitiesToFolder } from '../services/fileManagerService';
+import { renameEntity, moveEntitiesToFolder, trashEntity } from '../services/fileManagerService';
 
 export const HumanReadableTime = ({epoch}) => {
   if (epoch)
@@ -82,18 +82,12 @@ function moveToClipboard(entities, mode, dispatch) {
   AppToaster.show({ message: `Added ${entities.length} files to clipboard` });
 }
 
-function pasteToFolder(clipboard, targetFolderID, credentials, dispatch) {
-  // if directoryTree is not built, changes will not reflect on the screen.
-
-  if (clipboard.mode === 'cut') {
-    moveEntitiesToFolder(clipboard.entities, targetFolderID, credentials)
-      .then(results => {
-        console.log("Successfully moved", results);
-        dispatch(clearClipboard());
-        AppToaster.show({ message: `Pasted ${clipboard.entities.length} files successfully`})
-      })
-  }
+function trashEntities(entities, user) {
+  AppToaster.show({ message: `Deleting ${entities.length}...` });
+  Promise.all(entities.map(entity => trashEntity(entity.id, user)))
+  .then(() => AppToaster.show({ message: `Deleted ${entities.length} items`, intent: 'danger' }))
 }
+
 
 function renameSelectedFile(entityID, credentials) {
   // TODO: renameEntity will only reflect on screen after directory tree is initialized.
@@ -104,6 +98,7 @@ function renameSelectedFile(entityID, credentials) {
   renameEntity(entityID, newName, credentials)
     .then(result => {
       console.log(result);
+      AppToaster.show({ message: `Rename successful`, intent: 'success' });
     })
 }
 
@@ -164,7 +159,7 @@ const FileElementContextMenu = React.memo(({target}) => {
           {/* <MenuItem icon="clipboard" text="Paste"/> */}
           <MenuDivider />
           {!multipleSelected && <MenuItem icon="edit" text="Rename" onClick={() => renameSelectedFile(highlightedEntitiesList[0].id, user)}/>}
-          <MenuItem icon="trash" text="Move to Trash" intent='danger' />
+          <MenuItem icon="trash" text="Move to Trash" intent='danger' onClick={() => trashEntities(highlightedEntitiesList, user)}/>
           {!multipleSelected && <MenuItem icon="link" text="Share"/>}
           <MenuItem icon="tag" text="Add to tags">
             {user && user.tags.map(tag => <MenuItem key={tag.name} icon="tag" text={tag.name.replace('&', ' ')} onClick={() => addHighlightedItemsToTag(tag)}/>)}

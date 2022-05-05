@@ -4,7 +4,8 @@ import { Button, ButtonGroup, Text, Toaster, Position } from "@blueprintjs/core"
 import FileUpload from './FileUpload';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearClipboard, selectClipboard, setClipboard } from '../services/clipboardSlice';
-import { renameEntity, moveEntitiesToFolder } from '../services/fileManagerService';
+import { renameEntity, moveEntitiesToFolder, trashEntity } from '../services/fileManagerService';
+import { selectDirectoryTreeForUser, setDirectoryTreeTo, updateFilesAndFolders } from '../services/directoryTreeSlice';
 
 const AppToaster = Toaster.create({
   className: "recipe-toaster",
@@ -13,18 +14,24 @@ const AppToaster = Toaster.create({
 
 function moveToClipboard(entities, mode, dispatch) {
   dispatch(setClipboard({entities, mode}));
-  AppToaster.show({ message: `Added ${entities.length} files to clipboard` });
+  AppToaster.show({ message: `Added ${entities.length} items to clipboard`});
+}
+
+function trashEntities(entities, user) {
+  AppToaster.show({ message: `Deleting ${entities.length} items...` });
+  Promise.all(entities.map(entity => trashEntity(entity.id, user)))
+  .then(() => AppToaster.show({ message: `Deleted ${entities.length} items`, intent: 'danger' }))
 }
 
 function pasteToFolder(clipboard, targetFolderID, credentials, dispatch) {
     // if directoryTree is not built, changes will not reflect on the screen.
-
+  AppToaster.show({ message: `Pasting ${clipboard.entities.length} files...` });
   if (clipboard.mode === 'cut') {
     moveEntitiesToFolder(clipboard.entities, targetFolderID, credentials)
       .then(results => {
         console.log("Successfully moved", results);
         dispatch(clearClipboard());
-        AppToaster.show({ message: `Pasted ${clipboard.entities.length} files successfully`})
+        AppToaster.show({ message: `Pasted ${clipboard.entities.length} items successfully ✅`, intent: 'success'})
       })
   }
 }
@@ -38,6 +45,7 @@ function renameSelectedFile(entityID, credentials) {
   renameEntity(entityID, newName, credentials)
     .then(result => {
       console.log(result);
+      AppToaster.show({ message: `Rename successful`, intent: 'success' });
     })
 }
 
@@ -84,6 +92,7 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
       <Button small minimal intent='danger' icon='trash'
         className={highlightedEntitiesList.length ? '':'Hidden'}
         text="Trash"
+        onClick={() => trashEntities(highlightedEntitiesList, user)}
       />
       
       <div style={{alignItems: 'stretch', overflow: 'hidden', marginLeft: 'auto', marginRight: '2rem', display: 'flex'}}>
