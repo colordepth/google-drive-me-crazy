@@ -81,7 +81,7 @@ const FileExplorer = ({ userID, tab }) => {
         userID
       }
     }));
-    AppToaster.show({ message: "Toasted.." });
+    // AppToaster.show({ message: "Toasted.." });
   }
 
   useEffect(refreshFileListData, [ activePath, directoryTreeChange ]);

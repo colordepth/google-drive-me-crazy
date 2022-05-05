@@ -240,6 +240,13 @@ const StorageAnalyzer = ({ userID, tab }) => {
         setViewMode={ () => {} }
       /> */}
       <NavigationBar tab={ tab } user= { user } folderOpenHandler={ () => {} } />
+      <ToolBar
+        highlightedEntitiesList={ highlightedEntitiesList }
+        user={ user }
+        targetFolderID={ 'storage-analyzer' }
+        viewMode={ 'list-view' }
+        setViewMode={ () => {} }
+      />
       <div className='StorageGraphs'>
         <DonutChart name='fileSize'/>
         <DonutChart name='fileCount'/>

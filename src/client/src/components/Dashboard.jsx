@@ -116,12 +116,12 @@ const DashboardTabs = ({tab}) => {
         >
           <Icon size={14} icon='time' /><span>Recent Files</span>
         </span>
-        <span
+        {/* <span
           style={activeTab === "Starred Files" ? activeTabStyle : tabStyle}
           onClick={() => setActiveTab('Starred Files')}
         >
           <Icon size={14} icon='star' /><span>Starred Files</span>
-        </span>
+        </span> */}
       </div>
       <div style={dashboardTabContentStyle}>
         {activeTab === "Recent Files" ? <RecentFiles tab={tab} files={files} user={user}/> : <PinnedItems tab={tab}/>}

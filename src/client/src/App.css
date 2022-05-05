@@ -121,7 +121,6 @@
   font-size: 15px;
   font-weight: 600;
   color:  #444;
-  cursor: pointer;
   border-radius: 10px;
   margin-right: 2.5rem;
 }
@@ -134,14 +133,14 @@
   font-size: 15px;
   font-weight: 400;
   color: #808188;
-  cursor: pointer;
   border-radius: 15px;
   margin-right: 2.5rem;
   margin-left: 0.3rem;
 }
 
-.SidebarElement:hover, .SidebarHeader:hover {
+.SidebarElement:hover, .Clickable:hover {
   background: #e4e2fb;
+  cursor: pointer;
 }
 
 .HomeHeader {
@@ -272,7 +271,7 @@ span[icon="cross"]:hover {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: #c3c1d6;
-  background: linear-gradient(to bottom, #d0cee1, #b3b2c6);
+  background: linear-gradient(to bottom, #d0cee1, #c5c4e7, #d0cee1);
 }
 
 /* Handle on hover */

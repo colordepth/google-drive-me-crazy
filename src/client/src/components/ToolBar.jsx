@@ -1,13 +1,19 @@
 import { useState } from 'react';
-import { Button, ButtonGroup, Text } from "@blueprintjs/core";
+import { Button, ButtonGroup, Text, Toaster, Position } from "@blueprintjs/core";
 
 import FileUpload from './FileUpload';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearClipboard, selectClipboard, setClipboard } from '../services/clipboardSlice';
 import { renameEntity, moveEntitiesToFolder } from '../services/fileManagerService';
 
+const AppToaster = Toaster.create({
+  className: "recipe-toaster",
+  position: Position.BOTTOM_RIGHT,
+});
+
 function moveToClipboard(entities, mode, dispatch) {
   dispatch(setClipboard({entities, mode}));
+  AppToaster.show({ message: `Added ${entities.length} files to clipboard` });
 }
 
 function pasteToFolder(clipboard, targetFolderID, credentials, dispatch) {
@@ -86,6 +92,7 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
           <Button small style={{padding: '0 15px'}} icon='grid'
             onClick={() => setViewMode('icon-view')}
             active={viewMode === 'icon-view'}
+            disabled={targetFolderID==='storage-analyzer'}
           />
           <Button small style={{padding: '0 15px'}} icon='th'
             onClick={() => setViewMode('detail-view')}
@@ -94,6 +101,7 @@ const ToolBar = ({ highlightedEntitiesList, user, targetFolderID, viewMode, setV
           <Button small style={{padding: '8px 15px'}} icon='diagram-tree'
             onClick={() => setViewMode('tree-view')}
             active={viewMode === 'tree-view'}
+            disabled={targetFolderID==='storage-analyzer'}
           />
           {/* <Button small style={{padding: '0 15px'}} icon='list-columns'
             onClick={() => setViewMode('list-view')}

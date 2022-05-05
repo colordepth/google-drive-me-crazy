@@ -21,9 +21,13 @@
   gap: 1rem;
   background: #8b64ff0c;
   cursor: pointer;
-  box-shadow: 0px 2x 0px 0px #DEDEDE;
+  box-shadow: 2px 2px 0px #989898;
   margin: 1rem 1rem 0rem 0rem;
   padding: 1rem;
+}
+
+.UserCard:hover {
+  background: #2500930f;
 }
 
 .DashboardTitle {

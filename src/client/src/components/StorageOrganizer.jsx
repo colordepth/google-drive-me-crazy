@@ -40,7 +40,7 @@ function resetHighlightedFiles(clickedNode, dispatch, tabID) {
 
 const DuplicateFilesManager = ({ userID, tab }) => {
   
-  const [viewMode, setViewMode] = useState('list-view');
+  const [viewMode, setViewMode] = useState('icon-view');
   const allFiles = useSelector(selectFilesForUser(userID));
   const user = useSelector(selectUserByID(userID));
   const [duplicateFilesLists, setDuplicateFilesLists] = useState([]);
@@ -73,7 +73,7 @@ const DuplicateFilesManager = ({ userID, tab }) => {
       <ToolBar
         highlightedEntitiesList={ highlightedEntitiesList }
         user={ user }
-        targetFolderID={ 'storage-analyzer' }
+        targetFolderID={ 'storage-organizer' }
         viewMode={ viewMode }
         setViewMode={ setViewMode }
       />

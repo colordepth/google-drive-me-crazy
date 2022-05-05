@@ -6,6 +6,7 @@ import { openPath, clearHighlights, selectTab, selectActiveTab } from '../servic
 import { selectEntitiesInsideFolder, selectDirectoryTreeForUser } from '../services/fileManagerService';
 import { TreeView } from "./FileElementList";
 import { addTag, selectUserByID, selectUsers, setCreateTagVisibility } from "../services/userSlice";
+import { Tooltip2 } from "@blueprintjs/popover2";
 
 const SidebarElement = ({ icon, text, size })  => {
   return (
@@ -59,7 +60,7 @@ export const DashboardSidebar = () => {
   return (
     <div className="SideBar">
       <div className="SidebarBlock">
-        <div className="SidebarHeader HomeHeader">
+        <div className="SidebarHeader HomeHeader" title="Visit homepage">
           <Icon icon='home' size={15} style={{paddingRight: '0.6rem'}}/>
           Home
         </div>
@@ -70,7 +71,7 @@ export const DashboardSidebar = () => {
           Drives
         </div>
         {
-          users && users.map(user => <UserElement user={user}/>)
+          users && users.map(user => <UserElement key={user.emailAddress} user={user}/>)
         }
       </div>
     </div>
@@ -144,7 +145,7 @@ export const UserSidebar = ({ userID, tabID }) => {
   return (
     <div className="SideBar" onClick={(event) => resetHighlightedFiles(event.target, dispatch, tabID)}>
       <div className="SidebarBlock">
-        <div className={"SidebarHeader".concat(activePath == 'dashboard' ? ' HomeHeader' : '')} onClick={() => {
+        <div className={"SidebarHeader Clickable".concat(activePath == 'dashboard' ? ' HomeHeader' : '')} onClick={() => {
             dispatch(openPath({
               id: tabID,
               path: {
@@ -171,11 +172,11 @@ export const UserSidebar = ({ userID, tabID }) => {
 
       </div>
       <div className="SidebarBlock">
-        <div className={"SidebarHeader".concat(activePath == 'trash' ? ' HomeHeader' : '')}>
+        <div className={"SidebarHeader Clickable".concat(activePath == 'trash' ? ' HomeHeader' : '')} title="View or permanently delete trashed files">
           <Icon icon='trash' size={15} style={{paddingRight: '0.6rem'}}/>
           Trash
         </div>
-        <div style={{marginTop: "4px"}} className={"SidebarHeader".concat(activePath == 'storage-analyzer' ? ' HomeHeader' : '')}
+        <div style={{marginTop: "4px"}} className={"SidebarHeader Clickable".concat(activePath == 'storage-analyzer' ? ' HomeHeader' : '')}
           onClick={() => {
             dispatch(openPath({
               id: tabID,
@@ -186,11 +187,12 @@ export const UserSidebar = ({ userID, tabID }) => {
               }
             }));
           }}
+          title="Understand how your drive data is being used"
         >
           <Icon icon='database' size={15} style={{paddingRight: '0.6rem'}}/>
           Storage Analyzer
         </div>
-        <div style={{marginTop: "4px"}} className={"SidebarHeader".concat(activePath == 'storage-organizer' ? ' HomeHeader' : '')}
+        <div style={{marginTop: "4px"}} className={"SidebarHeader Clickable".concat(activePath == 'storage-organizer' ? ' HomeHeader' : '')}
           onClick={() => {
             dispatch(openPath({
               id: tabID,
@@ -201,6 +203,7 @@ export const UserSidebar = ({ userID, tabID }) => {
               }
             }));
           }}
+          title="Find duplicate or untitled files in your drive"
         >
           <Icon icon='clean' size={15} style={{paddingRight: '0.6rem'}}/>
           Storage Organizer
@@ -238,12 +241,12 @@ export const UserSidebar = ({ userID, tabID }) => {
         </div>
       </div>  
       <div className="SidebarBlock">
-        <div className="SidebarHeader" onClick={() => setTreeIsOpen(!treeIsOpen)}>
+        <div className="SidebarHeader Clickable" onClick={() => setTreeIsOpen(!treeIsOpen)}>
           <Icon icon='diagram-tree' size={15} style={{marginLeft: '-0.5rem', marginRight: '0.3rem', padding: '0.5rem', borderRadius: '50%', background: '#00003020', boxShadow: treeIsOpen ? 'inset 0 0 0 1px rgb(17 20 24 / 20%), inset 0 1px 2px rgb(17 20 24 / 20%)' : ''}}/>
           Tree Navigation
         </div>
         {treeIsOpen && 
-        <div style={{maxHeight: '400px', overflow: 'auto'}}>
+        <div style={true ?  {marginBottom: '1.5rem'} : {maxHeight: '400px', overflow: 'auto'}}>
           <TreeView entities={entitiesList ? entitiesList : []} user={user} tabID={tabID} onlyFolders={true} view='tree-view'/>
         </div>
         }

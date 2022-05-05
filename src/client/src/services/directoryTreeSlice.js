@@ -266,6 +266,10 @@ function buildDirectoryStructure(folders, files) {
 
     if (entity.isRoot)
       directoryTree['root'] = directoryTree[entity.id];
+    
+    ["createdTime", "viewedByMeTime", "modifiedTime"].forEach(key => {
+      if (entity[key]) entity[key] = new Date(entity[key])
+    })
   });
 
   var noParent = 0;
@@ -308,14 +312,14 @@ export const fetchDirectoryStructure = (userID) => dispatch => {
   // Fetches all files and folders.
   // Builds tree, calculates foldersize and sets directoryTree to it.
 
-  const fieldsForDirectoryTree = ['id', 'parents', 'mimeType', 'quotaBytesUsed', 'appProperties'];
+  const fieldsForDirectoryTree = ['id', 'parents', 'mimeType', 'quotaBytesUsed', 'appProperties', 'createdTime'];
   const fieldsForStorageAnalyzer = ['id', 'mimeType', 'quotaBytesUsed'];
   
   const remainingFieldsForFolderList = ['id', 'name', 'iconLink', 'modifiedTime', 'viewedByMeTime'];
   const remainingFieldsForFileList = remainingFieldsForFolderList.concat('webViewLink');
 
   const miscFields = ['id', 'owners', 'version', 'trashed', 'explicitlyTrashed', 'thumbnailLink',
-    'createdTime', 'sharingUser', 'lastModifyingUser', 'md5Checksum', 'exportLinks',
+    'sharingUser', 'lastModifyingUser', 'md5Checksum', 'exportLinks',
     'capabilities', 'hasThumbnail', 'trashingUser', 'trashedTime', 'permissionIds', 'starred'
   ];
   // Note: thumbnail link expires after a few hours. it must be refreshed forcibly, cant be cached

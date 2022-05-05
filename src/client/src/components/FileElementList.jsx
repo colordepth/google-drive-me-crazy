@@ -24,39 +24,66 @@ function EmptyFolder() {
   );
 }
 
-const FileElementHeader = () => {
+const FileElementHeader = ({caretSortBy, isAscending, toggleIsAscending, setCaretSortBy}) => {
+
   return (
     <>
-      <span style={{gridColumn: '1 / span 2', display: 'flex', alignItems: 'center'}}>
+      <span style={{gridColumn: '1 / span 2', display: 'flex', alignItems: 'center'}} onClick={() => {toggleIsAscending(); setCaretSortBy('name')}}>
         <span style={{marginRight: '4px'}}>File Name</span>
-        <Icon icon='caret-down' color='#777' size={13}/>
+        {caretSortBy==='name' && (!isAscending) && <Icon icon='caret-down' color='#777' size={13}/>}
+        {caretSortBy==='name' && (isAscending) && <Icon icon='caret-up' color='#777' size={13}/>}
+        {caretSortBy!=='name' && <Icon icon='double-caret-vertical' color='#777' size={13}/>}
       </span>
-      <span style={{display: 'flex', alignItems: 'center'}}>
-        <span style={{marginRight: '5px'}}>Last Viewed</span>
-        <Icon icon='double-caret-vertical' color='#777' size={13}/>
+      <span style={{display: 'flex', alignItems: 'center'}} onClick={() => {toggleIsAscending(); setCaretSortBy('viewedByMeTime')}}>
+        <span style={{marginRight: '5px'}} >Last Viewed</span>
+        {caretSortBy==='viewedByMeTime' && isAscending && <Icon icon='caret-down' color='#777' size={13}/>}
+        {caretSortBy==='viewedByMeTime' && (!isAscending) && <Icon icon='caret-up' color='#777' size={13}/>}
+        {caretSortBy!=='viewedByMeTime' && <Icon icon='double-caret-vertical' color='#777' size={13}/>}
       </span>
-      <span style={{display: 'flex', alignItems: 'center'}}>
-        <span style={{marginRight: '5px'}}>Last Modified</span>
-        <Icon icon='double-caret-vertical' color='#777' size={13}/>
+      <span style={{display: 'flex', alignItems: 'center'}} onClick={() => {toggleIsAscending(); setCaretSortBy('modifiedTime')}}>
+        <span style={{marginRight: '5px'}} >Last Modified</span>
+        {caretSortBy==='modifiedTime' && isAscending && <Icon icon='caret-down' color='#777' size={13}/>}
+        {caretSortBy==='modifiedTime' && (!isAscending) && <Icon icon='caret-up' color='#777' size={13}/>}
+        {caretSortBy!=='modifiedTime' && <Icon icon='double-caret-vertical' color='#777' size={13}/>}
       </span>
-      <span style={{display: 'flex', alignItems: 'center', margin: 'auto'}}>
-        <span style={{marginRight: '5px'}}>Size</span>
-        <Icon icon='double-caret-vertical' color='#777' size={13}/>
+      <span style={{display: 'flex', alignItems: 'center', margin: 'auto'}} onClick={() => {toggleIsAscending(); setCaretSortBy('quotaBytesUsed')}}>
+        <span style={{marginRight: '5px'}} >Size</span>
+        {caretSortBy==='quotaBytesUsed' && isAscending && <Icon icon='caret-down' color='#777' size={13}/>}
+        {caretSortBy==='quotaBytesUsed' && (!isAscending) && <Icon icon='caret-up' color='#777' size={13}/>}
+        {caretSortBy!=='quotaBytesUsed' && <Icon icon='double-caret-vertical' color='#777' size={13}/>}
       </span>
     </>
   );
 }
 
-const ListView = ({entities, user, view, tabID, hideScrollbar}) => {
+const ListView = ({entities, user, view, tabID, hideScrollbar, sortBy, limit}) => {
   const style = hideScrollbar ? {overflowY: 'hidden'} : {};
+  const [caretSortBy, setCaretSortBy] = useState(sortBy || "name");
+  const [isAscending, setIsAscending] = useState(caretSortBy !== "name");
+
+  const sortedFiles = (caretSortBy ? entities.filter(entity => entity.mimeType !== "application/vnd.google-apps.folder").sort((a, b) => {
+    const bQuantity = caretSortBy === "name" ? b[caretSortBy].toLowerCase() : (b[caretSortBy] ? b[caretSortBy] : 0);
+    const aQuantity = caretSortBy === "name" ? a[caretSortBy].toLowerCase() : (a[caretSortBy] ? a[caretSortBy] : 0);
+
+    return (isAscending ? +1 : -1)*((bQuantity > aQuantity ? +1 : (bQuantity < aQuantity ? -1 : 0)))
+  }) : entities.filter(entity => entity.mimeType !== "application/vnd.google-apps.folder")).slice(0, limit);
+  
+  const sortedFolders = (caretSortBy ? entities.filter(entity => entity.mimeType === "application/vnd.google-apps.folder").sort((a, b) => {
+    if (!b[caretSortBy]) return b;
+
+    const bQuantity = caretSortBy === "name" ? b[caretSortBy].toLowerCase() : b[caretSortBy];
+    const aQuantity = caretSortBy === "name" ? a[caretSortBy].toLowerCase() : a[caretSortBy];
+
+    return (isAscending ? +1 : -1)*((bQuantity > aQuantity ? +1 : (bQuantity < aQuantity ? -1 : 0)))
+  }) : entities.filter(entity => entity.mimeType === "application/vnd.google-apps.folder")).slice(0, limit);
 
   return (
     <ul className="FileElementListContainer FileElementList" style={style}>
       <li className="DetailFileElementHeader" style={listStyle}>
-        <FileElementHeader/>
+        <FileElementHeader caretSortBy={caretSortBy} setCaretSortBy={setCaretSortBy} isAscending={isAscending} toggleIsAscending={() => setIsAscending(!isAscending)}/>
       </li>
       {
-      entities
+      [...sortedFolders, ...sortedFiles]
         .map(entity => (
           <li style={listStyle} key={entity.id}>
             <FileElement
@@ -74,12 +101,32 @@ const ListView = ({entities, user, view, tabID, hideScrollbar}) => {
 
 const IconView = ({entities, sortBy, limit, user, view, tabID, hideScrollbar}) => {
   const style = hideScrollbar ? {overflowY: 'hidden'} : {};
+
+  const [caretSortBy, setCaretSortBy] = useState(sortBy);
+  const [isAscending, setIsAscending] = useState(caretSortBy !== "name");
+
+  const sortedFiles = (caretSortBy ? entities.filter(entity => entity.mimeType !== "application/vnd.google-apps.folder").sort((a, b) => {
+    const bQuantity = caretSortBy === "name" ? b[caretSortBy].toLowerCase() : (b[caretSortBy] ? b[caretSortBy] : 0);
+    const aQuantity = caretSortBy === "name" ? a[caretSortBy].toLowerCase() : (a[caretSortBy] ? a[caretSortBy] : 0);
+
+    return (isAscending ? +1 : -1)*((bQuantity > aQuantity ? +1 : (bQuantity < aQuantity ? -1 : 0)))
+  }) : entities.filter(entity => entity.mimeType !== "application/vnd.google-apps.folder")).slice(0, limit);
   
+  const sortedFolders = (caretSortBy ? entities.filter(entity => entity.mimeType === "application/vnd.google-apps.folder").sort((a, b) => {
+    if (!b[caretSortBy]) return b;
+
+    const bQuantity = caretSortBy === "name" ? b[caretSortBy].toLowerCase() : b[caretSortBy];
+    const aQuantity = caretSortBy === "name" ? a[caretSortBy].toLowerCase() : a[caretSortBy];
+
+    return (isAscending ? +1 : -1)*((bQuantity > aQuantity ? +1 : (bQuantity < aQuantity ? -1 : 0)))
+  }) : entities.filter(entity => entity.mimeType === "application/vnd.google-apps.folder")).slice(0, limit);
+
+
   return (
     <div className="FileElementListContainer" style={style}>
       <ul className="FileElementList IconViewList">
         {
-        entities
+        [...sortedFolders, ...sortedFiles]
           .map(entity => (
             <li style={listStyle} key={entity.id}>
               <FileElement
@@ -192,16 +239,35 @@ const TreeFile = React.memo(({entity, user, tabID}) => {
 export const TreeView = React.memo(({entities, sortBy, limit, user, view, tabID, onlyFolders, hideScrollbar}) => {
   // List of trees below a Header
   const style = hideScrollbar ? {overflowY: 'hidden'} : {};
+  const [caretSortBy, setCaretSortBy] = useState(sortBy);
+  const [isAscending, setIsAscending] = useState(caretSortBy !== "name");
+
+  const sortedFiles = (caretSortBy ? entities.filter(entity => entity.mimeType !== "application/vnd.google-apps.folder").sort((a, b) => {
+    const bQuantity = caretSortBy === "name" ? b[caretSortBy].toLowerCase() : (b[caretSortBy] ? b[caretSortBy] : 0);
+    const aQuantity = caretSortBy === "name" ? a[caretSortBy].toLowerCase() : (a[caretSortBy] ? a[caretSortBy] : 0);
+
+    return (isAscending ? +1 : -1)*((bQuantity > aQuantity ? +1 : (bQuantity < aQuantity ? -1 : 0)))
+  }) : entities.filter(entity => entity.mimeType !== "application/vnd.google-apps.folder")).slice(0, limit);
+  
+  const sortedFolders = (caretSortBy ? entities.filter(entity => entity.mimeType === "application/vnd.google-apps.folder").sort((a, b) => {
+    if (!b[caretSortBy]) return b;
+
+    const bQuantity = caretSortBy === "name" ? b[caretSortBy].toLowerCase() : b[caretSortBy];
+    const aQuantity = caretSortBy === "name" ? a[caretSortBy].toLowerCase() : a[caretSortBy];
+
+    return (isAscending ? +1 : -1)*((bQuantity > aQuantity ? +1 : (bQuantity < aQuantity ? -1 : 0)))
+  }) : entities.filter(entity => entity.mimeType === "application/vnd.google-apps.folder")).slice(0, limit);
+
 
   return (
     <ul className={"FileElementListContainer FileElementList TreeViewList".concat(onlyFolders ? " SidebarTreeList" : "")} style={style}>
       {!onlyFolders && 
       <li className="DetailFileElementHeader" style={listStyle}>
-        <FileElementHeader/>
+        <FileElementHeader caretSortBy={caretSortBy} setCaretSortBy={setCaretSortBy} isAscending={isAscending} toggleIsAscending={() => setIsAscending(!isAscending)}/>
       </li>
       }
       {
-      entities
+      [...sortedFolders, ...sortedFiles]
         .map(entity => (
           <li style={listStyle} key={entity.id}>
             {
@@ -261,12 +327,11 @@ const FileElementList = ({entities, sortBy, loading, limit, user, view, tabID, h
   if (entities.length === 0)
     return (<div className="FileElementListContainer FileElementList centre-content"><EmptyFolder/></div>);
 
-  const sortedFiles = (sortBy ? entities.sort((a, b) => b[sortBy] - a[sortBy]) : entities).slice(0, limit);
-  const props = {entities: sortedFiles, sortBy, loading, limit, user, view, tabID, onlyFolders: false, hideScrollbar};
+  const props = {entities, sortBy: sortBy || "name", loading, limit, user, view, tabID, onlyFolders: false, hideScrollbar};
 
   if (view === 'icon-view') return <IconView {...props} />
   if (view === 'tree-view') return <TreeView {...props} />
-  if (view === 'column-view') return <ColumnView {...props} />  
+  // if (view === 'column-view') return <ColumnView {...props} />  
 
   return <ListView {...props} />
 }
